@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewType, UserProfile, Parcel, SensorProbe } from './types';
 import { INITIAL_USER, MOCK_PARCELS, MOCK_SENSORS } from './data/mockData';
+import { api } from './services/api';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { ExportModal } from './components/common/ExportModal';
@@ -45,18 +46,56 @@ export function App() {
     showToast('Session fermée avec succès.');
   };
 
-  const handleDeploySensor = (newSensor: SensorProbe) => {
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [apiParcels, apiSensors] = await Promise.all([
+          api.getParcels(),
+          api.getSensors(),
+        ]);
+        if (apiParcels && apiParcels.length > 0) {
+          setParcels(apiParcels);
+          setSelectedParcelId((prev) =>
+            apiParcels.some((p) => p.id === prev) ? prev : apiParcels[0].id
+          );
+        }
+        if (apiSensors && apiSensors.length > 0) {
+          setSensors(apiSensors);
+        }
+      } catch (err) {
+        console.warn('API sync warning:', err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const handleDeploySensor = async (newSensor: SensorProbe) => {
     setSensors((prev) => [newSensor, ...prev]);
+    try {
+      await api.deploySensor(newSensor);
+    } catch (err) {
+      console.warn('Failed to persist sensor:', err);
+    }
   };
 
-  const handleSaveParcel = (newParcel: Parcel) => {
+  const handleSaveParcel = async (newParcel: Parcel) => {
     setParcels((prev) => [newParcel, ...prev]);
     setSelectedParcelId(newParcel.id);
+    try {
+      await api.createParcel(newParcel);
+    } catch (err) {
+      console.warn('Failed to persist parcel:', err);
+    }
   };
 
-  const handleDeleteParcel = (parcelId: string) => {
+  const handleDeleteParcel = async (parcelId: string) => {
     setParcels((prev) => prev.filter((p) => p.id !== parcelId));
     showToast('Parcelle supprimée du registre.');
+    try {
+      await api.deleteParcel(parcelId);
+    } catch (err) {
+      console.warn('Failed to delete parcel on backend:', err);
+    }
   };
 
   // If on Sign-In screen, show full-screen sign-in view

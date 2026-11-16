@@ -188,24 +188,27 @@ Cette structure pourra évoluer lorsque l'implémentation React/Django commencer
 
 ## Démarrage du projet
 
-Les maquettes Stitch sont actuellement des prototypes statiques. Aucun démarrage
-React ou Django n'est encore fourni dans le dépôt.
+Le backend Django REST Framework et le frontend React sont prêts et connectés.
 
-Lorsque les applications seront initialisées, le démarrage local suivra ce principe :
+### Démarrage rapide
 
 ```bash
-# Frontend
-cd frontend
-npm install
-npm run dev
-
-# Backend
+# 1. Démarrer le Backend Django
 cd backend
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python manage.py migrate
-python manage.py runserver
+python manage.py seed_data      # Charge les parcelles, sondes IoT, VRA et prévisions
+python manage.py runserver 8000 # API active sur http://127.0.0.1:8000/api/
+
+# Exécuter la suite de tests backend
+python manage.py test api
+
+# 2. Démarrer le Frontend React (dans un autre terminal)
+cd frontend
+npm install
+npm run dev                    # Interface accessible sur http://localhost:5173
 ```
 
 Les variables sensibles devront être placées dans un fichier `.env` local et ne

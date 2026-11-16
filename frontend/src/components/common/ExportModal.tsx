@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Download, CheckCircle2, Layers } from 'lucide-react';
 import { Parcel } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -24,8 +25,31 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setIsExporting(true);
+    try {
+      if (format === 'geojson') {
+        const url = api.getParcelGeoJsonUrl(selectedParcel.id);
+        const res = await fetch(url);
+        if (res.ok) {
+          const blob = await res.blob();
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = `${selectedParcel.id || 'parcel'}.geojson`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(downloadUrl);
+        }
+      } else if (format === 'kml') {
+        const url = api.getParcelKmlUrl(selectedParcel.id);
+        window.open(url, '_blank');
+      }
+    } catch (err) {
+      console.warn('Direct API export fallback:', err);
+    }
+
     setTimeout(() => {
       setIsExporting(false);
       onClose();
@@ -34,7 +58,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           ? `Export réussi : ${selectedParcel.name} au format .${format.toUpperCase()} téléchargé.`
           : `Export successful: ${selectedParcel.name} downloaded in .${format.toUpperCase()} format.`
       );
-    }, 1200);
+    }, 1000);
   };
 
   return (
