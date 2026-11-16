@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="web_blank" name="shell-type"/>
+<title>Sign In | AgroField AI</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#059669",
+            "primary-dark": "#047857",
+            "primary-light": "#10b981",
+            "primary-subtle": "#ecfdf5",
+            "secondary": "#a73a00",
+            "secondary-container": "#ea580c",
+            "surface": "#f8fafc",
+            "on-surface": "#0f172a",
+            "on-surface-variant": "#475569",
+            "surface-dim": "#e2e8f0",
+            "surface-container-low": "#f1f5f9",
+            "surface-container": "#e2e8f0",
+            "surface-container-high": "#cbd5e1"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            heading: ['Plus Jakarta Sans', 'Inter', 'sans-serif']
+          },
+          boxShadow: {
+            'glow-emerald': '0 0 25px -5px rgba(5, 150, 105, 0.4)',
+            'glass': '0 20px 40px -15px rgba(15, 23, 42, 0.12), 0 0 1px 1px rgba(255, 255, 255, 0.8) inset',
+            'glass-subtle': '0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 0 1px 1px rgba(255, 255, 255, 0.7) inset'
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Inter', sans-serif;
+      }
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .material-symbols-outlined.fill-icon {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 font-sans text-slate-800 antialiased min-h-screen relative flex flex-col selection:bg-emerald-500 selection:text-white">
+<!-- Full-bleed Aerial High-Resolution Geospatial Background Canvas -->
+<div class="fixed inset-0 z-0 bg-cover bg-center transition-transform duration-1000 scale-100" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBdEHkw-7swFm4ksAAIHwFQVOFQet9TpONRcnl0Za8KL-OVg0EURbQjqSlx3uefkC1C5Hytg7KQK86eoVLG6U1HEnAbCO4srByqXD1ooOffEh4Z-ht6DJs4opnZT-kovkCJDYe4pBNlzAtqzVmVSn_JQTwF-cWs_F3KKq4OgW34i5EBGVsDwLlHziwpZdjeunoCF-KVxbb-0wPoL6s9lr_0E890vKl97ICqh9P5I9kk');">
+<!-- Sophisticated Deep Geospatial Tint & Vignette Gradient -->
+<div class="absolute inset-0 bg-gradient-to-r from-slate-950/80 via-slate-950/45 to-slate-900/30"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/50"></div>
+<!-- Vector Geospatial Topography & Survey Grid Vectors -->
+<svg class="absolute inset-0 w-full h-full text-emerald-400/20 pointer-events-none mix-blend-screen" fill="none" viewbox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg">
+<path d="M-100,280 C320,180 580,450 920,320 C1160,220 1340,360 1520,340" stroke="currentColor" stroke-dasharray="8 8" stroke-width="1.5"></path>
+<path d="M-50,480 C360,400 680,620 1020,490 C1240,410 1380,560 1560,510" stroke="currentColor" stroke-dasharray="4 4" stroke-width="1"></path>
+<polygon fill="currentColor" fill-opacity="0.08" points="820,240 1080,190 1200,460 880,540" stroke="currentColor" stroke-width="1.5"></polygon>
+<circle cx="820" cy="240" fill="currentColor" r="4"></circle>
+<circle cx="1080" cy="190" fill="currentColor" r="4"></circle>
+<circle cx="1200" cy="460" fill="currentColor" r="4"></circle>
+<circle cx="880" cy="540" fill="currentColor" r="4"></circle>
+</svg>
+</div>
+<!-- Global Application Bar -->
+<header class="relative z-50 w-full bg-slate-900/40 backdrop-blur-xl border-b border-white/10 px-6 sm:px-10 py-3.5 flex items-center justify-between shadow-lg">
+<div class="flex items-center gap-3.5">
+<div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white shadow-glow-emerald">
+<span class="material-symbols-outlined text-[20px]">agriculture</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-heading font-bold text-white text-[17px] tracking-tight leading-none">AgroField AI</span>
+<span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Enterprise v3.4</span>
+</div>
+<span class="text-xs text-slate-300 font-medium tracking-tight mt-1">Precision Analytics Engine</span>
+</div>
+</div>
+<!-- Status & Quick Telemetry Header Controls -->
+<div class="flex items-center gap-3 sm:gap-4">
+<div class="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/15 backdrop-blur-md text-slate-200">
+<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+<span class="text-xs font-semibold tracking-wide">Orbital Feeds Active</span>
+</div>
+<div class="flex items-center gap-2 pl-2 border-l border-white/15">
+<div class="w-8 h-8 rounded-full bg-emerald-600/80 border border-emerald-400/40 flex items-center justify-center text-white text-xs font-bold">
+<span class="material-symbols-outlined text-[18px]">lock_open</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Layout: Balanced Floating Modal + Telemetry HUD -->
+<main class="relative z-20 flex-1 flex items-center justify-center px-4 sm:px-8 lg:px-12 py-8 md:py-12 max-w-7xl mx-auto w-full">
+<div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+<!-- Left Column: Glassmorphism Login Container -->
+<div class="lg:col-span-6 xl:col-span-5 w-full">
+<div class="bg-white/95 backdrop-blur-2xl border border-white/80 rounded-3xl p-6 sm:p-9 shadow-2xl relative overflow-hidden transition-all duration-300 hover:shadow-emerald-950/20">
+<!-- Subtle Top Accent Highlight -->
+<div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-emerald-400 via-emerald-600 to-teal-500"></div>
+<!-- Card Header & System Badge -->
+<div class="flex items-center justify-between pb-4 border-b border-slate-100 gap-2">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/60 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">satellite_alt</span>
+</div>
+<span class="text-xs font-bold uppercase tracking-wider text-emerald-700 font-heading">
+                Precision Agronomy &amp; Telemetry OS
+              </span>
+</div>
+<!-- Live Ping Pill -->
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-100/60 text-emerald-800 border border-emerald-200">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-ping"></span>
+<span class="text-[11px] font-semibold whitespace-nowrap">Online</span>
+</div>
+</div>
+<!-- Header Copy -->
+<div class="pt-5 pb-6">
+<h1 class="font-heading font-extrabold text-2xl sm:text-[26px] text-slate-900 tracking-tight leading-snug">
+              Sign In to Farm Operations
+            </h1>
+<p class="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
+              Access real-time parcel telemetry, Sentinel-2 spectral indices, and variable rate prescriptions.
+            </p>
+</div>
+<!-- Form Area -->
+<form class="space-y-4" onsubmit="event.preventDefault();">
+<!-- Active Agro Workspace Selector -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-700">Active Agro Workspace</label>
+<button class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 transition-colors" type="button">
+                  Change Sector
+                </button>
+</div>
+<div class="flex items-center justify-between px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-emerald-300 hover:bg-emerald-50/20 transition-all cursor-pointer group shadow-sm">
+<div class="flex items-center gap-2.5 min-w-0">
+<span class="material-symbols-outlined text-emerald-600 group-hover:scale-110 transition-transform text-[20px]">layers</span>
+<span class="text-xs sm:text-[13px] font-semibold text-slate-800 truncate">GreenValley Agro • Parcel #402 (Corn Grain)</span>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-[18px]">unfold_more</span>
+</div>
+</div>
+<!-- AgroID / Email Input -->
+<div>
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5" for="agro-id">
+                AgroID / Enterprise Email
+              </label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-[20px]">badge</span>
+<input class="w-full bg-slate-50/80 border border-slate-200 rounded-xl pl-11 pr-4 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-all" id="agro-id" placeholder="agronomist@greenvalley.com" type="email" value="m.vance@greenvalley-ag.com"/>
+</div>
+</div>
+<!-- Encryption Passphrase Input -->
+<div>
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-700" for="agro-pwd">
+                  Encryption Passphrase
+                </label>
+<a class="text-xs font-semibold text-emerald-600 hover:text-emerald-700 hover:underline transition-colors" href="#reset">
+                  Forgot password?
+                </a>
+</div>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3.5 text-slate-400 text-[20px]">lock</span>
+<input class="w-full bg-slate-50/80 border border-slate-200 rounded-xl pl-11 pr-11 py-2.5 text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-sm transition-all tracking-wider" id="agro-pwd" placeholder="••••••••••••" type="password" value="SentinelSync99#"/>
+<button class="absolute right-3.5 text-slate-400 hover:text-slate-600 transition-colors" title="Toggle visibility" type="button">
+<span class="material-symbols-outlined text-[19px]">visibility</span>
+</button>
+</div>
+<!-- Key Security Strength Indicator -->
+<div class="flex items-center gap-1.5 mt-2">
+<div class="h-1 flex-1 bg-emerald-500 rounded-full"></div>
+<div class="h-1 flex-1 bg-emerald-500 rounded-full"></div>
+<div class="h-1 flex-1 bg-emerald-500 rounded-full"></div>
+<div class="h-1 flex-1 bg-slate-200 rounded-full"></div>
+<span class="text-[11px] font-semibold text-emerald-700 ml-1.5 whitespace-nowrap">Cryptographic Grade</span>
+</div>
+</div>
+<!-- Trust Terminal Checkbox -->
+<div class="flex items-start gap-2.5 pt-1">
+<input checked="" class="mt-0.5 w-4 h-4 rounded text-emerald-600 border-slate-300 focus:ring-emerald-500 cursor-pointer" id="remember-terminal" type="checkbox"/>
+<label class="cursor-pointer select-none" for="remember-terminal">
+<span class="block text-xs sm:text-sm font-semibold text-slate-800 leading-snug">
+                  Trust terminal for 30 days
+                </span>
+<span class="block text-[11px] text-slate-500 mt-0.5 leading-normal">
+                  Authorizes continuous local LoRaWAN telemetry cache without re-authenticating.
+                </span>
+</label>
+</div>
+<!-- Primary Action Button -->
+<button class="w-full mt-2 py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-600 hover:from-emerald-700 hover:via-emerald-600 hover:to-teal-700 text-white font-heading font-bold text-sm tracking-wide flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30 hover:shadow-emerald-600/40 active:scale-[0.99] transition-all" type="submit">
+<span>Sign In to Operations Portal</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="relative my-5 text-center">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-slate-200"></div>
+</div>
+<span class="relative px-3 bg-white text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+              Or Enterprise Single Sign-On
+            </span>
+</div>
+<!-- Enterprise Ecosystem SSO Integrations -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<button class="flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-50 hover:bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all shadow-sm group" type="button">
+<span class="material-symbols-outlined text-emerald-700 text-[18px] group-hover:scale-110 transition-transform">agriculture</span>
+<span class="truncate">John Deere Ops</span>
+</button>
+<button class="flex items-center justify-center gap-2 py-2.5 px-4 bg-slate-50 hover:bg-slate-100/90 border border-slate-200 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 transition-all shadow-sm group" type="button">
+<span class="material-symbols-outlined text-amber-600 text-[18px] group-hover:scale-110 transition-transform">cloud_sync</span>
+<span class="truncate">Climate FieldView</span>
+</button>
+</div>
+<!-- Card Security Footer Note -->
+<div class="pt-5 mt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+<div class="flex items-center gap-1.5 text-slate-500 font-medium">
+<span class="material-symbols-outlined text-emerald-600 text-[16px]">verified_user</span>
+<span>ISO 27001 • SOC 2 Type II</span>
+</div>
+<a class="font-semibold text-emerald-600 hover:text-emerald-700 hover:underline flex items-center gap-1 transition-colors" href="#request-access">
+<span>Request Ag Terminal Access</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Right Column: Live Geospatial & Agronomic Telemetry HUD -->
+<div class="lg:col-span-6 xl:col-span-7 flex flex-col justify-between h-full min-h-[440px] space-y-6">
+<!-- Top Status Telemetry Ribbon -->
+<div class="flex flex-wrap items-center justify-start lg:justify-end gap-3">
+<div class="bg-slate-900/80 backdrop-blur-xl border border-white/20 text-white rounded-full px-4 py-2 shadow-xl flex items-center gap-2.5">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+<span class="text-xs font-bold tracking-tight">Sentinel-2 Orbit: Passing Meridian</span>
+<span class="text-xs text-slate-300 border-l border-white/20 pl-2">10m Multispectral</span>
+</div>
+<div class="bg-slate-900/80 backdrop-blur-xl border border-white/20 text-white rounded-full px-4 py-2 shadow-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-[18px]">wifi_tethering</span>
+<span class="text-xs font-semibold tracking-tight text-slate-200">LoRa Mesh: 48 Online</span>
+</div>
+</div>
+<!-- Middle Telemetry Showcase: Parcel HUD & Performance Card -->
+<div class="flex flex-col items-start lg:items-end w-full space-y-4">
+<!-- Optimal Growth Zone Hologram Card -->
+<div class="w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-emerald-500/30 rounded-2xl p-5 shadow-2xl text-white transform transition-transform hover:-translate-y-1">
+<div class="flex items-center justify-between pb-3 border-b border-white/10">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+<span class="font-heading font-bold text-xs uppercase tracking-wider text-emerald-400">Optimal Growth Zone</span>
+</div>
+<span class="text-xs font-medium text-slate-300 bg-white/10 px-2 py-0.5 rounded-md">Zone 04 • 7.5 ha</span>
+</div>
+<!-- Target VRA Applied Metric -->
+<div class="py-3.5 flex items-baseline justify-between">
+<div>
+<span class="text-xs uppercase tracking-wider text-slate-400 block font-semibold">Variable Rate Application</span>
+<span class="font-heading text-2xl font-extrabold text-white">85 <span class="text-sm font-medium text-slate-300">kg/ha</span></span>
+</div>
+<span class="text-xs font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 rounded-full">
+                Target VRA Applied
+              </span>
+</div>
+<!-- Spectral Index Data Grid -->
+<div class="grid grid-cols-3 gap-2.5 pt-1">
+<div class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-center">
+<span class="block text-[11px] font-medium text-slate-400 uppercase">NDVI Index</span>
+<span class="block font-heading text-base font-bold text-emerald-400 mt-0.5">0.82</span>
+</div>
+<div class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-center">
+<span class="block text-[11px] font-medium text-slate-400 uppercase">Soil Moist</span>
+<span class="block font-heading text-base font-bold text-blue-400 mt-0.5">41%</span>
+</div>
+<div class="bg-white/5 border border-white/10 rounded-xl p-2.5 text-center">
+<span class="block text-[11px] font-medium text-slate-400 uppercase">Acidity pH</span>
+<span class="block font-heading text-base font-bold text-amber-300 mt-0.5">6.8</span>
+</div>
+</div>
+<!-- Efficiency & Cost Savings Bar -->
+<div class="mt-4 pt-3 border-t border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">eco</span>
+</div>
+<div>
+<span class="block text-xs font-semibold text-slate-200">VRA Efficiency Optimization</span>
+<span class="block text-[11px] text-slate-400">Reduced 26,219 kg input fertilizer</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-heading font-extrabold text-emerald-400 text-sm">-38.5%</span>
+<span class="block text-[10px] text-slate-400 uppercase">Cost Index</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Geospatial Navigation Tool Cluster -->
+<div class="flex items-center justify-between lg:justify-end gap-3 w-full pt-4">
+<div class="bg-slate-900/80 backdrop-blur-xl border border-white/20 text-white rounded-full px-4 py-2 shadow-xl flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-400 text-[18px]">explore</span>
+<span class="text-xs font-semibold font-mono tracking-wide text-slate-200">48°12'N, 16°22'E</span>
+</div>
+<div class="flex items-center bg-slate-900/80 backdrop-blur-xl border border-white/20 rounded-full shadow-xl overflow-hidden p-1 text-white">
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors" title="Zoom In" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+</button>
+<div class="w-px h-4 bg-white/20"></div>
+<button class="w-8 h-8 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors" title="Zoom Out" type="button">
+<span class="material-symbols-outlined text-[18px]">remove</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Global Footer -->
+<footer class="relative z-20 w-full py-4 px-6 sm:px-10 bg-slate-950/70 backdrop-blur-lg border-t border-white/10">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+<span>© 2025 AgroField AI Platform Inc. Multispectral Geospatial Systems.</span>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1.5 text-slate-300">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+          Telemetry Status: <strong class="text-white font-semibold">99.98%</strong>
+</span>
+<span class="text-slate-600">•</span>
+<a class="text-slate-400 hover:text-emerald-400 transition-colors" href="#system-protocol">System Protocol</a>
+<span class="text-slate-600">•</span>
+<a class="text-slate-400 hover:text-emerald-400 transition-colors" href="#privacy">Encrypted Nodes</a>
+</div>
+</div>
+</footer>
+</body></html>

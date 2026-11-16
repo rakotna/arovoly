@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AgroField AI - Precision Ag &amp; VRA Dashboard</title>
+<!-- Tailwind CSS CDN with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Plus Jakarta Sans & Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            agri: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              900: '#14532d',
+            },
+            amberBrand: {
+              400: '#fbbf24',
+              500: '#f59e0b',
+              600: '#ea580c',
+            }
+          },
+          boxShadow: {
+            'glass': '0 20px 40px -15px rgba(0, 0, 0, 0.07), 0 0 1px 1px rgba(255, 255, 255, 0.8)',
+            'floating': '0 12px 30px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.04)',
+            'glow-emerald': '0 0 20px -3px rgba(34, 197, 94, 0.45)',
+          }
+        }
+      }
+    }
+  </script>
+<!-- Styles for glassmorphism and custom scrollbars -->
+<style data-purpose="base-styling">
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      user-select: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Subtle custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+<!-- SVG and Leader line styles -->
+<style data-purpose="map-overlays">
+    .callout-line {
+      stroke-dasharray: 4;
+      animation: dash 25s linear infinite;
+    }
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -1000;
+      }
+    }
+    .grid-dot {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease;
+    }
+    .grid-dot:hover {
+      transform: scale(1.65);
+      stroke: #ffffff;
+      stroke-width: 1.5px;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-800 h-screen w-screen relative overflow-hidden flex flex-col">
+<!-- BEGIN: SatelliteMapBackground -->
+<div class="absolute inset-0 z-0 overflow-hidden" data-purpose="satellite-canvas-container">
+<!-- Base Satellite Background Layer using IMAGE_2 -->
+<img alt="Cropland satellite orthomosaic view" class="w-full h-full object-cover object-center filter saturate-[1.12] contrast-[1.05]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzRe5LTYVDm5kJUUB32PNM0uJU3V0Ch3Mi4aV3ldEvAzY9H87s5t6NrFjV-rXYOiEAA6DSf-jEuxTin2uFB8N2aFrPIGJOp2qqXEakWQFIXgF5ryvj6llX-vz2JjiFUwQBkK8xWm7TXjohfcR0lFNAm4ENpv4alB0TkDEDAQPpX5iK72eHTJIjGu8Q0tgSBuWR8g-Kh7nthwnixOIvriZ8gXDoO5Vy4I5-4-lKUAGJI6vCvvcHwDhSIQ"/>
+<!-- Ambient Vignette & Depth Mask -->
+<div class="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/40 via-transparent to-black/20"></div>
+<!-- SVG Layer for Field Boundaries, Variable Rate Dots & Leader Lines -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-10" preserveaspectratio="none" viewbox="0 0 1600 1000">
+<defs>
+<!-- Field Polygon Glow -->
+<filter height="140%" id="fieldGlow" width="140%" x="-20%" y="-20%">
+<fedropshadow dx="0" dy="0" flood-color="#22c55e" flood-opacity="0.4" stddeviation="6"></fedropshadow>
+</filter>
+<!-- Gradients for Cards & Markers -->
+<lineargradient id="lineGradHigh" x1="0%" x2="100%" y1="0%" y2="100%">
+<stop offset="0%" stop-color="#4ade80" stop-opacity="0.9"></stop>
+<stop offset="100%" stop-color="#22c55e" stop-opacity="0.3"></stop>
+</lineargradient>
+</defs>
+<!-- Main Agricultural Field Polygon Boundary -->
+<polygon class="transition-all duration-300" fill="rgba(34, 197, 94, 0.04)" filter="url(#fieldGlow)" points="830,130 1170,290 1220,530 1330,810 1190,880 970,780 840,480" stroke="#22c55e" stroke-dasharray="6,4" stroke-width="2.5"></polygon>
+<!-- Leader Line 1: High Productivity Zone inspection (Right side) -->
+<polyline class="callout-line" fill="none" points="1145,340 1210,290 1280,290" stroke="#22c55e" stroke-width="1.8"></polyline>
+<circle cx="1145" cy="340" fill="#22c55e" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="1145" cy="340" fill="none" opacity="0.6" r="11" stroke="#22c55e" stroke-width="1.2"></circle>
+<!-- Leader Line 2: Critical / High Deficit Zone (Left flank) -->
+<polyline class="callout-line" fill="none" points="845,475 790,420 720,420" stroke="#f59e0b" stroke-width="1.8"></polyline>
+<circle cx="845" cy="475" fill="#f59e0b" r="5" stroke="#ffffff" stroke-width="2"></circle>
+<circle cx="845" cy="475" fill="none" opacity="0.6" r="11" stroke="#f59e0b" stroke-width="1.2"></circle>
+<!-- Leader Line 3: Average Zone (Bottom right) -->
+<polyline class="callout-line" fill="none" points="1275,720 1330,660 1360,660" stroke="#84cc16" stroke-width="1.8"></polyline>
+<circle cx="1275" cy="720" fill="#84cc16" r="4.5" stroke="#ffffff" stroke-width="2"></circle>
+<!-- Multispectral Density Points Overlay (VRA Grid) -->
+<g class="pointer-events-auto" id="vra-point-cloud">
+<!-- Rows of Precision Ag sampling cells -->
+<!-- Row 1 -->
+<circle class="grid-dot" cx="845" cy="165" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="875" cy="180" fill="#eab308" r="4.5"></circle>
+<circle class="grid-dot" cx="905" cy="195" fill="#f97316" r="4.5"></circle>
+<!-- Row 2 -->
+<circle class="grid-dot" cx="845" cy="205" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="875" cy="220" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="905" cy="235" fill="#f97316" r="4.5"></circle>
+<circle class="grid-dot" cx="935" cy="250" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="965" cy="265" fill="#eab308" r="4.5"></circle>
+<!-- Row 3 -->
+<circle class="grid-dot" cx="850" cy="250" fill="#eab308" r="4.5"></circle>
+<circle class="grid-dot" cx="880" cy="265" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="910" cy="280" fill="#f97316" r="4.5"></circle>
+<circle class="grid-dot" cx="940" cy="295" fill="#f97316" r="4.5"></circle>
+<circle class="grid-dot" cx="970" cy="310" fill="#ea580c" r="4.5"></circle>
+<circle class="grid-dot" cx="1000" cy="325" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1030" cy="340" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1060" cy="355" fill="#84cc16" r="4.5"></circle>
+<!-- Row 4 (Central fertile swath) -->
+<circle class="grid-dot" cx="865" cy="295" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="895" cy="310" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="925" cy="325" fill="#ea580c" r="4.5"></circle>
+<circle class="grid-dot" cx="955" cy="340" fill="#f97316" r="4.5"></circle>
+<circle class="grid-dot" cx="985" cy="355" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1015" cy="370" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1045" cy="385" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1075" cy="400" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="1105" cy="415" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1135" cy="430" fill="#4ade80" r="4.5"></circle>
+<!-- Row 5 -->
+<circle class="grid-dot" cx="880" cy="345" fill="#eab308" r="4.5"></circle>
+<circle class="grid-dot" cx="910" cy="360" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="940" cy="375" fill="#f97316" r="4.5"></circle>
+<circle class="grid-dot" cx="970" cy="390" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1000" cy="405" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1030" cy="420" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="1060" cy="435" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="1090" cy="450" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1120" cy="465" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1150" cy="480" fill="#86efac" r="4.5"></circle>
+<!-- Row 6 (Peak foliage / Nitrogen uptake) -->
+<circle class="grid-dot" cx="875" cy="400" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="905" cy="415" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="935" cy="430" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="965" cy="445" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="995" cy="460" fill="#166534" r="4.5"></circle>
+<circle class="grid-dot" cx="1025" cy="475" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="1055" cy="490" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1085" cy="505" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1115" cy="520" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1145" cy="535" fill="#84cc16" r="4.5"></circle>
+<!-- Row 7 -->
+<circle class="grid-dot" cx="890" cy="455" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="920" cy="470" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="950" cy="485" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="980" cy="500" fill="#166534" r="4.5"></circle>
+<circle class="grid-dot" cx="1010" cy="515" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="1040" cy="530" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1070" cy="545" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1100" cy="560" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1130" cy="575" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1160" cy="590" fill="#f59e0b" r="4.5"></circle>
+<!-- Row 8 (Southern parcels) -->
+<circle class="grid-dot" cx="920" cy="515" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="950" cy="530" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="980" cy="545" fill="#15803d" r="4.5"></circle>
+<circle class="grid-dot" cx="1010" cy="560" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1040" cy="575" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1070" cy="590" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1100" cy="605" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1130" cy="620" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1160" cy="635" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1190" cy="650" fill="#ea580c" r="4.5"></circle>
+<!-- Row 9 -->
+<circle class="grid-dot" cx="960" cy="575" fill="#16a34a" r="4.5"></circle>
+<circle class="grid-dot" cx="990" cy="590" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1020" cy="605" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1050" cy="620" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1080" cy="635" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1110" cy="650" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1140" cy="665" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1170" cy="680" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1200" cy="695" fill="#eab308" r="4.5"></circle>
+<!-- Row 10 (Lower tail) -->
+<circle class="grid-dot" cx="1010" cy="640" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1040" cy="655" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1070" cy="670" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1100" cy="685" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1130" cy="700" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1160" cy="715" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1190" cy="730" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1220" cy="745" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1250" cy="760" fill="#84cc16" r="4.5"></circle>
+<!-- Row 11 -->
+<circle class="grid-dot" cx="1050" cy="700" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1080" cy="715" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1110" cy="730" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1140" cy="745" fill="#facc15" r="4.5"></circle>
+<circle class="grid-dot" cx="1170" cy="760" fill="#f59e0b" r="4.5"></circle>
+<circle class="grid-dot" cx="1200" cy="775" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1230" cy="790" fill="#22c55e" r="4.5"></circle>
+<!-- Row 12 (Base edge) -->
+<circle class="grid-dot" cx="1100" cy="765" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1130" cy="780" fill="#22c55e" r="4.5"></circle>
+<circle class="grid-dot" cx="1160" cy="795" fill="#4ade80" r="4.5"></circle>
+<circle class="grid-dot" cx="1190" cy="810" fill="#84cc16" r="4.5"></circle>
+<circle class="grid-dot" cx="1220" cy="825" fill="#22c55e" r="4.5"></circle>
+</g>
+</svg>
+</div>
+<!-- END: SatelliteMapBackground -->
+<!-- BEGIN: FloatingTopNavigation -->
+<header class="relative z-30 px-6 pt-5 pb-2" data-purpose="top-navigation-bar">
+<nav class="max-w-[1720px] mx-auto flex items-center justify-between gap-4">
+<!-- Left: Logo & Search Container -->
+<div class="flex items-center gap-4 flex-1 max-w-xl">
+<!-- Logo Badge -->
+<a class="flex items-center gap-2.5 bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-floating border border-slate-200/80 hover:bg-white transition-all group" href="#">
+<div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-agri-600 to-emerald-400 flex items-center justify-center text-white shadow-glow-emerald">
+<svg class="w-4 h-4 fill-current" viewbox="0 0 24 24">
+<path d="M12 2C6.48 2 2 6.48 2 12c0 2.85 1.2 5.42 3.12 7.24L12 22l6.88-2.76C20.8 17.42 22 14.85 22 12c0-5.52-4.48-10-10-10zm-1 15.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v-.07zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"></path>
+</svg>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-slate-900 leading-tight tracking-tight text-base group-hover:text-agri-700 transition">AgroField <span class="text-agri-600 font-extrabold">AI</span></span>
+<span class="text-[10px] uppercase font-semibold text-slate-400 tracking-wider">Precision Ag OS</span>
+</div>
+</a>
+<!-- Global Search Input -->
+<div class="relative flex-1">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<circle cx="11" cy="11" r="8"></circle>
+<line x1="21" x2="16.65" y1="21" y2="16.65"></line>
+</svg>
+</div>
+<input class="w-full bg-white/90 backdrop-blur-md pl-10 pr-9 py-2.5 text-xs md:text-sm font-medium rounded-2xl border-slate-200/90 shadow-floating text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-agri-500/30 focus:border-agri-600 transition" placeholder="Search field, parcel ID (#402), or coordinates..." type="text"/>
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+<span class="text-[10px] font-semibold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">⌘K</span>
+</div>
+</div>
+</div>
+<!-- Center: Navigation Pill Filters -->
+<div class="hidden lg:flex items-center p-1.5 bg-white/90 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-floating text-xs font-semibold text-slate-600">
+<button class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+          My Fields
+        </button>
+<button class="px-4 py-2 rounded-xl bg-agri-50 text-agri-700 shadow-sm border border-agri-200/60 font-bold flex items-center gap-2 transition">
+<span class="w-2 h-2 rounded-full bg-agri-600 animate-pulse"></span>
+          VRA Fertilizer Map
+        </button>
+<button class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          Yield Forecast
+        </button>
+<button class="px-4 py-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition flex items-center gap-2">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 12s1.5 2 4 2 4-2 4-2"></path></svg>
+          Soil &amp; Sensors
+        </button>
+</div>
+<!-- Right: User Profile & Quick Actions -->
+<div class="flex items-center gap-2.5">
+<!-- Live Weather Widget Pill -->
+<div class="hidden sm:flex items-center gap-2.5 bg-white/90 backdrop-blur-md px-3.5 py-2 rounded-2xl border border-slate-200/80 shadow-floating text-xs font-semibold text-slate-700">
+<div class="w-7 h-7 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 font-bold">
+            ☀️
+          </div>
+<div>
+<div class="leading-none text-slate-900 font-bold">24°C</div>
+<div class="text-[10px] text-slate-400 font-normal">Wind 9 km/h NW</div>
+</div>
+</div>
+<!-- Quick Notifications -->
+<button class="w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md border border-slate-200/80 shadow-floating flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-white transition relative">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+<path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+</svg>
+<span class="absolute top-2.5 right-2.5 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+</button>
+<!-- User Profile Pill with Avatar -->
+<div class="flex items-center gap-3 bg-white/95 backdrop-blur-md pl-2 pr-3.5 py-1.5 rounded-2xl border border-slate-200/80 shadow-floating cursor-pointer hover:bg-white transition group">
+<div class="relative w-8 h-8 rounded-xl overflow-hidden ring-2 ring-agri-500/30">
+<img alt="Farm Manager Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEdY-SeD4cbbeGjSljEOVxRXvVrxjhdM-VJRyKdocMdc1kURWbU5tboT1d48r4M20nENU6vRahXB0s8qTGSGWG87LNIaBxek4VQPDSlwigQ6ZoHTv_DcorAoYU6eHnuKdnqVmXb5fPop_lIf9kD7_HeqIvjKdewN7BwFVfht3hRNN8h-f6yH92v6WcA3Y2tXBATWEBdIeulFktgeV4yA-N_q_GVNoDq-C_ixkFatbT"/>
+</div>
+<div class="text-left hidden md:block">
+<div class="text-xs font-bold text-slate-800 leading-tight group-hover:text-agri-600 transition">GreenValley Agro</div>
+<div class="text-[10px] text-slate-400 font-medium">Parcel #402-North</div>
+</div>
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M6 9l6 6 6-6"></path>
+</svg>
+</div>
+</div>
+</nav>
+</header>
+<!-- END: FloatingTopNavigation -->
+<!-- BEGIN: MainContentArea -->
+<main class="flex-1 relative z-20 px-6 py-3 flex gap-6 overflow-hidden pointer-events-none">
+<!-- LEFT PANEL: VRA Fertilizer Configuration Panel -->
+<section class="w-[430px] max-w-[95vw] h-full bg-white/95 backdrop-blur-xl rounded-3xl shadow-glass border border-white/80 flex flex-col pointer-events-auto overflow-hidden transition-all duration-300" data-purpose="vra-control-card">
+<!-- Panel Header & Return Action -->
+<div class="p-6 pb-4 border-b border-slate-100 flex-shrink-0">
+<div class="flex items-center justify-between mb-2.5">
+<button class="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7"></path>
+</svg>
+            Go Back
+          </button>
+<div class="flex items-center gap-1.5 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+<span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+<span class="text-[11px] font-bold text-emerald-700">Sentinel-2 Synced</span>
+</div>
+</div>
+<h1 class="text-xl font-extrabold text-slate-900 tracking-tight">VRA Map for Fertilizing</h1>
+<p class="text-xs text-slate-400 mt-0.5">Variable Rate Nitrogen &amp; Potassium distribution algorithm</p>
+<!-- Field Metadata Strip -->
+<div class="grid grid-cols-2 gap-3 mt-4">
+<div class="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+<span class="text-[11px] font-medium text-slate-400 block">Prescription Date</span>
+<span class="text-sm font-bold text-slate-800">16.04.2024</span>
+</div>
+<div class="bg-slate-50/80 p-2.5 rounded-xl border border-slate-100">
+<span class="text-[11px] font-medium text-slate-400 block">Total Area</span>
+<span class="text-sm font-bold text-slate-800">31.94 ha</span>
+</div>
+</div>
+</div>
+<!-- Scrollable Form Body -->
+<div class="flex-1 overflow-y-auto px-6 py-4 space-y-5">
+<!-- Crop Selection Field -->
+<div data-purpose="crop-selector">
+<label class="block text-xs font-semibold text-slate-600 mb-1.5">Target Crop &amp; Hybrid</label>
+<div class="relative">
+<select class="w-full appearance-none bg-amber-50/70 border border-amber-200/90 text-amber-950 font-semibold text-sm rounded-xl py-2.5 pl-3.5 pr-10 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 cursor-pointer shadow-sm">
+<option selected="">Corn, grain (Pioneer P9911)</option>
+<option>Winter Wheat (Solstice)</option>
+<option>Soybeans (Enlist E3)</option>
+<option>Sunflower (High Oleic)</option>
+</select>
+<div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-amber-700">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M6 9l6 6 6-6"></path></svg>
+</div>
+</div>
+</div>
+<!-- Standard Rate Input with Unit Toggle -->
+<div data-purpose="standard-rate-input">
+<label class="block text-xs font-semibold text-slate-600 mb-1.5">Standard Base Application Rate</label>
+<div class="flex items-center gap-2">
+<div class="relative flex-1">
+<input class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-sm font-bold rounded-xl py-2.5 px-3.5 focus:bg-white focus:ring-2 focus:ring-agri-500/20 focus:border-agri-600 shadow-sm" type="number" value="100"/>
+<span class="absolute inset-y-0 right-0 pr-3 flex items-center text-xs font-semibold text-slate-400">Target</span>
+</div>
+<!-- Unit Pill Selector -->
+<div class="flex p-1 bg-slate-100 rounded-xl border border-slate-200/70 text-xs font-bold">
+<button class="px-3 py-1.5 rounded-lg bg-white shadow-sm text-slate-800">kg/ha</button>
+<button class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-slate-700 transition">l/ha</button>
+</div>
+</div>
+</div>
+<!-- Productivity Zones Selector -->
+<div data-purpose="productivity-zone-selector">
+<div class="flex items-center justify-between mb-1.5">
+<label class="text-xs font-semibold text-slate-600">Productivity Zones</label>
+<span class="text-[11px] font-medium text-slate-400">NDVI Variance (5 Class)</span>
+</div>
+<div class="grid grid-cols-5 gap-2 bg-slate-100/90 p-1.5 rounded-2xl border border-slate-200/80">
+<button class="py-2 text-xs font-semibold text-slate-500 hover:bg-white/80 rounded-xl transition">3</button>
+<button class="py-2 text-xs font-bold bg-white text-amber-700 shadow-sm rounded-xl border border-amber-200/80">4</button>
+<button class="py-2 text-xs font-semibold text-slate-500 hover:bg-white/80 rounded-xl transition">5</button>
+<button class="py-2 text-xs font-semibold text-slate-500 hover:bg-white/80 rounded-xl transition">6</button>
+<button class="py-2 text-xs font-semibold text-slate-500 hover:bg-white/80 rounded-xl transition">7</button>
+</div>
+</div>
+<!-- Rates for Zones Breakdown Cards -->
+<div data-purpose="rates-by-zone">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Prescription Breakdown</h3>
+<button class="text-xs font-semibold text-agri-600 hover:text-agri-700">Edit Table</button>
+</div>
+<div class="grid grid-cols-2 gap-2.5">
+<!-- Rate: Very High -->
+<div class="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm hover:border-emerald-300 transition">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-1.5 h-3 rounded-full bg-emerald-500"></span>
+<span class="text-[11px] font-bold text-slate-600">Very High</span>
+</div>
+<div class="text-base font-extrabold text-slate-900">70 <span class="text-xs font-semibold text-slate-400">kg/ha</span></div>
+<div class="text-[11px] font-medium text-slate-400 mt-0.5">0.6 ha (2%)</div>
+</div>
+<!-- Rate: High -->
+<div class="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm hover:border-lime-300 transition">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-1.5 h-3 rounded-full bg-lime-500"></span>
+<span class="text-[11px] font-bold text-slate-600">High</span>
+</div>
+<div class="text-base font-extrabold text-slate-900">85 <span class="text-xs font-semibold text-slate-400">kg/ha</span></div>
+<div class="text-[11px] font-medium text-slate-400 mt-0.5">7.5 ha (24%)</div>
+</div>
+<!-- Rate: Average -->
+<div class="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm hover:border-amber-300 transition">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-1.5 h-3 rounded-full bg-amber-400"></span>
+<span class="text-[11px] font-bold text-slate-600">Average</span>
+</div>
+<div class="text-base font-extrabold text-slate-900">100 <span class="text-xs font-semibold text-slate-400">kg/ha</span></div>
+<div class="text-[11px] font-medium text-slate-400 mt-0.5">8.4 ha (26%)</div>
+</div>
+<!-- Rate: Low -->
+<div class="bg-white p-3 rounded-2xl border border-slate-200/90 shadow-sm hover:border-orange-300 transition">
+<div class="flex items-center gap-1.5 mb-1">
+<span class="w-1.5 h-3 rounded-full bg-orange-500"></span>
+<span class="text-[11px] font-bold text-slate-600">Low</span>
+</div>
+<div class="text-base font-extrabold text-slate-900">115 <span class="text-xs font-semibold text-slate-400">kg/ha</span></div>
+<div class="text-[11px] font-medium text-slate-400 mt-0.5">10.2 ha (32%)</div>
+</div>
+</div>
+</div>
+<!-- Dynamic AI Calculation Savings Banner -->
+<div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3.5 flex items-center gap-3">
+<div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"></path></svg>
+</div>
+<div>
+<div class="text-xs font-bold text-emerald-950">OptiFertilizer™ ROI Engine</div>
+<div class="text-[11px] text-emerald-700">Estimated cost saving: <span class="font-bold underline decoration-emerald-500">$3,420 (23%)</span> on this application.</div>
+</div>
+</div>
+</div>
+<!-- Panel Footer & Export CTA -->
+<div class="p-5 border-t border-slate-100 bg-slate-50/70 flex-shrink-0 flex items-center gap-4">
+<!-- Abstract 3D graphic badge -->
+<div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-white shadow-md shrink-0">
+<svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+<polyline points="2 17 12 22 22 17"></polyline>
+<polyline points="2 12 12 17 22 12"></polyline>
+</svg>
+</div>
+<div class="flex-1">
+<div class="text-[11px] font-medium text-slate-500">ISO-XML &amp; SHP compatible</div>
+<!-- Warm Orange Vibrant Button -->
+<button class="w-full mt-1 bg-gradient-to-r from-amberBrand-500 to-amberBrand-600 hover:from-amberBrand-600 hover:to-orange-700 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow-md shadow-orange-500/25 flex items-center justify-center gap-2 group transition-all">
+            Export VRA Map
+            <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<line x1="5" x2="19" y1="12" y2="12"></line>
+<polyline points="12 5 19 12 12 19"></polyline>
+</svg>
+</button>
+</div>
+</div>
+</section>
+<!-- RIGHT / MAP OVERLAY TOOLTIPS AND CALLOUTS -->
+<div class="flex-1 relative h-full pointer-events-none">
+<!-- INSPECTION CALLOUT CARD 1: High Productivity (Top Right) -->
+<div class="absolute top-16 right-16 w-72 bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-floating border border-white pointer-events-auto transition-transform hover:scale-102" data-purpose="map-detail-card-high">
+<div class="flex items-center justify-between pb-2 border-b border-slate-100">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-agri-500"></span>
+<span class="text-xs font-bold text-slate-700 uppercase tracking-wide">Zone 4: High Growth</span>
+</div>
+<span class="text-xs font-bold text-agri-600 bg-agri-50 px-2 py-0.5 rounded-lg border border-agri-100">NDVI 0.81</span>
+</div>
+<div class="mt-3 flex items-baseline justify-between">
+<div class="text-2xl font-black text-slate-900">85 <span class="text-xs font-normal text-slate-500">kg/ha</span></div>
+<div class="text-xs font-semibold text-slate-400">Sub-area: 7.5 ha</div>
+</div>
+<!-- Soil Biochemical Attributes Grid -->
+<div class="mt-3 grid grid-cols-2 gap-y-1.5 gap-x-2 text-[11px] pt-2 border-t border-slate-100 font-medium">
+<div class="flex justify-between text-slate-500">
+<span>Phosphorus (P):</span>
+<span class="font-bold text-slate-800">12.5 mg</span>
+</div>
+<div class="flex justify-between text-slate-500">
+<span>Potassium (K):</span>
+<span class="font-bold text-slate-800">5.2 mg</span>
+</div>
+<div class="flex justify-between text-slate-500">
+<span>Magnesium:</span>
+<span class="font-bold text-slate-800">8.5 mg</span>
+</div>
+<div class="flex justify-between text-slate-500">
+<span>Acidity:</span>
+<span class="font-bold text-slate-800">7.0 pH</span>
+</div>
+<div class="flex justify-between text-slate-500 col-span-2 pt-1 border-t border-dashed border-slate-200">
+<span>Soil Moisture (0-30cm):</span>
+<span class="font-bold text-agri-600">41% Optimal</span>
+</div>
+</div>
+</div>
+<!-- INSPECTION CALLOUT CARD 2: Critical Nutrient Deficit (Left Flank) -->
+<div class="absolute top-72 left-20 w-64 bg-amber-50/95 backdrop-blur-md rounded-2xl p-3.5 shadow-floating border border-amber-200 pointer-events-auto" data-purpose="map-detail-card-warning">
+<div class="flex items-center justify-between mb-1.5">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<span class="text-xs font-bold text-amber-900">Sandy Ridge Warning</span>
+</div>
+<span class="text-[10px] font-bold bg-amber-200/70 text-amber-900 px-1.5 py-0.5 rounded">Zone 2</span>
+</div>
+<div class="flex items-baseline justify-between text-amber-900">
+<span class="text-xl font-extrabold">115 <span class="text-xs font-semibold">kg/ha</span></span>
+<span class="text-xs font-medium">Rate +35%</span>
+</div>
+<p class="text-[11px] text-amber-800 mt-1 leading-snug">
+          Rapid drainage area detected. Increased dosage recommended to prevent nitrogen leaching.
+        </p>
+</div>
+<!-- FLOATING CALCULATION TOTAL CARD (Bottom Centered) -->
+<div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-white/95 backdrop-blur-xl border border-white/80 rounded-2xl py-3 px-6 shadow-floating pointer-events-auto flex items-center gap-6" data-purpose="bottom-aggregate-summary">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-agri-100 text-agri-700 flex items-center justify-center font-bold">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+</div>
+<div>
+<div class="text-xs font-medium text-slate-500">Calculated Batch Requirement</div>
+<div class="text-base font-extrabold text-slate-900">
+              41,891 <span class="text-xs font-bold text-slate-500">kg of fertilizer</span>
+</div>
+</div>
+</div>
+<div class="h-8 w-px bg-slate-200"></div>
+<div class="text-left">
+<div class="text-xs font-semibold text-agri-600 flex items-center gap-1">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewbox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            68,110 kg uniform baseline
+          </div>
+<div class="text-[11px] text-slate-400 font-medium">Saving 26,219 kg with Variable Application</div>
+</div>
+</div>
+<!-- MAP CONTROLS FLOATING TOOLBAR (Right Bottom) -->
+<div class="absolute bottom-6 right-6 flex flex-col gap-3 pointer-events-auto" data-purpose="map-tool-stack">
+<!-- Layer Mode Selector Glass Pill -->
+<div class="bg-white/90 backdrop-blur-md rounded-2xl p-1 shadow-floating border border-slate-200/80 flex flex-col gap-1">
+<button class="w-9 h-9 rounded-xl bg-agri-600 text-white flex items-center justify-center shadow-sm" title="Multi-spectral NDVI">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" x2="4" y1="22" y2="15"></line></svg>
+</button>
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center transition" title="True Color RGB">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><rect height="18" rx="2" ry="2" width="18" x="3" y="3"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+</button>
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center transition" title="Moisture Radar">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+</button>
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center transition" title="Topography &amp; Elevation">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><polygon points="12 2 2 22 22 22"></polygon></svg>
+</button>
+</div>
+<!-- Zoom & Nav Buttons -->
+<div class="bg-white/90 backdrop-blur-md rounded-2xl p-1 shadow-floating border border-slate-200/80 flex flex-col">
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center transition" title="Locate Field Center">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+</button>
+<div class="h-px bg-slate-100 my-0.5"></div>
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center font-bold text-base transition" title="Zoom In">+</button>
+<button class="w-9 h-9 rounded-xl text-slate-600 hover:bg-slate-100 flex items-center justify-center font-bold text-base transition" title="Zoom Out">−</button>
+</div>
+</div>
+<!-- MAP SCALE BAR (Bottom Left of Canvas) -->
+<div class="absolute bottom-6 left-6 pointer-events-auto bg-slate-900/60 backdrop-blur-sm text-white px-2.5 py-1 rounded-md text-[10px] font-mono flex items-center gap-2 border border-white/20">
+<span>1:5000</span>
+<div class="w-16 h-1 bg-white/80 rounded-sm"></div>
+<span>200m</span>
+</div>
+</div>
+</main>
+<!-- END: MainContentArea -->
+<!-- BEGIN: TooltipInteractionsScript -->
+<script data-purpose="point-cloud-hover">
+    document.addEventListener('DOMContentLoaded', () => {
+      const dots = document.querySelectorAll('.grid-dot');
+      dots.forEach(dot => {
+        dot.addEventListener('mouseenter', () => {
+          dot.setAttribute('data-original-r', dot.getAttribute('r') || '4.5');
+        });
+      });
+    });
+  </script>
+<!-- END: TooltipInteractionsScript -->
+</body></html>
