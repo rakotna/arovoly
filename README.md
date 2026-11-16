@@ -106,11 +106,46 @@ définit les couleurs, la typographie, les espacements et les composants visuels
 
 ### Données et intégrations à étudier
 
-- Imagerie satellite Sentinel-2.
+- Imagerie satellite **Esri World Imagery** pour la visualisation cartographique.
+- Imagerie **Maxar** en option pour les besoins de très haute résolution et les
+  usages soumis à licence.
+- Imagerie d'analyse Sentinel-2 pour les indices multispectraux et le NDVI.
 - Données météorologiques et prévisions locales.
 - Capteurs de sol et passerelles LoRaWAN.
 - Télématique des tracteurs et drones.
 - Import/export GeoJSON, KML et SHP.
+
+### Imagerie cartographique
+
+Le fond satellite recommandé pour l'application est **Esri World Imagery**. Il
+convient à la visualisation des parcelles dans le tableau de bord et permet de
+conserver une source cartographique cohérente pendant le développement. **Maxar**
+peut être ajouté comme source premium lorsque le niveau de résolution, la zone
+couverte et la licence commerciale le justifient.
+
+L'imagerie ne doit pas être codée en dur dans les composants. La future
+implémentation React devra sélectionner la source via configuration :
+
+```env
+VITE_IMAGERY_PROVIDER=esri
+VITE_ESRI_IMAGERY_URL=https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer
+# Optionnel, selon le contrat et l'API Maxar retenus
+VITE_MAXAR_IMAGERY_URL=
+VITE_MAXAR_API_KEY=
+```
+
+Les tuiles Esri/Maxar doivent être utilisées conformément à leurs conditions
+d'utilisation. L'attribution visible doit être conservée dans la carte, et les
+clés d'API doivent rester côté serveur ou dans les variables d'environnement :
+
+- Esri : `© Esri, Maxar, Earthstar Geographics, and the GIS User Community`
+- Maxar : attribution et licence à confirmer selon le produit souscrit
+
+Les images `screen.png` et les URLs d'images présentes dans les prototypes Stitch
+sont uniquement des références visuelles. Elles ne constituent pas encore une
+intégration cartographique en production. La carte réelle devra être implémentée
+avec MapLibre GL ou Leaflet afin de gérer les tuiles, le zoom, les couches NDVI,
+les limites de parcelles et l'attribution.
 
 ## Architecture cible
 
@@ -183,10 +218,12 @@ devront jamais être commitées.
 3. Créer les modèles `Farm`, `Field`, `Crop`, `Sensor` et `Measurement`.
 4. Construire le tableau de bord et la gestion des parcelles.
 5. Ajouter PostGIS et la cartographie interactive.
-6. Connecter les données Sentinel-2, météo et capteurs IoT.
-7. Implémenter les alertes, les prescriptions VRA et les exports.
-8. Ajouter les modèles de prévision de rendement et les tests.
-9. Préparer le déploiement, l'observabilité et la documentation API.
+6. Intégrer Esri World Imagery, puis évaluer Maxar selon les besoins de résolution
+   et de licence.
+7. Connecter les données Sentinel-2, météo et capteurs IoT.
+8. Implémenter les alertes, les prescriptions VRA et les exports.
+9. Ajouter les modèles de prévision de rendement et les tests.
+10. Préparer le déploiement, l'observabilité et la documentation API.
 
 ## Statut
 

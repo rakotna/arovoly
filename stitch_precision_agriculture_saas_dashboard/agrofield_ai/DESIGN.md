@@ -140,6 +140,25 @@ The design system targets enterprise agronomists, farm managers, and autonomous 
 
 The interface is driven by a Modern Minimalist aesthetic infused with Precision Glassmorphism. Translucent, frosted glass cards float effortlessly over vivid satellite and topological terrain maps without occluding spatial context. The visual mood is dependable, scientific, and high-performance—evoking analytical clarity, organic vitality, and agricultural technological mastery. Tactile visual feedback is achieved through pill-shaped micro-controllers, luminous crop-status indicators, and disciplined, un-cluttered spatial composition.
 
+## Geospatial Imagery
+
+The Stitch screens use static imagery as visual prototypes only. The production
+map should use **Esri World Imagery** as the default basemap, with **Maxar** as
+an optional licensed high-resolution source. The imagery provider must remain
+configurable and must not be coupled to individual React components.
+
+Recommended production configuration:
+
+```text
+VITE_IMAGERY_PROVIDER=esri
+VITE_ESRI_IMAGERY_URL=https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer
+```
+
+Keep the provider attribution visible on every map. For Esri World Imagery use:
+`© Esri, Maxar, Earthstar Geographics, and the GIS User Community`.
+Maxar imagery requires the attribution and usage terms supplied with the
+selected Maxar product. API keys must never be committed to the repository.
+
 ## Colors
 The palette bridges natural bio-indicators with industrial-grade warning mechanisms:
 
