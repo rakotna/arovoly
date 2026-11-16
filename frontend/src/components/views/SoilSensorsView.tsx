@@ -6,15 +6,10 @@ import {
   Radio,
   Thermometer,
   Layers,
-  CheckCircle2,
-  AlertTriangle,
   PlusCircle,
-  RefreshCw,
-  Search,
-  Filter,
-  ArrowUpRight,
   ShieldCheck,
 } from 'lucide-react';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 interface SoilSensorsViewProps {
   sensors: SensorProbe[];
@@ -29,10 +24,11 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
   onDeploySensor,
   onShowToast,
 }) => {
+  const { language, t } = useTranslation();
   const [selectedProbeId, setSelectedProbeId] = useState<string>(sensors[0]?.id || 'probe-alpha-01');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
-  const [newStationCode, setNewStationCode] = useState('Station Alpha-06');
-  const [newParcelId, setNewParcelId] = useState(parcels[0]?.id || '402-north');
+  const [newStationCode, setNewStationCode] = useState('Station MDG-06 (Ambatondrazaka)');
+  const [newParcelId, setNewParcelId] = useState(parcels[0]?.id || '402-alaotra');
 
   const activeProbe = sensors.find((s) => s.id === selectedProbeId) || sensors[0];
 
@@ -50,18 +46,22 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
       status: 'Online',
       batteryPct: 100,
       signalDbm: -64,
-      lastSynced: "À l'instant",
+      lastSynced: language === 'fr' ? "À l'instant" : "Just now",
       moisture10cm: 37.0,
       moisture30cm: 40.5,
       moisture60cm: 45.0,
-      temperatureC: 19.5,
+      temperatureC: 24.5,
       matricPotentialKPa: -26.0,
       salinityEC: 0.39,
       irrigationThreshold: 32.0,
     };
     onDeploySensor(newProbe);
     setIsDeployModalOpen(false);
-    onShowToast(`Nouvelle sonde ${newStationCode} enregistrée et appairée sur ${targetParcel.name}.`);
+    onShowToast(
+      language === 'fr'
+        ? `Nouvelle sonde ${newStationCode} enregistrée et appairée sur ${targetParcel.name}.`
+        : `New sensor ${newStationCode} registered and paired to ${targetParcel.name}.`
+    );
   };
 
   return (
@@ -71,36 +71,36 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              Réseau Télémétrie IoT & Sondes Capacitives
+              {t.soilSensors.badge}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/70 text-emerald-800 text-xs font-bold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              {sensors.filter((s) => s.status === 'Online').length} / {sensors.length} En Ligne
+              {sensors.filter((s) => s.status === 'Online').length} / {sensors.length} {t.soilSensors.onlineCount}
             </span>
             <span className="text-xs text-slate-400">• LoRaWAN 868 MHz</span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading">
-            Multi-Depth Stratum Diagnostics & Soil Telemetry
+            {t.soilSensors.title}
           </h1>
           <p className="text-xs text-slate-500">
-            Analyse continue de la permittivité diélectrique, du potentiel matriciel et de l'humidité aux strates racinaires (10, 30 et 60 cm).
+            {t.soilSensors.subtitle}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
           <button
-            onClick={() => onShowToast('Diagnostic de santé de flotte : Toutes les sondes répondent avec un taux de paquets reçus de 99.4%.')}
+            onClick={() => onShowToast(language === 'fr' ? 'Diagnostic de santé de flotte : Toutes les sondes répondent avec un taux de paquets reçus de 99.4%.' : 'Fleet health diagnostic: All ground probes responding at 99.4% packet delivery rate.')}
             className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-50"
           >
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>Diagnostic Flotte</span>
+            <span>{t.soilSensors.fleetDiag}</span>
           </button>
           <button
             onClick={() => setIsDeployModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-md shadow-emerald-700/20"
           >
             <PlusCircle className="w-4 h-4" />
-            <span>Déployer Nouvelle Sonde</span>
+            <span>{t.soilSensors.deployBtn}</span>
           </button>
         </div>
       </div>
@@ -121,11 +121,11 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                     : 'bg-emerald-50 text-emerald-700'
                 }`}
               >
-                {activeProbe.status === 'Warning' ? 'Stress hydrique' : 'Opérationnel'}
+                {activeProbe.status === 'Warning' ? t.common.needsAction : t.common.optimal}
               </span>
             </div>
             <span className="text-xs text-slate-500">
-              Affectée à : <b>{activeProbe.parcelName}</b> • Synchronisée {activeProbe.lastSynced}
+              {language === 'fr' ? 'Affectée à :' : 'Assigned to:'} <b>{activeProbe.parcelName}</b> • {activeProbe.lastSynced}
             </span>
           </div>
         </div>
@@ -134,7 +134,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col">
             <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <BatteryCharging className="w-3 h-3 text-emerald-600" /> Batterie Solaire
+              <BatteryCharging className="w-3 h-3 text-emerald-600" /> {t.soilSensors.solarBattery}
             </span>
             <span className="text-base font-extrabold text-slate-900">{activeProbe.batteryPct}%</span>
             <span className="text-[10px] text-emerald-600 font-semibold">Tension 3.65V</span>
@@ -142,7 +142,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col">
             <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <Radio className="w-3 h-3 text-blue-600" /> Signal LoRaWAN
+              <Radio className="w-3 h-3 text-blue-600" /> {t.soilSensors.loraSignal}
             </span>
             <span className="text-base font-extrabold text-slate-900">{activeProbe.signalDbm} dBm</span>
             <span className="text-[10px] text-blue-600 font-semibold">SNR +8.5 dB</span>
@@ -150,23 +150,23 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col">
             <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <Thermometer className="w-3 h-3 text-orange-500" /> Température Sol
+              <Thermometer className="w-3 h-3 text-orange-500" /> {t.soilSensors.soilTemp}
             </span>
             <span className="text-base font-extrabold text-slate-900">{activeProbe.temperatureC}°C</span>
-            <span className="text-[10px] text-slate-500 font-semibold">Optimal germination</span>
+            <span className="text-[10px] text-slate-500 font-semibold">{t.common.optimal}</span>
           </div>
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 flex flex-col">
             <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1">
-              <Layers className="w-3 h-3 text-purple-600" /> Potentiel Matriciel
+              <Layers className="w-3 h-3 text-purple-600" /> {t.soilSensors.matricPotential}
             </span>
             <span className="text-base font-extrabold text-slate-900">{activeProbe.matricPotentialKPa} kPa</span>
-            <span className="text-[10px] text-purple-600 font-semibold">Réserve utile 82%</span>
+            <span className="text-[10px] text-purple-600 font-semibold">Réserve 82%</span>
           </div>
         </div>
       </div>
 
-      {/* Multi-Depth Root Stratum Diagnostics (The 3 Depths) */}
+      {/* Multi-Depth Root Stratum Diagnostics */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         {/* Stratum 1: 10cm */}
         <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-3">
@@ -176,8 +176,8 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                 10
               </span>
               <div>
-                <span className="text-xs font-bold text-slate-900">Strate Horizon Supérieur</span>
-                <span className="block text-[10px] text-slate-400">Profondeur 0 - 15 cm (Semis)</span>
+                <span className="text-xs font-bold text-slate-900">{t.soilSensors.stratum10Title}</span>
+                <span className="block text-[10px] text-slate-400">{t.soilSensors.stratum10Sub}</span>
               </div>
             </div>
             <span className="text-xs font-extrabold text-emerald-700 font-heading">
@@ -193,12 +193,9 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
           </div>
 
           <div className="flex justify-between text-[11px] text-slate-500">
-            <span>Seuil flétrissement : 18%</span>
-            <span className="text-emerald-700 font-semibold">Capacité au champ : 42%</span>
+            <span>Seuil : 18%</span>
+            <span className="text-emerald-700 font-semibold">Capacité champ : 42%</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Humidité de surface nominale. Évaporation modérée, aucune irrigation d'urgence requise.
-          </p>
         </div>
 
         {/* Stratum 2: 30cm */}
@@ -209,8 +206,8 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                 30
               </span>
               <div>
-                <span className="text-xs font-bold text-slate-900">Strate Racine Active</span>
-                <span className="block text-[10px] text-slate-400">Profondeur 20 - 40 cm (Pivot)</span>
+                <span className="text-xs font-bold text-slate-900">{t.soilSensors.stratum30Title}</span>
+                <span className="block text-[10px] text-slate-400">{t.soilSensors.stratum30Sub}</span>
               </div>
             </div>
             <span className="text-xs font-extrabold text-blue-700 font-heading">
@@ -226,12 +223,9 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
           </div>
 
           <div className="flex justify-between text-[11px] text-slate-500">
-            <span>Seuil confort : 32%</span>
+            <span>Seuil : 32%</span>
             <span className="text-blue-700 font-semibold">Absorption maximale</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Zone principale de puisement racinaire du maïs et du blé. Disponibilité hydrique optimale.
-          </p>
         </div>
 
         {/* Stratum 3: 60cm */}
@@ -242,8 +236,8 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                 60
               </span>
               <div>
-                <span className="text-xs font-bold text-slate-900">Strate Réserve Profonde</span>
-                <span className="block text-[10px] text-slate-400">Profondeur 50 - 75 cm (Sous-sol)</span>
+                <span className="text-xs font-bold text-slate-900">{t.soilSensors.stratum60Title}</span>
+                <span className="block text-[10px] text-slate-400">{t.soilSensors.stratum60Sub}</span>
               </div>
             </div>
             <span className="text-xs font-extrabold text-purple-700 font-heading">
@@ -259,28 +253,25 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
           </div>
 
           <div className="flex justify-between text-[11px] text-slate-500">
-            <span>Réserve utile : 94%</span>
+            <span>Réserve : 94%</span>
             <span className="text-purple-700 font-semibold">Nappe drainante</span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">
-            Niveau de réapprovisionnement hivernal conservé. Aucune contrainte hydrique profonde attendue.
-          </p>
         </div>
       </div>
 
-      {/* Sensor Fleet • Hardware Registry Table */}
+      {/* Sensor Fleet Table */}
       <div className="p-6 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              Flotte de Capteurs Connectés & Stations Sol
+              {t.soilSensors.fleetTableTitle}
             </h3>
             <span className="text-xs text-slate-500">
-              Sélectionnez une station pour charger ses mesures détaillées dans le panneau supérieur.
+              {t.soilSensors.fleetTableSub}
             </span>
           </div>
           <span className="text-xs text-slate-400 font-semibold">
-            {sensors.length} Stations Déployées
+            {sensors.length} {language === 'fr' ? 'Stations Déployées' : 'Stations Deployed'}
           </span>
         </div>
 
@@ -289,13 +280,13 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
             <thead>
               <tr className="border-b border-slate-100 text-slate-400 uppercase font-semibold text-[10px]">
                 <th className="py-3 px-3">Station & Code</th>
-                <th className="py-3 px-3">Parcelle Assignée</th>
-                <th className="py-3 px-3">Humidité 10 / 30 / 60 cm</th>
-                <th className="py-3 px-3">Temp. Sol</th>
-                <th className="py-3 px-3">Batterie</th>
-                <th className="py-3 px-3">Signal LoRa</th>
-                <th className="py-3 px-3">Statut</th>
-                <th className="py-3 px-3 text-right">Action</th>
+                <th className="py-3 px-3">{language === 'fr' ? 'Parcelle Assignée' : 'Assigned Parcel'}</th>
+                <th className="py-3 px-3">10 / 30 / 60 cm</th>
+                <th className="py-3 px-3">{t.soilSensors.soilTemp}</th>
+                <th className="py-3 px-3">{t.soilSensors.solarBattery}</th>
+                <th className="py-3 px-3">LoRa</th>
+                <th className="py-3 px-3">{t.common.status}</th>
+                <th className="py-3 px-3 text-right">{t.common.actions}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -332,14 +323,14 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                             : 'bg-emerald-50 text-emerald-700'
                         }`}
                       >
-                        {probe.status}
+                        {probe.status === 'Warning' ? t.common.needsAction : t.common.optimal}
                       </span>
                     </td>
                     <td className="py-3 px-3 text-right">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          onShowToast(`Ping envoyé à ${probe.stationCode} : Réponse ACK reçue en 38ms.`);
+                          onShowToast(language === 'fr' ? `Ping envoyé à ${probe.stationCode} : Réponse ACK reçue en 38ms.` : `Ping sent to ${probe.stationCode}: ACK reply received in 38ms.`);
                         }}
                         className="px-2.5 py-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold transition-all"
                       >
@@ -360,7 +351,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 flex flex-col gap-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h3 className="text-base font-bold text-slate-900 font-heading">
-                Déployer une Nouvelle Station IoT
+                {t.soilSensors.deployModalTitle}
               </h3>
               <button
                 onClick={() => setIsDeployModalOpen(false)}
@@ -372,7 +363,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
 
             <form onSubmit={handleCreateSensor} className="flex flex-col gap-3.5">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-700">Nom / Identifiant Station</label>
+                <label className="text-xs font-bold text-slate-700">{t.soilSensors.stationId}</label>
                 <input
                   type="text"
                   required
@@ -383,7 +374,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
               </div>
 
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-bold text-slate-700">Parcelle d'implantation</label>
+                <label className="text-xs font-bold text-slate-700">{t.soilSensors.assignedParcel}</label>
                 <select
                   value={newParcelId}
                   onChange={(e) => setNewParcelId(e.target.value)}
@@ -398,9 +389,9 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
               </div>
 
               <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs text-slate-600 flex flex-col gap-1">
-                <span className="font-bold text-slate-800">Paramètres Sonde Capacitive :</span>
-                <span>• Profondeurs configurées : 10 cm, 30 cm, 60 cm</span>
-                <span>• Protocole : LoRaWAN EU868 OTAA classe A</span>
+                <span className="font-bold text-slate-800">{language === 'fr' ? 'Configuration Sonde Capacitive :' : 'Capacitive Probe Setup:'}</span>
+                <span>• {language === 'fr' ? 'Profondeurs configurées : 10 cm, 30 cm, 60 cm' : 'Configured depths: 10 cm, 30 cm, 60 cm'}</span>
+                <span>• {language === 'fr' ? 'Protocole : LoRaWAN EU868 OTAA classe A' : 'Protocol: LoRaWAN EU868 OTAA class A'}</span>
               </div>
 
               <div className="flex items-center justify-end gap-2.5 pt-2">
@@ -409,13 +400,13 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                   onClick={() => setIsDeployModalOpen(false)}
                   className="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100"
                 >
-                  Annuler
+                  {t.common.cancel}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition-all"
                 >
-                  Confirmer le Déploiement
+                  {t.soilSensors.confirmDeploy}
                 </button>
               </div>
             </form>

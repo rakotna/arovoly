@@ -31,9 +31,9 @@ export const AgriMap: React.FC<AgriMapProps> = ({
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Default center on agricultural zone
+    // Default center on agricultural zone in Madagascar (Ambatondrazaka / Lac Alaotra)
     const map = L.map(mapContainerRef.current, {
-      center: [47.052, 2.385],
+      center: [-17.832, 48.425],
       zoom: 13,
       zoomControl: false, // We render custom glassmorphic zoom buttons
       attributionControl: true,
@@ -187,7 +187,7 @@ export const AgriMap: React.FC<AgriMapProps> = ({
   };
 
   const handleRecenter = () => {
-    mapInstanceRef.current?.flyTo([47.052, 2.385], 13);
+    mapInstanceRef.current?.flyTo([-17.832, 48.425], 13);
   };
 
   return (

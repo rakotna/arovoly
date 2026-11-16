@@ -1,18 +1,55 @@
-export type ViewType = 'my_fields' | 'vra_dashboard' | 'soil_sensors' | 'yield_forecast' | 'sign_in';
+export type ViewType =
+  | 'my_fields'
+  | 'crop_tracing'
+  | 'vra_dashboard'
+  | 'soil_sensors'
+  | 'yield_forecast'
+  | 'sign_in';
 
-export type CropType = 'Corn' | 'Winter Wheat' | 'Soybeans' | 'Canola' | 'Sunflower' | 'Barley';
+export type CropType =
+  | 'Riz Paddy'
+  | 'Maïs'
+  | 'Manioc'
+  | 'Soja'
+  | 'Canne à sucre'
+  | 'Haricot'
+  | 'Vanille'
+  | 'Café';
 
 export type ParcelStatus = 'Optimal' | 'Good' | 'Needs Action' | 'Critical';
+
+export type MadagascarRegion =
+  | 'Alaotra-Mangoro'
+  | 'Vakinankaratra'
+  | 'Itasy'
+  | 'Menabe'
+  | 'Boeny'
+  | 'Atsinanana';
+
+export type SoilType =
+  | 'Alluvial (Baiboho)'
+  | 'Hydromorphe (Rizière)'
+  | 'Latéritique / Ferrallitique (Tanety)'
+  | 'Volcanique';
+
+export type IrrigationType =
+  | 'Gravitaire (Rizière inondée)'
+  | 'Système de Riziculture Intensive (SRI)'
+  | 'Pluvial strict'
+  | 'Goutte-à-goutte';
 
 export interface Parcel {
   id: string;
   code: string;
   name: string;
+  region: MadagascarRegion;
   crop: CropType;
   variety: string;
   areaHa: number;
   sownDate: string;
   status: ParcelStatus;
+  soilType?: SoilType;
+  irrigationType?: IrrigationType;
   ndvi: number;
   ndviTrend: string;
   moisturePct: number;
@@ -26,6 +63,7 @@ export interface Parcel {
   center: [number, number];
   color: string;
   fillColor: string;
+  notes?: string;
 }
 
 export interface SensorProbe {
@@ -80,6 +118,7 @@ export interface WeatherScenario {
   yieldImpactPct: number;
   projectedTotalTonnes: number;
   valuationChangeUsd: number;
+  valuationChangeMga: number;
 }
 
 export interface UserProfile {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Download, FileText, CheckCircle2, Layers } from 'lucide-react';
+import { X, Download, CheckCircle2, Layers } from 'lucide-react';
 import { Parcel } from '../../types';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   selectedParcel,
   onSuccess,
 }) => {
+  const { language, t } = useTranslation();
   const [format, setFormat] = useState<'shp' | 'kml' | 'geojson' | 'pdf'>('shp');
   const [includeVra, setIncludeVra] = useState(true);
   const [includeSensors, setIncludeSensors] = useState(true);
@@ -27,7 +29,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     setTimeout(() => {
       setIsExporting(false);
       onClose();
-      onSuccess(`Export réussi: ${selectedParcel.name} au format .${format.toUpperCase()} téléchargé.`);
+      onSuccess(
+        language === 'fr'
+          ? `Export réussi : ${selectedParcel.name} au format .${format.toUpperCase()} téléchargé.`
+          : `Export successful: ${selectedParcel.name} downloaded in .${format.toUpperCase()} format.`
+      );
     }, 1200);
   };
 
@@ -40,7 +46,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               <Layers className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">Exporter les Données Géospatiales</h3>
+              <h3 className="text-base font-bold text-slate-900">{t.exportModal.title}</h3>
               <p className="text-xs text-slate-500">{selectedParcel.name} • {selectedParcel.areaHa} ha</p>
             </div>
           </div>
@@ -54,13 +60,13 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
         {/* Format Selection */}
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Format d'exportation</label>
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">{t.exportModal.formatLabel}</label>
           <div className="grid grid-cols-2 gap-2.5">
             {[
-              { id: 'shp', label: 'Shapefile (ESRI .SHP)', desc: 'Pour terminaux consoles ISOBUS & GIS' },
-              { id: 'kml', label: 'Google Earth (.KML)', desc: 'Visualisation satellite 3D' },
-              { id: 'geojson', label: 'GeoJSON (.JSON)', desc: 'APIs web & analyse Python/PostGIS' },
-              { id: 'pdf', label: 'Rapport Agronomique (.PDF)', desc: 'Bilan complet prescription & rendements' },
+              { id: 'shp', label: 'Shapefile (ESRI .SHP)', desc: t.exportModal.shpDesc },
+              { id: 'kml', label: 'Google Earth (.KML)', desc: t.exportModal.kmlDesc },
+              { id: 'geojson', label: 'GeoJSON (.JSON)', desc: t.exportModal.geojsonDesc },
+              { id: 'pdf', label: 'Rapport (.PDF)', desc: t.exportModal.pdfDesc },
             ].map((item) => (
               <button
                 key={item.id}
@@ -84,7 +90,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
         {/* Options */}
         <div className="flex flex-col gap-2 pt-2">
-          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Couches incluses</label>
+          <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">{t.exportModal.layersLabel}</label>
           <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
               <input
@@ -93,7 +99,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 onChange={(e) => setIncludeVra(e.target.checked)}
                 className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
               />
-              <span>Grille de modulation de dose d'azote VRA (Zone 1 à 4)</span>
+              <span>{t.exportModal.vraLayer}</span>
             </label>
             <label className="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
               <input
@@ -102,7 +108,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                 onChange={(e) => setIncludeSensors(e.target.checked)}
                 className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
               />
-              <span>Relevés sondes IoT (humidités 10/30/60cm & potentiel hydrique)</span>
+              <span>{t.exportModal.sensorsLayer}</span>
             </label>
           </div>
         </div>
@@ -113,7 +119,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             onClick={onClose}
             className="px-4 py-2 rounded-full text-xs font-bold text-slate-600 hover:bg-slate-100"
           >
-            Annuler
+            {t.common.cancel}
           </button>
           <button
             disabled={isExporting}
@@ -123,12 +129,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             {isExporting ? (
               <span className="flex items-center gap-2">
                 <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                Génération en cours...
+                {t.exportModal.exporting}
               </span>
             ) : (
               <>
                 <Download className="w-4 h-4" />
-                <span>Télécharger le Fichier</span>
+                <span>{t.exportModal.downloadBtn}</span>
               </>
             )}
           </button>

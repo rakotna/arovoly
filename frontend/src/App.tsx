@@ -7,6 +7,7 @@ import { ExportModal } from './components/common/ExportModal';
 import { Toast } from './components/common/Toast';
 import { SignInView } from './components/views/SignInView';
 import { MyFieldsView } from './components/views/MyFieldsView';
+import { CropTracingView } from './components/views/CropTracingView';
 import { VraDashboardView } from './components/views/VraDashboardView';
 import { SoilSensorsView } from './components/views/SoilSensorsView';
 import { YieldForecastView } from './components/views/YieldForecastView';
@@ -15,10 +16,11 @@ export function App() {
   const [currentView, setCurrentView] = useState<ViewType>('my_fields');
   const [user, setUser] = useState<UserProfile | null>(INITIAL_USER);
   const [parcels, setParcels] = useState<Parcel[]>(MOCK_PARCELS);
-  const [selectedParcelId, setSelectedParcelId] = useState<string>('402-north');
+  const [selectedParcelId, setSelectedParcelId] = useState<string>(MOCK_PARCELS[0]?.id || '402-alaotra');
   const [sensors, setSensors] = useState<SensorProbe[]>(MOCK_SENSORS);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isSignOutNotice, setIsSignOutNotice] = useState(false);
 
   const selectedParcel = parcels.find((p) => p.id === selectedParcelId) || parcels[0];
 
@@ -31,12 +33,14 @@ export function App() {
 
   const handleSignIn = (signedInUser: UserProfile) => {
     setUser(signedInUser);
+    setIsSignOutNotice(false);
     setCurrentView('my_fields');
-    showToast(`Bienvenue sur le terminal, ${signedInUser.name}`);
+    showToast(`Bienvenue sur le terminal AgroField Madagascar, ${signedInUser.name}`);
   };
 
   const handleSignOut = () => {
     setUser(null);
+    setIsSignOutNotice(true);
     setCurrentView('sign_in');
     showToast('Session fermée avec succès.');
   };
@@ -45,11 +49,24 @@ export function App() {
     setSensors((prev) => [newSensor, ...prev]);
   };
 
+  const handleSaveParcel = (newParcel: Parcel) => {
+    setParcels((prev) => [newParcel, ...prev]);
+    setSelectedParcelId(newParcel.id);
+  };
+
+  const handleDeleteParcel = (parcelId: string) => {
+    setParcels((prev) => prev.filter((p) => p.id !== parcelId));
+    showToast('Parcelle supprimée du registre.');
+  };
+
   // If on Sign-In screen, show full-screen sign-in view
   if (currentView === 'sign_in') {
     return (
       <>
-        <SignInView onSignInSuccess={handleSignIn} />
+        <SignInView
+          onSignInSuccess={handleSignIn}
+          isSignOutNotice={isSignOutNotice}
+        />
         <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       </>
     );
@@ -83,6 +100,16 @@ export function App() {
               sensors={sensors}
               onOpenExportModal={() => setIsExportModalOpen(true)}
               onShowToast={showToast}
+            />
+          )}
+
+          {currentView === 'crop_tracing' && (
+            <CropTracingView
+              parcels={parcels}
+              onSaveParcel={handleSaveParcel}
+              onDeleteParcel={handleDeleteParcel}
+              onShowToast={showToast}
+              onOpenExportModal={() => setIsExportModalOpen(true)}
             />
           )}
 

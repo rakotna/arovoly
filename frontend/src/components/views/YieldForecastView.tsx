@@ -1,21 +1,13 @@
 import React, { useState } from 'react';
-import { Parcel, PhenologicalStage, WeatherScenario } from '../../types';
+import { Parcel } from '../../types';
 import { MOCK_PHENOLOGICAL_STAGES, MOCK_WEATHER_SCENARIOS } from '../../data/mockData';
 import {
-  TrendingUp,
-  DollarSign,
   CloudSun,
-  ShieldAlert,
   Download,
-  Calendar,
-  Sparkles,
-  BarChart3,
-  Sun,
-  CloudRain,
-  CheckCircle2,
-  ChevronRight,
   Flame,
+  CloudRain,
 } from 'lucide-react';
+import { useTranslation } from '../../i18n/LanguageContext';
 
 interface YieldForecastViewProps {
   parcels: Parcel[];
@@ -32,6 +24,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
   onOpenExportModal,
   onShowToast,
 }) => {
+  const { language, t } = useTranslation();
   const [activeScenarioId, setActiveScenarioId] = useState<string>('baseline');
   const scenario = MOCK_WEATHER_SCENARIOS[activeScenarioId] || MOCK_WEATHER_SCENARIOS.baseline;
 
@@ -50,22 +43,22 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-              Modélisation Prédictive IA & Météo GFS
+              {t.yieldForecast.badge}
             </span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs font-semibold text-slate-500">
-              Saison 2024 • Remplissage & Maturation
+              {t.yieldForecast.seasonLabel}
             </span>
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-100/70 text-emerald-800 text-xs font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-              Confiance Modèle : 94.2%
+              {t.yieldForecast.confidence}
             </span>
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading">
-            Yield Forecast & Harvest Production Analytics
+            {t.yieldForecast.title}
           </h1>
           <p className="text-xs text-slate-500">
-            Projections de tonnage, valorisation économique des récoltes et simulations d'aléas climatiques.
+            {t.yieldForecast.subtitle}
           </p>
         </div>
 
@@ -87,7 +80,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
             className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 hover:bg-slate-800 text-xs font-bold text-white shadow-md transition-all"
           >
             <Download className="w-4 h-4 text-emerald-400" />
-            <span>Rapport Récolte (PDF)</span>
+            <span>{t.yieldForecast.pdfReport}</span>
           </button>
         </div>
       </div>
@@ -97,7 +90,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
         {/* Metric 1: Mean Yield */}
         <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Rendement Estimé Moyen
+            {t.yieldForecast.meanEstYield}
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-slate-900 font-heading">
@@ -112,14 +105,14 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
             </span>
           </div>
           <span className="text-xs text-slate-500 mt-1">
-            Cible initiale : {selectedParcel.targetYieldTha} t/ha • Hybride {selectedParcel.variety}
+            {t.yieldForecast.initialTarget} {selectedParcel.targetYieldTha} t/ha • {selectedParcel.variety}
           </span>
         </div>
 
         {/* Metric 2: Total Production */}
         <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Production Totale Estimée
+            {t.yieldForecast.totalProduction}
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-slate-900 font-heading">
@@ -128,33 +121,33 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
             <span className="text-xs font-bold text-emerald-600">Sur {selectedParcel.areaHa} ha</span>
           </div>
           <span className="text-xs text-slate-500 mt-1">
-            Capacité de stockage silo validée à 100%
+            Capacité de stockage silo validée
           </span>
         </div>
 
         {/* Metric 3: Economic Valuation */}
         <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Valorisation Économique Récolte
+            {t.yieldForecast.economicValuation}
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-extrabold text-emerald-700 font-heading">
               ${totalValuationUsd.toLocaleString()}
             </span>
-            <span className="text-xs font-bold text-slate-500">@ 245$/t</span>
+            <span className="text-xs font-bold text-slate-500">~{((totalValuationUsd * 4600) / 1000000000).toFixed(2)} Mds Ar</span>
           </div>
           <span className="text-xs text-slate-500 mt-1">
-            Cours Euronext / MATIF à terme Novembre 2024
+            Cours de gros région Alaotra • ~4 600 Ar / USD
           </span>
         </div>
 
         {/* Metric 4: Risk Index */}
         <div className="p-5 rounded-3xl bg-white border border-slate-100 shadow-sm flex flex-col gap-1">
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-            Indice de Risque Climatique
+            {t.yieldForecast.climateRisk}
           </span>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-emerald-700 font-heading">14% (Faible)</span>
+            <span className="text-3xl font-extrabold text-emerald-700 font-heading">14% ({language === 'fr' ? 'Faible' : 'Low'})</span>
             <span className="text-xs font-bold text-emerald-600">Sécurité hydrique</span>
           </div>
           <span className="text-xs text-slate-500 mt-1">
@@ -170,18 +163,18 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h3 className="text-base font-bold text-slate-900 font-heading">
-                Trajectoire d'Accumulation du Rendement vs Stades Phénologiques
+                {t.yieldForecast.phenologicalCurveTitle}
               </h3>
               <p className="text-xs text-slate-500">
-                Suivi des degrés-jours de croissance (GDD) cumulés et corrélation biomasse NDVI Sentinel-2.
+                {t.yieldForecast.phenologicalCurveSub}
               </p>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span className="flex items-center gap-1.5 font-bold text-emerald-700">
-                <span className="w-3 h-3 rounded-full bg-emerald-600"></span> Année 2024 (IA)
+                <span className="w-3 h-3 rounded-full bg-emerald-600"></span> {language === 'fr' ? 'Année 2024 (IA)' : 'Year 2024 (AI)'}
               </span>
               <span className="flex items-center gap-1.5 text-slate-400 font-medium ml-2">
-                <span className="w-3 h-3 rounded-full bg-slate-300"></span> Médiane 5 ans
+                <span className="w-3 h-3 rounded-full bg-slate-300"></span> {language === 'fr' ? 'Médiane 5 ans' : '5-yr Median'}
               </span>
             </div>
           </div>
@@ -192,7 +185,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
               const maxVal = 13.0;
               const heightPct = (item.projectedYield / maxVal) * 100;
               const benchmarkPct = (item.benchmarkYield / maxVal) * 100;
-              const isCurrent = idx === 4; // R2 stage
+              const isCurrent = idx === 4;
 
               return (
                 <div key={item.stage} className="flex flex-col items-center gap-2">
@@ -201,7 +194,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
                     <div
                       className="w-3 bg-slate-200 rounded-t-lg transition-all"
                       style={{ height: `${benchmarkPct}%` }}
-                      title={`Médiane 5 ans : ${item.benchmarkYield} t/ha`}
+                      title={`Benchmark : ${item.benchmarkYield} t/ha`}
                     ></div>
                     {/* Current Projected bar */}
                     <div
@@ -211,7 +204,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
                           : 'bg-emerald-600'
                       }`}
                       style={{ height: `${heightPct}%` }}
-                      title={`Prévision : ${item.projectedYield} t/ha`}
+                      title={`Forecast : ${item.projectedYield} t/ha`}
                     ></div>
                   </div>
 
@@ -236,9 +229,9 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-600">
             <span className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Stade Actuel : <b>R2 (Blister/Grain laiteux)</b> — Vitesse de remplissage +12% au-dessus de la normale.
+              Stade Actuel : <b>Floraison / Épiaison</b> — Remplissage +12% au-dessus de la normale.
             </span>
-            <span className="text-emerald-700 font-bold">Maturation physiologique prévue le 15 Septembre</span>
+            <span className="text-emerald-700 font-bold">Maturation physiologique prévue en Avril</span>
           </div>
         </div>
 
@@ -248,11 +241,11 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
             <div className="flex items-center gap-2">
               <CloudSun className="w-4 h-4 text-orange-500" />
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                Simulateur Météo Pré-Récolte
+                {t.yieldForecast.weatherSimulatorTitle}
               </h3>
             </div>
             <p className="text-xs text-slate-500 mt-1">
-              Testez l'impact des aléas climatiques sur les 30 prochains jours avant battage.
+              {t.yieldForecast.weatherSimulatorSub}
             </p>
           </div>
 
@@ -260,26 +253,26 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
             {[
               {
                 id: 'baseline',
-                label: 'Scénario Médian GFS (Normal)',
+                label: language === 'fr' ? 'Saison des Pluies Régulière (Asara)' : 'Normal Rainy Season (Asara)',
                 icon: CloudSun,
-                desc: 'Températures conformes, pluviométrie moyenne (35mm).',
+                desc: language === 'fr' ? 'Mousson d’été bien établie sur les Hautes Terres (650 mm).' : 'Summer monsoon established over Highlands (650 mm).',
                 delta: '±0.0 t/ha',
                 color: 'text-slate-800',
               },
               {
                 id: 'dry',
-                label: 'Sécheresse & Chaleur (+3°C)',
+                label: language === 'fr' ? 'Retard de Mousson / Pause Pluie' : 'Monsoon Delay / Drought Pause',
                 icon: Flame,
-                desc: 'Échaudage partiel du grain sur sols filtrants.',
-                delta: '-7.5% (-0.9 t/ha)',
+                desc: language === 'fr' ? 'Stress hydrique temporaire sur rizières pluviales et tanety.' : 'Temporary moisture stress on rainfed paddies and tanety hills.',
+                delta: '-8.5% (-0.6 t/ha)',
                 color: 'text-orange-600',
               },
               {
                 id: 'favorable',
-                label: 'Climat Idéal & Averses',
+                label: language === 'fr' ? 'Hydrologie Optimale & Ensoleillement' : 'Optimal Hydrology & Sunshine',
                 icon: CloudRain,
-                desc: 'Remplissage maximal sans stress thermique.',
-                delta: '+5.8% (+0.7 t/ha)',
+                desc: language === 'fr' ? 'Remplissage maximal des canaux d’irrigation et fort rayonnement.' : 'Full irrigation canals and abundant solar radiation.',
+                delta: '+6.2% (+0.4 t/ha)',
                 color: 'text-emerald-700',
               },
             ].map((item) => {
@@ -309,9 +302,9 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
           </div>
 
           <div className="p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs flex flex-col gap-1">
-            <span className="font-bold text-slate-800">Impact Économique Net :</span>
+            <span className="font-bold text-slate-800">{language === 'fr' ? 'Impact Économique Net :' : 'Net Economic Impact:'}</span>
             <div className="flex items-center justify-between">
-              <span className="text-slate-500">Variation de valeur récolte :</span>
+              <span className="text-slate-500">{language === 'fr' ? 'Variation valeur récolte :' : 'Harvest valuation shift:'}</span>
               <span
                 className={`font-bold ${
                   scenario.valuationChangeUsd >= 0 ? 'text-emerald-700' : 'text-red-600'
@@ -331,26 +324,26 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold text-slate-900 font-heading">
-              Matrice de Préparation & Maturité Parcelle par Parcelle
+              {t.yieldForecast.readinessMatrixTitle}
             </h3>
             <p className="text-xs text-slate-500">
-              Calendrier prévisionnel d'entrée des moissonneuses-batteuses et humidité du grain estimée.
+              {t.yieldForecast.readinessMatrixSub}
             </p>
           </div>
-          <span className="text-xs text-slate-400 font-semibold">4 Parcelles Analysées</span>
+          <span className="text-xs text-slate-400 font-semibold">{parcels.length} {t.cropTracing.parcelsBtn}</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-100 text-slate-400 uppercase font-semibold text-[10px]">
-                <th className="py-3 px-3">Parcelle & Culture</th>
-                <th className="py-3 px-3">Surface</th>
-                <th className="py-3 px-3">Maturité Phénologique</th>
-                <th className="py-3 px-3">Humidité Grain</th>
-                <th className="py-3 px-3">Rdt Cible vs Prévu</th>
-                <th className="py-3 px-3">Fenêtre Récolte Estimée</th>
-                <th className="py-3 px-3 text-right">Statut</th>
+                <th className="py-3 px-3">{t.common.crop}</th>
+                <th className="py-3 px-3">{t.common.surface}</th>
+                <th className="py-3 px-3">{t.yieldForecast.phenoMaturity}</th>
+                <th className="py-3 px-3">{t.yieldForecast.grainMoisture}</th>
+                <th className="py-3 px-3">{t.yieldForecast.targetVsEst}</th>
+                <th className="py-3 px-3">{t.yieldForecast.harvestWindow}</th>
+                <th className="py-3 px-3 text-right">{t.common.status}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -377,41 +370,41 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
                           className="bg-emerald-600 h-full rounded-full"
                           style={{
                             width:
-                              parcel.id === '305-sunny'
+                              parcel.id.includes('itasy')
                                 ? '95%'
-                                : parcel.id === '208-highland'
+                                : parcel.id.includes('vakinankaratra')
                                 ? '82%'
                                 : '74%',
                           }}
                         ></div>
                       </div>
                       <span className="font-bold text-slate-800">
-                        {parcel.id === '305-sunny' ? '95%' : parcel.id === '208-highland' ? '82%' : '74%'}
+                        {parcel.id.includes('itasy') ? '95%' : parcel.id.includes('vakinankaratra') ? '82%' : '74%'}
                       </span>
                     </div>
                   </td>
                   <td className="py-3 px-3 text-slate-800 font-semibold">
-                    {parcel.id === '305-sunny' ? '9.5% (Sec)' : parcel.id === '208-highland' ? '14.2%' : '24.5%'}
+                    {parcel.id.includes('itasy') ? '9.5% (Sec)' : parcel.id.includes('vakinankaratra') ? '14.2%' : '24.5%'}
                   </td>
                   <td className="py-3 px-3 font-bold text-slate-900">
                     {parcel.targetYieldTha} t/ha → <span className="text-emerald-700">{parcel.estYieldTha} t/ha</span>
                   </td>
                   <td className="py-3 px-3 text-slate-600 font-medium">
-                    {parcel.id === '305-sunny'
-                      ? '25 - 30 Juillet'
-                      : parcel.id === '208-highland'
-                      ? '10 - 15 Août'
-                      : '20 - 28 Septembre'}
+                    {parcel.id.includes('itasy')
+                      ? '15 - 20 Mars'
+                      : parcel.id.includes('vakinankaratra')
+                      ? '25 Mars - 05 Avril'
+                      : '15 - 28 Avril'}
                   </td>
                   <td className="py-3 px-3 text-right">
                     <span
                       className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        parcel.id === '208-highland'
+                        parcel.status === 'Needs Action'
                           ? 'bg-orange-100 text-orange-700'
                           : 'bg-emerald-50 text-emerald-700'
                       }`}
                     >
-                      {parcel.id === '208-highland' ? 'Action Requise' : 'Nominal'}
+                      {parcel.status}
                     </span>
                   </td>
                 </tr>
