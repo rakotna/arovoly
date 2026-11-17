@@ -738,26 +738,38 @@ def auth_avatar(request):
 @api_view(['GET'])
 def health_check(request):
     """System health check & diagnostics."""
-    farms_count = Farm.objects.count()
-    fields_count = Field.objects.count()
-    sensors_count = Sensor.objects.count()
-    measurements_count = Measurement.objects.count()
+    from django.db import connection
 
-    return Response({
-        "status": "healthy",
-        "service": "AROVOLY Precision Ag API",
-        "version": "v3.4.0",
-        "region": "Madagascar (Alaotra-Mangoro / Vakinankaratra / Itasy)",
-        "imagery_provider": "Esri World Imagery (Maxar ready)",
-        "sentinel2_sync": "active",
-        "database": {
-            "status": "connected",
-            "engine": "SQLite / PostGIS ready",
-            "counts": {
-                "farms": farms_count,
-                "fields": fields_count,
-                "sensors": sensors_count,
-                "measurements": measurements_count,
-            }
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+
+        counts = {
+            "farms": Farm.objects.count(),
+            "fields": Field.objects.count(),
+            "sensors": Sensor.objects.count(),
+            "measurements": Measurement.objects.count(),
         }
-    })
+        return Response({
+            "status": "healthy",
+            "service": "AROVOLY Precision Ag API",
+            "version": "v3.4.0",
+            "region": "Madagascar (Alaotra-Mangoro / Vakinankaratra / Itasy)",
+            "imagery_provider": "Esri World Imagery (Maxar ready)",
+            "sentinel2_sync": "active",
+            "database": {
+                "status": "connected",
+                "engine": connection.vendor,
+                "counts": counts,
+            }
+        })
+    except Exception as error:
+        return Response({
+            "status": "unhealthy",
+            "service": "AROVOLY Precision Ag API",
+            "database": {
+                "status": "disconnected",
+                "engine": connection.vendor,
+            },
+            "detail": str(error),
+        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
