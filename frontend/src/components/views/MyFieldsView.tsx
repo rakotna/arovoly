@@ -58,18 +58,18 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto bg-[#faf8ff] p-4 sm:p-6 lg:p-8 gap-6">
+    <div className="flex-1 flex flex-col overflow-y-auto bg-[#faf8ff] p-3.5 sm:p-5 lg:p-6 gap-4 sm:gap-5 max-w-[1600px] mx-auto w-full">
       {/* Top Header Deck */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
               {t.myFields.badge}
             </span>
             <span className="text-xs text-slate-400">•</span>
             <span className="text-xs font-semibold text-slate-500">{t.myFields.surfaceUnderSurveillance}</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight mt-1 font-heading">
+          <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5 sm:mt-1 font-heading">
             {t.myFields.title}
           </h1>
           <p className="text-xs text-slate-500">
@@ -77,105 +77,105 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => onNavigate('crop_tracing')}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-700 hover:bg-emerald-600 text-xs font-bold text-white shadow-md transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 rounded-full bg-emerald-700 hover:bg-emerald-600 text-xs font-bold text-white shadow-md transition-all"
           >
             <span>{t.myFields.drawBtn}</span>
           </button>
           <button
             onClick={onOpenExportModal}
-            className="px-4 py-2 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-xs font-bold text-slate-700 shadow-sm transition-all"
+            className="px-3.5 py-1.5 sm:py-2 rounded-full bg-white border border-slate-200 hover:border-slate-300 text-xs font-bold text-slate-700 shadow-sm transition-all"
           >
             {t.myFields.exportBtn}
           </button>
           <button
             onClick={() => onNavigate('vra_dashboard')}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-md shadow-emerald-700/20 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 rounded-full bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-md shadow-emerald-700/20 transition-all"
           >
             <span>{t.myFields.openVra}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
-      {/* KPI 4 Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* KPI 4 Cards Grid - Adaptive 1 -> 2 -> 4 */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1 */}
-        <div className="p-4 rounded-3xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.estValuation}
             </span>
-            <span className="text-2xl font-extrabold text-slate-900 font-heading">$1,842,500</span>
-            <span className="text-[11px] text-slate-400 font-medium">~8.47 Mds Ar</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">$1,842,500</span>
+            <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">~8.47 Mds Ar</span>
             <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
               <span>↑</span> +12.4% {t.myFields.vsAverage}
             </span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <DollarSign className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <DollarSign className="w-5 h-5" />
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="p-4 rounded-3xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.meanNdvi}
             </span>
             <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-extrabold text-slate-900 font-heading">0.76</span>
-              <span className="text-xs text-slate-400">/ 1.0 NDVI</span>
+              <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">0.76</span>
+              <span className="text-[11px] text-slate-400">/ 1.0 NDVI</span>
             </div>
             <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
               <span>↑</span> +0.05 {t.myFields.aboveSector}
             </span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Leaf className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <Leaf className="w-5 h-5" />
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="p-4 rounded-3xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.soilPestHealth}
             </span>
-            <span className="text-2xl font-extrabold text-orange-600 font-heading">{t.myFields.activeAlert}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-orange-600 font-heading">{t.myFields.activeAlert}</span>
             <span className="text-xs text-orange-600 font-semibold flex items-center gap-1 mt-0.5">
               <AlertTriangle className="w-3.5 h-3.5" /> Tanety 208 : Carence N
             </span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center">
-            <AlertTriangle className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+            <AlertTriangle className="w-5 h-5" />
           </div>
         </div>
 
         {/* Metric 4 */}
-        <div className="p-4 rounded-3xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.telemetryMachinery}
             </span>
-            <span className="text-2xl font-extrabold text-slate-900 font-heading">{t.myFields.deployedUnits}</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">{t.myFields.deployedUnits}</span>
             <span className="text-xs text-slate-600 font-medium flex items-center gap-1 mt-0.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t.myFields.tractorsDrone}
             </span>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <Tractor className="w-6 h-6" />
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+            <Tractor className="w-5 h-5" />
           </div>
         </div>
       </div>
 
       {/* Main Workspace Split: Map on Left, Field List on Right */}
-      <div className="flex flex-col xl:flex-row gap-6 flex-1 min-h-[600px]">
+      <div className="flex flex-col xl:flex-row gap-4 sm:gap-5 flex-1 min-h-0">
         {/* Left Side: Map Centerpiece */}
-        <div className="xl:w-7/12 flex flex-col gap-4">
-          <div className="relative w-full h-[580px] rounded-3xl overflow-hidden shadow-lg border border-slate-200">
+        <div className="xl:w-7/12 flex flex-col gap-3 sm:gap-4">
+          <div className="relative w-full h-[380px] sm:h-[440px] xl:h-[500px] rounded-2xl overflow-hidden shadow-md border border-slate-200">
             <AgriMap
               parcels={parcels}
               selectedParcelId={selectedParcelId}
@@ -287,7 +287,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
           </div>
 
           {/* Parcel Cards List */}
-          <div className="flex flex-col gap-3.5 max-h-[640px] overflow-y-auto pr-1">
+          <div className="flex flex-col gap-3 max-h-[540px] xl:max-h-[600px] overflow-y-auto pr-1">
             {filteredParcels.map((parcel) => {
               const isSelected = parcel.id === selectedParcelId;
               const isAlert = parcel.status === 'Needs Action';
@@ -296,7 +296,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                 <div
                   key={parcel.id}
                   onClick={() => onSelectParcel(parcel.id)}
-                  className={`p-5 rounded-3xl bg-white transition-all cursor-pointer relative overflow-hidden border ${
+                  className={`p-3.5 sm:p-4 rounded-2xl bg-white transition-all cursor-pointer relative overflow-hidden border ${
                     isSelected
                       ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/20'
                       : 'border-slate-100 shadow-sm hover:shadow-md hover:border-slate-300'

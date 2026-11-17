@@ -108,7 +108,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
       </div>
 
       {/* Main Glassmorphic Sign-In Card (Strictly Fits in Viewport, No Vertical Scroll) */}
-      <div className="relative z-10 w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-white/15 rounded-3xl p-5 sm:p-7 shadow-2xl text-white">
+      <div className="relative z-10 w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-white/15 rounded-2xl p-4 sm:p-6 shadow-2xl text-white">
         {/* Subtle Ambient Card Glow */}
         <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
 
