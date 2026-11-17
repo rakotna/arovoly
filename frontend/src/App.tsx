@@ -168,7 +168,7 @@ export function App() {
   }
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#faf8ff] text-[#0f172a] font-sans">
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-[#fcf9f3] text-[#1c1c18] font-sans">
       {/* Top Header */}
       <Header
         user={user}

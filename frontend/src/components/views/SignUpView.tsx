@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { BrandLogo } from '../common/BrandLogo';
 import {
   ArrowLeft,
   ArrowRight,
@@ -85,7 +86,8 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
       <div className="fixed left-4 top-4 z-20">
         <button onClick={onGoToLanding || onGoToSignIn} className="flex items-center gap-2 rounded-full bg-[#fcf9f3]/90 px-4 py-2 text-xs font-bold shadow backdrop-blur-xl transition hover:text-[#316b00]">
           <ArrowLeft className="h-4 w-4 text-[#316b00]" />
-          {onGoToLanding ? 'Accueil AROVOLY' : 'Connexion'}
+          <BrandLogo compact />
+          <span>{onGoToLanding ? 'Accueil' : 'Connexion'}</span>
         </button>
       </div>
       <div className="fixed right-4 top-4 z-20 flex items-center gap-2">

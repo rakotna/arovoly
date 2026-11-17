@@ -58,7 +58,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto bg-[#faf8ff] p-3.5 sm:p-5 lg:p-6 gap-4 sm:gap-5 max-w-[1600px] mx-auto w-full">
+    <div className="flex-1 flex flex-col overflow-y-auto bg-[#fcf9f3] p-3.5 sm:p-5 lg:p-6 gap-4 sm:gap-5 max-w-[1600px] mx-auto w-full">
       {/* Top Header Deck */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
@@ -103,7 +103,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
       {/* KPI 4 Cards Grid - Adaptive 1 -> 2 -> 4 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {/* Metric 1 */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-[#e5e2dc] flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.estValuation}
@@ -114,13 +114,13 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
               <span>↑</span> +12.4% {t.myFields.vsAverage}
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#c3ecd2] text-[#316b00] flex items-center justify-center shrink-0">
             <DollarSign className="w-5 h-5" />
           </div>
         </div>
 
         {/* Metric 2 */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-[#e5e2dc] flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.meanNdvi}
@@ -133,13 +133,13 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
               <span>↑</span> +0.05 {t.myFields.aboveSector}
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#c3ecd2] text-[#316b00] flex items-center justify-center shrink-0">
             <Leaf className="w-5 h-5" />
           </div>
         </div>
 
         {/* Metric 3 */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-[#e5e2dc] flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.soilPestHealth}
@@ -155,7 +155,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
         </div>
 
         {/* Metric 4 */}
-        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-white shadow-sm border border-[#e5e2dc] flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.telemetryMachinery}
@@ -165,7 +165,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-500"></span> {t.myFields.tractorsDrone}
             </span>
           </div>
-          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#e5e2dc] text-[#52634a] flex items-center justify-center shrink-0">
             <Tractor className="w-5 h-5" />
           </div>
         </div>
@@ -175,7 +175,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
       <div className="flex flex-col xl:flex-row gap-4 sm:gap-5 flex-1 min-h-0">
         {/* Left Side: Map Centerpiece */}
         <div className="xl:w-7/12 flex flex-col gap-3 sm:gap-4">
-          <div className="relative w-full h-[380px] sm:h-[440px] xl:h-[500px] rounded-2xl overflow-hidden shadow-md border border-slate-200">
+          <div className="relative w-full h-[380px] sm:h-[440px] xl:h-[500px] rounded-2xl overflow-hidden shadow-md border border-[#e5e2dc]">
             <AgriMap
               parcels={parcels}
               selectedParcelId={selectedParcelId}
@@ -186,13 +186,13 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
             />
 
             {/* Floating Layer Switcher (Top Left) */}
-            <div className="absolute top-4 left-4 z-[400] flex items-center bg-white/90 backdrop-blur-md rounded-full shadow-md p-1 border border-white/60">
+            <div className="absolute top-4 left-4 z-[400] flex items-center bg-[#fcf9f3]/95 backdrop-blur-md rounded-full shadow-md p-1 border border-[#e5e2dc]">
               <button
                 onClick={() => setActiveLayer('ndvi')}
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeLayer === 'ndvi'
                     ? 'bg-emerald-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-[#717a68] hover:text-[#1c1c18]'
                 }`}
               >
                 Satellite + NDVI
@@ -202,7 +202,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeLayer === 'hydrology'
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-[#717a68] hover:text-[#1c1c18]'
                 }`}
               >
                 {t.common.hydrology}
@@ -212,7 +212,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                 className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
                   activeLayer === 'elevation'
                     ? 'bg-amber-600 text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
+                    : 'text-[#717a68] hover:text-[#1c1c18]'
                 }`}
               >
                 {t.common.elevation}
@@ -220,7 +220,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
             </div>
 
             {/* Floating NDVI Legend (Bottom Left) */}
-            <div className="absolute bottom-4 left-4 z-[400] w-72 p-3.5 rounded-2xl bg-white/95 backdrop-blur-md shadow-lg border border-white/80">
+            <div className="absolute bottom-4 left-4 z-[400] w-72 p-3.5 rounded-2xl bg-[#fcf9f3]/95 backdrop-blur-md shadow-lg border border-[#e5e2dc]">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-bold text-slate-800">{t.myFields.ndviScaleTitle}</span>
                 <span className="text-xs font-bold text-emerald-700">0.81 (V. Élevé)</span>
@@ -236,7 +236,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
           </div>
 
           {/* Sub-Cartography Action Ribbon */}
-          <div className="p-3.5 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center justify-between">
+          <div className="p-3.5 rounded-2xl bg-white shadow-sm border border-[#e5e2dc] flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
                 <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
@@ -260,7 +260,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
         <div className="xl:w-5/12 flex flex-col gap-4">
           {/* Search & Filter Bar */}
           <div className="p-3 rounded-2xl bg-white shadow-sm border border-slate-100 flex items-center gap-2.5">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 flex-1">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#f0eee8] flex-1">
               <Search className="w-4 h-4 text-slate-400" />
               <input
                 type="text"
@@ -275,7 +275,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
               <select
                 value={selectedCropFilter}
                 onChange={(e) => setSelectedCropFilter(e.target.value)}
-                className="text-xs font-bold text-slate-700 bg-slate-100 rounded-full px-3 py-1.5 border-0 focus:ring-1 focus:ring-emerald-500"
+                className="text-xs font-bold text-[#414939] bg-[#f0eee8] rounded-full px-3 py-1.5 border-0 focus:ring-1 focus:ring-[#76c043]"
               >
                 <option value="all">{t.common.allCrops}</option>
                 <option value="Riz Paddy">Riz Paddy (Vary)</option>
@@ -287,7 +287,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
           </div>
 
           {/* Parcel Cards List */}
-          <div className="flex flex-col gap-3 max-h-[540px] xl:max-h-[600px] overflow-y-auto pr-1">
+          <div className="flex flex-col gap-3 pr-1">
             {filteredParcels.map((parcel) => {
               const isSelected = parcel.id === selectedParcelId;
               const isAlert = parcel.status === 'Needs Action';
@@ -298,40 +298,33 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                   onClick={() => onSelectParcel(parcel.id)}
                   className={`p-3.5 sm:p-4 rounded-2xl bg-white transition-all cursor-pointer relative overflow-hidden border ${
                     isSelected
-                      ? 'border-emerald-500 shadow-md ring-2 ring-emerald-500/20'
-                      : 'border-slate-100 shadow-sm hover:shadow-md hover:border-slate-300'
+                      ? 'border-[#a8d0b7] shadow-md'
+                      : 'border-[#e5e2dc] shadow-sm hover:shadow-md hover:border-[#a8d0b7]'
                   }`}
                 >
-                  {/* Left colored border strip */}
-                  <div
-                    className={`absolute top-0 left-0 bottom-0 w-2 ${
-                      isAlert ? 'bg-orange-500' : isSelected ? 'bg-emerald-600' : 'bg-slate-300'
-                    }`}
-                  ></div>
-
                   <div className="flex flex-col gap-3">
                     <div className="flex items-start justify-between">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-slate-900 font-heading">
+                          <span className="font-bold text-sm text-[#1c1c18] font-heading">
                             {parcel.name}
                           </span>
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                               isAlert
                                 ? 'bg-orange-100 text-orange-700'
-                                : 'bg-emerald-50 text-emerald-700'
+                                : 'bg-[#c3ecd2] text-[#316b00]'
                             }`}
                           >
                             {parcel.status}
                           </span>
                         </div>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-[#717a68]">
                           {parcel.crop} • {parcel.variety} • {t.myFields.sownLabel} {parcel.sownDate}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-extrabold text-slate-900 font-heading">
+                        <span className="text-sm font-extrabold text-[#1c1c18] font-heading">
                           {parcel.areaHa} ha
                         </span>
                         <span className="block text-[10px] text-slate-400 font-semibold">{parcel.section}</span>
@@ -350,7 +343,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                     )}
 
                     {/* Mini Telemetry Strip */}
-                    <div className="grid grid-cols-3 gap-2 p-2.5 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                    <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-[#f0eee8] border border-[#e5e2dc] text-xs">
                       <div className="flex flex-col">
                         <span className="text-[10px] text-slate-400 font-medium">{t.myFields.ndviIndex}</span>
                         <span
@@ -363,11 +356,11 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-slate-400 font-medium">{t.myFields.soilMoisture}</span>
-                        <span className="font-bold text-slate-800">{parcel.moisturePct}% vol.</span>
+                        <span className="font-bold text-[#414939]">{parcel.moisturePct}% vol.</span>
                       </div>
                       <div className="flex flex-col">
                         <span className="text-[10px] text-slate-400 font-medium">{t.myFields.estYield}</span>
-                        <span className="font-bold text-slate-800">{parcel.estYieldTha} t/ha</span>
+                        <span className="font-bold text-[#414939]">{parcel.estYieldTha} t/ha</span>
                       </div>
                     </div>
 

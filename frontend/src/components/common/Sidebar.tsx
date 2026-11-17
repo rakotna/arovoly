@@ -70,30 +70,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`h-full bg-slate-900 border-r border-slate-800 flex flex-col justify-between shrink-0 select-none transition-all duration-300 ease-in-out z-30 ${
+      className={`h-full bg-[#f0eee8] border-r border-[#e5e2dc] flex flex-col justify-between shrink-0 select-none transition-all duration-300 ease-in-out z-30 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
     >
       {/* Top Section with Sector Badge & Collapse Button */}
-      <div className="p-3 border-b border-slate-800/80 flex items-center justify-between gap-2 shrink-0">
+      <div className={`relative p-3 border-b border-[#e5e2dc] flex items-center gap-2 shrink-0 ${isCollapsed ? 'justify-end' : 'justify-between'}`}>
         {!isCollapsed ? (
           <div className="flex flex-col overflow-hidden">
-            <span className="text-[10px] uppercase font-bold tracking-wider text-emerald-400 truncate">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-[#316b00] truncate">
               {t.sidebar.sectorBadge}
             </span>
-            <span className="text-xs font-bold text-white truncate">
+            <span className="text-xs font-bold text-[#1c1c18] truncate">
               Alaotra-Mangoro (4 850 ha)
             </span>
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs mx-auto">
+          <div className="absolute left-1/2 top-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl bg-[#c3ecd2] text-xs font-bold text-[#316b00]">
             MDG
           </div>
         )}
 
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors shrink-0"
+          className="p-1.5 rounded-lg text-[#717a68] hover:text-[#1c1c18] hover:bg-[#e5e2dc] transition-colors shrink-0"
           title={isCollapsed ? 'Déplier la barre latérale' : 'Replier la barre latérale'}
         >
           {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Primary Navigation */}
         <nav className="flex flex-col gap-1">
           {!isCollapsed && (
-            <span className="text-[10px] font-bold text-slate-400 px-2.5 uppercase tracking-wider mb-1">
+            <span className="text-[10px] font-bold text-[#717a68] px-2.5 uppercase tracking-wider mb-1">
               {t.sidebar.fieldOperations}
             </span>
           )}
@@ -120,13 +120,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 title={isCollapsed ? item.label : undefined}
                 className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs transition-all text-left group ${
                   isActive
-                    ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40 font-bold'
-                    : 'text-slate-300 hover:bg-slate-800/80 hover:text-white'
+                    ? 'bg-[#316b00] text-white shadow-lg shadow-[#316b00]/20 font-bold'
+                    : 'text-[#414939] hover:bg-[#e5e2dc] hover:text-[#1c1c18]'
                 } ${isCollapsed ? 'justify-center px-0' : ''}`}
               >
                 <Icon
                   className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${
-                    isActive ? 'text-white' : 'text-slate-400 group-hover:text-emerald-400'
+                    isActive ? 'text-white' : 'text-[#717a68] group-hover:text-[#316b00]'
                   }`}
                 />
                 {!isCollapsed && (
@@ -134,7 +134,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     <span className="truncate leading-tight">{item.label}</span>
                     <span
                       className={`text-[10px] font-normal truncate mt-0.5 ${
-                        isActive ? 'text-emerald-100' : 'text-slate-400'
+                        isActive ? 'text-[#d5e8c9]' : 'text-[#717a68]'
                       }`}
                     >
                       {item.sublabel}
@@ -147,9 +147,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Secondary Navigation */}
-        <div className="flex flex-col gap-1 pt-2 border-t border-slate-800/80">
+        <div className="flex flex-col gap-1 pt-2 border-t border-[#e5e2dc]">
           {!isCollapsed && (
-            <span className="text-[10px] font-bold text-slate-400 px-2.5 uppercase tracking-wider mb-1">
+            <span className="text-[10px] font-bold text-[#717a68] px-2.5 uppercase tracking-wider mb-1">
               Matériel & Outils
             </span>
           )}
@@ -161,7 +161,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               );
             }}
             title={isCollapsed ? t.sidebar.machineryTelematics : undefined}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors text-left ${
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs text-[#717a68] hover:text-[#1c1c18] hover:bg-[#e5e2dc] transition-colors text-left ${
               isCollapsed ? 'justify-center px-0' : ''
             }`}
           >
@@ -169,7 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {!isCollapsed && (
               <>
                 <span className="truncate">{t.sidebar.machineryTelematics}</span>
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold shrink-0">
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-[#c3ecd2] text-[#316b00] font-bold shrink-0">
                   {t.sidebar.activeUnits}
                 </span>
               </>
@@ -180,11 +180,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <button
               onClick={onOpenReportModal}
               title={isCollapsed ? t.sidebar.generateReport : undefined}
-              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs text-slate-400 hover:text-white hover:bg-slate-800/60 transition-colors text-left ${
+              className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl font-medium text-xs text-[#717a68] hover:text-[#1c1c18] hover:bg-[#e5e2dc] transition-colors text-left ${
                 isCollapsed ? 'justify-center px-0' : ''
               }`}
             >
-              <FileSpreadsheet className="w-4 h-4 text-emerald-400 shrink-0" />
+              <FileSpreadsheet className="w-4 h-4 text-[#316b00] shrink-0" />
               {!isCollapsed && <span className="truncate">{t.sidebar.generateReport}</span>}
             </button>
           )}
@@ -192,20 +192,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Section (Pinned cleanly at the bottom without overflow clipping) */}
-      <div className="p-2.5 border-t border-slate-800/80 bg-slate-900/95 shrink-0">
+      <div className="p-2.5 border-t border-[#e5e2dc] bg-[#f0eee8] shrink-0">
         {!isCollapsed ? (
-          <div className="p-2.5 rounded-xl bg-slate-800/40 border border-slate-700/40 text-[11px] text-slate-400 flex flex-col gap-1">
-            <div className="flex items-center justify-between font-bold text-slate-300">
+          <div className="p-2.5 rounded-xl bg-[#fcf9f3] border border-[#e5e2dc] text-[11px] text-[#717a68] flex flex-col gap-1">
+            <div className="flex items-center justify-between font-bold text-[#414939]">
               <span className="truncate">{t.sidebar.systemVersion}</span>
-              <span className="text-emerald-400 shrink-0">{t.sidebar.syncStatus}</span>
+              <span className="text-[#316b00] shrink-0">{t.sidebar.syncStatus}</span>
             </div>
-            <span className="text-[10px] text-slate-400 truncate">
+            <span className="text-[10px] text-[#717a68] truncate">
               {t.sidebar.imageryCredit}
             </span>
           </div>
         ) : (
           <div className="flex justify-center" title={`${t.sidebar.systemVersion} • ${t.sidebar.syncStatus}`}>
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#76c043] animate-pulse"></span>
           </div>
         )}
       </div>

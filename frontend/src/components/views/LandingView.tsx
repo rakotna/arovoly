@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { ViewType } from '../../types';
+import { BrandLogo } from '../common/BrandLogo';
 import {
   Satellite,
   Radio,
@@ -259,17 +260,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo */}
-          <div
-            onClick={scrollToTop}
-            className="flex items-center gap-2 group cursor-pointer shrink-0"
-          >
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 backdrop-blur-md shadow-md shadow-black/10 flex items-center justify-center border border-white/40 group-hover:scale-105 transition-transform duration-300">
-              <span className="material-symbols-outlined text-[#316b00] text-xl sm:text-2xl">potted_plant</span>
-            </div>
-            <span className={`font-extrabold text-lg sm:text-xl tracking-tight drop-shadow-md ${isHeaderScrolled ? 'text-[#1c1c18]' : 'text-white'}`}>
-              ARO<span className="text-[#8eda5a]">VOLY</span>
-            </span>
-          </div>
+          <BrandLogo tone={isHeaderScrolled ? 'dark' : 'light'} onClick={scrollToTop} />
 
           {/* Pill Nav (Desktop) */}
           <nav className="hidden lg:flex items-center bg-white/90 backdrop-blur-md px-3.5 py-1.5 xl:px-5 xl:py-2 rounded-full shadow-lg shadow-black/5 border border-white/60 gap-2.5 xl:gap-5 text-[11px] xl:text-xs font-semibold text-[#1c1c18]">

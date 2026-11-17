@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
+import { BrandLogo } from '../common/BrandLogo';
 import {
   ArrowLeft,
   ArrowRight,
@@ -109,7 +110,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <ArrowLeft className="h-4 w-4 text-[#316b00] transition group-hover:-translate-x-0.5" />
             <span>Accueil</span>
             <span className="text-[#717a68]">•</span>
-            <span className="font-mono tracking-wider text-[#316b00]">AROVOLY</span>
+            <BrandLogo compact />
           </button>
         )}
       </div>

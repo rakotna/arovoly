@@ -65,7 +65,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col overflow-y-auto bg-[#faf8ff] p-3.5 sm:p-5 lg:p-6 gap-4 sm:gap-5 max-w-[1600px] mx-auto w-full">
+    <div className="flex-1 flex flex-col overflow-y-auto bg-[#fcf9f3] p-3.5 sm:p-5 lg:p-6 gap-4 sm:gap-5 max-w-[1600px] mx-auto w-full">
       {/* Top Command Sub-bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
         <div>
