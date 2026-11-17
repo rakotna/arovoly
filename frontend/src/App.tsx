@@ -9,6 +9,7 @@ import { Toast } from './components/common/Toast';
 import { SignInView } from './components/views/SignInView';
 import { SignUpView } from './components/views/SignUpView';
 import { LandingView } from './components/views/LandingView';
+import { DemoView } from './components/views/DemoView';
 import { MyFieldsView } from './components/views/MyFieldsView';
 import { CropTracingView } from './components/views/CropTracingView';
 import { VraDashboardView } from './components/views/VraDashboardView';
@@ -135,7 +136,7 @@ export function App() {
         <LandingView
           onGoToSignIn={() => setCurrentView('sign_in')}
           onGoToDashboard={() => setCurrentView(user ? 'my_fields' : 'sign_in')}
-          onQuickDemo={() => setCurrentView('sign_in')}
+          onQuickDemo={() => setCurrentView('demo')}
           isAuthenticated={!!user}
           userName={user?.name}
           userRole={user?.role}
@@ -150,6 +151,15 @@ export function App() {
         />
         <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
       </>
+    );
+  }
+
+  if (currentView === 'demo') {
+    return (
+      <DemoView
+        onGoToLanding={() => setCurrentView('landing')}
+        onGoToSignIn={() => setCurrentView('sign_in')}
+      />
     );
   }
 

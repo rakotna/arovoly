@@ -89,7 +89,13 @@
 
 /* Keep the sign-in terminal visible in short browser windows without scrolling. */
 .signin-content {
-  zoom: clamp(0.78, calc(100vh / 800px), 1);
+  zoom: 1;
+}
+
+@media (min-width: 768px) {
+  .signin-content {
+    zoom: clamp(0.78, calc(100vh / 800px), 1);
+  }
 }
 
 .landing-page .landing-section[id] {

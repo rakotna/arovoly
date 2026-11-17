@@ -66,7 +66,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
   const headerRef = useRef<HTMLElement | null>(null);
-  const isSnappingScroll = useRef(false);
 
   // Contact form state
   const [contactForm, setContactForm] = useState({
@@ -80,7 +79,6 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
   // Keep the sticky navigation aligned with the section currently in view.
   useEffect(() => {
-    let scrollStopTimer: number | undefined;
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.landing-section'));
 
     const handleScroll = () => {
@@ -93,38 +91,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
         return section.getBoundingClientRect().top <= headerHeight + 32 ? section.id || 'hero' : current;
       }, 'hero');
       setActiveSection(visibleSection);
-
-      if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
-      scrollStopTimer = window.setTimeout(() => {
-        if (isSnappingScroll.current || scrollY < 80) return;
-
-        const nearestSection = sections
-          .map((section) => ({
-            section,
-            distance: Math.abs(section.getBoundingClientRect().top - headerHeight),
-          }))
-          .sort((a, b) => a.distance - b.distance)[0];
-
-        if (!nearestSection || nearestSection.distance < 24) return;
-
-        const targetTop = Math.max(
-          0,
-          window.scrollY + nearestSection.section.getBoundingClientRect().top - headerHeight,
-        );
-        if (Math.abs(window.scrollY - targetTop) < 24) return;
-
-        isSnappingScroll.current = true;
-        window.scrollTo({ top: targetTop, behavior: 'smooth' });
-        window.setTimeout(() => {
-          isSnappingScroll.current = false;
-        }, 650);
-      }, 240);
     };
     window.addEventListener('scroll', handleScroll);
     handleScroll();
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
     };
   }, []);
 

@@ -76,7 +76,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
     'bg-[#fcf9f3]/90 backdrop-blur-xl shadow-[0_16px_36px_-8px_rgba(10,36,18,0.25)]';
 
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#fcf9f3] p-3 font-sans text-[#1c1c18] sm:p-6 lg:p-10">
+    <main className="relative flex min-h-screen w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-[#fcf9f3] p-3 pt-20 font-sans text-[#1c1c18] sm:p-6 sm:pt-20 lg:p-10">
       <div className="absolute inset-0 scale-105 bg-cover bg-center" style={{ backgroundImage: `url("${aerialImage}")` }} />
       <div className="absolute inset-0 bg-gradient-to-tr from-[#0b1c11]/95 via-[#0e2417]/80 to-[#07130b]/70 backdrop-blur-[2px]" />
       <div
@@ -112,8 +112,8 @@ export const SignInView: React.FC<SignInViewProps> = ({
         </button>
       </div>
 
-      <div className="signin-content relative z-10 flex w-full max-w-7xl flex-col items-center justify-center gap-4 lg:flex-row lg:gap-8">
-        <section className={`${panelClass} relative w-full max-w-xl overflow-hidden rounded-2xl p-5 sm:p-7 lg:p-8`}>
+      <div className="signin-content relative z-10 flex w-full max-w-7xl flex-col items-center justify-center gap-4 pb-8 lg:flex-row lg:gap-8">
+        <section className={`${panelClass} relative w-full max-w-xl overflow-hidden rounded-2xl p-4 sm:p-7 lg:p-8`}>
           <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-[#76c043]/20 blur-3xl" />
           <div className="mb-4 flex items-center justify-between gap-2">
             <div className="inline-flex items-center gap-2 rounded-full bg-[#f0eee8] px-3 py-1 font-mono text-[10px] font-semibold tracking-wider">

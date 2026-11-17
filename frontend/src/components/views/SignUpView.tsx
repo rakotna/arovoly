@@ -86,7 +86,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
     'mt-1 w-full rounded-lg bg-[#f0eee8] px-4 py-2.5 text-sm text-[#1c1c18] outline-none transition focus:bg-white focus:ring-2 focus:ring-[#76c043]';
 
   return (
-    <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#fcf9f3] p-3 font-sans text-[#1c1c18] sm:p-6 lg:p-10">
+    <main className="relative flex min-h-screen w-full items-center justify-center overflow-x-hidden overflow-y-auto bg-[#fcf9f3] p-3 pt-20 font-sans text-[#1c1c18] sm:p-6 sm:pt-20 lg:p-10">
       <div className="fixed inset-0 -z-10 bg-cover bg-center" style={{ backgroundImage: `url("${aerialImage}")` }} />
       <div className="fixed inset-0 -z-10 bg-[#fcf9f3]/75 backdrop-blur-[16px]" />
       <div className="fixed inset-0 -z-10 bg-gradient-to-b from-[#fcf9f3]/40 via-[#fcf9f3]/80 to-[#fcf9f3]" />
@@ -106,7 +106,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
         <button onClick={toggleLanguage} className="rounded-full bg-[#fcf9f3]/90 px-3 py-2 text-xs font-bold uppercase shadow backdrop-blur-xl">{language} <ChevronDown className="ml-1 inline h-3 w-3" /></button>
       </div>
 
-      <div className="signin-content relative z-10 grid w-full max-w-7xl grid-cols-1 items-start gap-6 py-10 lg:grid-cols-12 lg:gap-8">
+      <div className="signin-content relative z-10 grid w-full max-w-7xl grid-cols-1 items-start gap-6 pb-20 lg:gap-8 lg:py-10">
         <section className="flex flex-col gap-5 lg:col-span-5">
           <div className="flex flex-col gap-2">
             <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#fcf9f3]/90 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#316b00] shadow">
@@ -152,13 +152,13 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
             {authError && <div className="rounded-lg border border-[#f0aaa5] bg-[#ffe1df] p-3 text-xs font-semibold text-[#ba1a1a]" role="alert">{authError}</div>}
             <fieldset>
               <legend className="mb-1 text-sm font-semibold">Type d'Accréditation</legend>
-              <div className="grid grid-cols-1 gap-1 rounded-xl bg-[#ebe8e2] p-1 sm:grid-cols-3">
+              <div className="grid grid-cols-3 gap-1 rounded-xl bg-[#ebe8e2] p-1">
                 {([
                   ['agronomist', 'Agronome / R&D'],
                   ['producer', 'Exploitant / Coop'],
                   ['ngo', 'Institution / ONG'],
                 ] as const).map(([value, label]) => (
-                  <label key={value} className={`cursor-pointer rounded-lg px-2 py-2 text-center text-xs font-semibold transition ${profileType === value ? 'bg-white shadow-sm' : 'text-[#717a68]'}`}>
+                  <label key={value} className={`cursor-pointer rounded-lg px-1 py-2 text-center text-[10px] font-semibold transition sm:px-2 sm:text-xs ${profileType === value ? 'bg-white shadow-sm' : 'text-[#717a68]'}`}>
                     <input type="radio" name="profileType" value={value} checked={profileType === value} onChange={() => setProfileType(value)} className="sr-only" />{label}
                   </label>
                 ))}
@@ -184,7 +184,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
         </section>
       </div>
 
-      <div className="fixed bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-[#fcf9f3]/90 px-4 py-2 text-xs shadow backdrop-blur-xl"><Satellite className="h-4 w-4 text-[#316b00]" /><strong>Sentinel S2-B</strong><span className="opacity-40">//</span><span>Sécurité &amp; Support</span></div>
+      <div className="fixed bottom-4 left-1/2 z-20 hidden -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-[#fcf9f3]/90 px-4 py-2 text-xs shadow backdrop-blur-xl sm:flex"><Satellite className="h-4 w-4 text-[#316b00]" /><strong>Sentinel S2-B</strong><span className="opacity-40">//</span><span>Sécurité &amp; Support</span></div>
     </main>
   );
 };

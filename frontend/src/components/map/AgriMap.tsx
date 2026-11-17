@@ -11,6 +11,7 @@ interface AgriMapProps {
   activeLayer?: 'satellite' | 'ndvi' | 'hydrology' | 'elevation' | 'vra';
   showSensors?: boolean;
   className?: string;
+  controlsClassName?: string;
 }
 
 export const AgriMap: React.FC<AgriMapProps> = ({
@@ -21,6 +22,7 @@ export const AgriMap: React.FC<AgriMapProps> = ({
   activeLayer = 'ndvi',
   showSensors = true,
   className = 'w-full h-full min-h-[500px]',
+  controlsClassName = 'bottom-4 right-4',
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -196,7 +198,7 @@ export const AgriMap: React.FC<AgriMapProps> = ({
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px]" />
 
       {/* Floating Zoom & Controls */}
-      <div className="absolute bottom-4 right-4 z-[400] flex flex-col gap-2">
+      <div className={`absolute z-[400] flex flex-col gap-2 ${controlsClassName}`}>
         <div className="flex flex-col rounded-2xl bg-[#fcf9f3]/95 backdrop-blur-md shadow-lg border border-[#e5e2dc] overflow-hidden">
           <button
             onClick={handleZoomIn}
