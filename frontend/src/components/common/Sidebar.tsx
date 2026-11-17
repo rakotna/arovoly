@@ -11,6 +11,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Home,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 
@@ -25,10 +26,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNavigate,
   onOpenReportModal,
 }) => {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const navItems = [
+    {
+      id: 'landing' as ViewType,
+      label: language === 'fr' ? 'Accueil & À Propos' : 'Home & About',
+      sublabel: language === 'fr' ? 'Présentation de la plateforme' : 'Platform Overview',
+      icon: Home,
+    },
     {
       id: 'my_fields' as ViewType,
       label: t.sidebar.myFields,

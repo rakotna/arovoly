@@ -1,6 +1,6 @@
-# AgroField AI — Crop Monitoring
+# AROVOLY — Crop Monitoring & Precision Agriculture
 
-AgroField AI est une plateforme web de **precision agriculture** destinée aux agronomes,
+AROVOLY est une plateforme web de **precision agriculture** destinée aux agronomes,
 gestionnaires d’exploitations et opérateurs de terrain. Elle centralise les données
 géospatiales, satellitaires, météorologiques et IoT afin d'aider à prendre de meilleures
 décisions sur les parcelles, l'irrigation, la fertilisation et la récolte.

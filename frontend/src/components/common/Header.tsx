@@ -15,6 +15,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   MapPin,
+  HelpCircle,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 
@@ -83,7 +84,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col cursor-pointer" onClick={() => onNavigate('my_fields')}>
           <div className="flex items-center gap-2">
             <span className="font-heading font-extrabold text-white text-base tracking-tight leading-none">
-              AgroField <span className="text-emerald-400">AI</span>
+              ARO<span className="text-emerald-400">VOLY</span>
             </span>
             <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
               v3.4 • Madagascar
@@ -136,6 +137,16 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Globe className="w-3.5 h-3.5 text-emerald-400" />
           <span className="tracking-wider">{language.toUpperCase()}</span>
+        </button>
+
+        {/* About & Home Navigation */}
+        <button
+          onClick={() => onNavigate('landing')}
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-emerald-500/20 border border-white/10 hover:border-emerald-500/30 text-xs font-semibold text-slate-300 hover:text-emerald-300 transition-all"
+          title="Page d'accueil, présentation et aide AROVOLY"
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="hidden md:inline">{language === 'fr' ? 'Accueil & À Propos' : 'Home & About'}</span>
         </button>
 
         {/* Notifications Bell Dropdown */}

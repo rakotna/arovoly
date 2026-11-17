@@ -24,13 +24,13 @@ class Command(BaseCommand):
             if verbose:
                 self.stdout.write(style(msg) if style else msg)
 
-        log("Initializing AgroField AI database seed...", self.style.NOTICE)
+        log("Initializing AROVOLY database seed...", self.style.NOTICE)
 
         # 1. Users & Profiles
         users_data = [
             {
-                'username': 'e.vance@agrofield.mg',
-                'email': 'e.vance@agrofield.mg',
+                'username': 'e.vance@arovoly.mg',
+                'email': 'e.vance@arovoly.mg',
                 'first_name': 'Éléonore',
                 'last_name': 'Vance',
                 'name': 'Dr. Éléonore Vance (Andrianina)',
@@ -39,8 +39,8 @@ class Command(BaseCommand):
                 'avatar_url': 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256'
             },
             {
-                'username': 'analyst.satellite@agrofield.mg',
-                'email': 'analyst.satellite@agrofield.mg',
+                'username': 'analyst.satellite@arovoly.mg',
+                'email': 'analyst.satellite@arovoly.mg',
                 'first_name': 'Rado',
                 'last_name': 'Rakotomalala',
                 'name': 'Rado Rakotomalala (Télédétection)',
@@ -49,8 +49,8 @@ class Command(BaseCommand):
                 'avatar_url': 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=256'
             },
             {
-                'username': 'direction.exploitation@agrofield.mg',
-                'email': 'direction.exploitation@agrofield.mg',
+                'username': 'direction.exploitation@arovoly.mg',
+                'email': 'direction.exploitation@arovoly.mg',
                 'first_name': 'Mamy',
                 'last_name': 'Razafindrakoto',
                 'name': 'Mamy Razafindrakoto (Directeur)',
@@ -69,7 +69,7 @@ class Command(BaseCommand):
                     'last_name': u['last_name'],
                 }
             )
-            user.set_password('agrofield2024')
+            user.set_password('arovoly2024')
             user.save()
 
             UserProfile.objects.update_or_create(
@@ -543,4 +543,4 @@ class Command(BaseCommand):
             )
 
         log("✓ Yield Forecast, Phenological Stages, and Weather Scenarios seeded.", self.style.SUCCESS)
-        log("=== AgroField AI Backend Database successfully initialized! ===", self.style.SUCCESS)
+        log("=== AROVOLY Backend Database successfully initialized! ===", self.style.SUCCESS)

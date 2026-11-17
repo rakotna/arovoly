@@ -230,7 +230,7 @@ class FieldViewSet(MultiLookupMixin, viewsets.ModelViewSet):
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <name>{field.name}</name>
-    <description>AgroField AI - Precision Agriculture Parcel {field.code}</description>
+    <description>AROVOLY - Precision Agriculture Parcel {field.code}</description>
     <Style id="agriPoly">
       <LineStyle>
         <color>ff009605</color>
@@ -531,7 +531,7 @@ def auth_login(request):
         if email:
             name_part = email.split('@')[0].replace('.', ' ').title()
             user, _ = User.objects.get_or_create(username=email, defaults={'email': email})
-            user.set_password('agrofield2024')
+            user.set_password('arovoly2024')
             user.save()
             profile, _ = UserProfile.objects.get_or_create(
                 user=user,
@@ -568,7 +568,7 @@ def auth_profile(request):
             return Response(UserProfileSerializer(profile).data)
         return Response({
             "name": "Dr. Éléonore Vance (Andrianina)",
-            "email": "e.vance@agrofield.mg",
+            "email": "e.vance@arovoly.mg",
             "role": "Directrice Agronome Régionale • Madagascar",
             "terminalUnit": "Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)",
             "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
@@ -595,7 +595,7 @@ def health_check(request):
 
     return Response({
         "status": "healthy",
-        "service": "AgroField AI Precision Ag API",
+        "service": "AROVOLY Precision Ag API",
         "version": "v3.4.0",
         "region": "Madagascar (Alaotra-Mangoro / Vakinankaratra / Itasy)",
         "imagery_provider": "Esri World Imagery (Maxar ready)",

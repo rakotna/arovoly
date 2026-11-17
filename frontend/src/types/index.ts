@@ -1,4 +1,5 @@
 export type ViewType =
+  | 'landing'
   | 'my_fields'
   | 'crop_tracing'
   | 'vra_dashboard'

@@ -4,7 +4,7 @@ import { MOCK_PARCELS, MOCK_SENSORS, MOCK_VRA_ZONES } from '../data/mockData';
 const API_BASE_URL = ((import.meta as any).env?.VITE_API_URL as string) || 'http://localhost:8000/api';
 
 /**
- * AgroField AI - Backend API Client
+ * AROVOLY - Precision Agriculture & Crop Protection API Client
  * Seamlessly connects React to Django REST Framework with intelligent offline fallback.
  */
 export const api = {
@@ -16,7 +16,7 @@ export const api = {
       const data = await res.json();
       return Array.isArray(data) && data.length > 0 ? data : MOCK_PARCELS;
     } catch (err) {
-      console.warn('[AgroField API] Backend unavailable, using local parcels data:', err);
+      console.warn('[AROVOLY API] Backend unavailable, using local parcels data:', err);
       return MOCK_PARCELS;
     }
   },
@@ -31,7 +31,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to local parcel save:', err);
+      console.warn('[AROVOLY API] Fallback to local parcel save:', err);
       return parcel as Parcel;
     }
   },
@@ -43,7 +43,7 @@ export const api = {
       });
       return res.ok || res.status === 204;
     } catch (err) {
-      console.warn('[AgroField API] Fallback to local parcel delete:', err);
+      console.warn('[AROVOLY API] Fallback to local parcel delete:', err);
       return true;
     }
   },
@@ -56,7 +56,7 @@ export const api = {
       const data = await res.json();
       return Array.isArray(data) && data.length > 0 ? data : MOCK_SENSORS;
     } catch (err) {
-      console.warn('[AgroField API] Backend unavailable, using local sensors data:', err);
+      console.warn('[AROVOLY API] Backend unavailable, using local sensors data:', err);
       return MOCK_SENSORS;
     }
   },
@@ -71,7 +71,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to local sensor deploy:', err);
+      console.warn('[AROVOLY API] Fallback to local sensor deploy:', err);
       return sensor as SensorProbe;
     }
   },
@@ -85,7 +85,7 @@ export const api = {
       const data = await res.json();
       return data.sensors || null;
     } catch (err) {
-      console.warn('[AgroField API] Telemetry simulation offline:', err);
+      console.warn('[AROVOLY API] Telemetry simulation offline:', err);
       return null;
     }
   },
@@ -100,7 +100,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to mock VRA zones:', err);
+      console.warn('[AROVOLY API] Fallback to mock VRA zones:', err);
       return { zones: MOCK_VRA_ZONES, baseRateKgHa: 180 };
     }
   },
@@ -119,7 +119,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to client VRA calculation:', err);
+      console.warn('[AROVOLY API] Fallback to client VRA calculation:', err);
       return null;
     }
   },
@@ -134,7 +134,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to client yield forecast:', err);
+      console.warn('[AROVOLY API] Fallback to client yield forecast:', err);
       return null;
     }
   },
@@ -149,7 +149,7 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
-      console.warn('[AgroField API] Fallback to local scenario simulation:', err);
+      console.warn('[AROVOLY API] Fallback to local scenario simulation:', err);
       return null;
     }
   },
@@ -165,11 +165,11 @@ export const api = {
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       if (data.token) {
-        localStorage.setItem('agrofield_token', data.token);
+        localStorage.setItem('arovoly_token', data.token);
       }
       return data.user as UserProfile;
     } catch (err) {
-      console.warn('[AgroField API] Backend auth unavailable, using offline profile:', err);
+      console.warn('[AROVOLY API] Backend auth unavailable, using offline profile:', err);
       return null;
     }
   },

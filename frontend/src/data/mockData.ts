@@ -2,7 +2,7 @@ import { Parcel, SensorProbe, VRAZone, WeatherScenario, PhenologicalStage, UserP
 
 export const INITIAL_USER: UserProfile = {
   name: 'Dr. Éléonore Vance (Andrianina)',
-  email: 'e.vance@agrofield.mg',
+  email: 'e.vance@arovoly.mg',
   role: 'Directrice Agronome Régionale • Madagascar',
   terminalUnit: 'Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)',
   avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',

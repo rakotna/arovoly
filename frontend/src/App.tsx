@@ -7,6 +7,7 @@ import { Sidebar } from './components/common/Sidebar';
 import { ExportModal } from './components/common/ExportModal';
 import { Toast } from './components/common/Toast';
 import { SignInView } from './components/views/SignInView';
+import { LandingView } from './components/views/LandingView';
 import { MyFieldsView } from './components/views/MyFieldsView';
 import { CropTracingView } from './components/views/CropTracingView';
 import { VraDashboardView } from './components/views/VraDashboardView';
@@ -14,8 +15,20 @@ import { SoilSensorsView } from './components/views/SoilSensorsView';
 import { YieldForecastView } from './components/views/YieldForecastView';
 
 export function App() {
-  const [currentView, setCurrentView] = useState<ViewType>('my_fields');
-  const [user, setUser] = useState<UserProfile | null>(INITIAL_USER);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const saved = localStorage.getItem('arovoly_user');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+  const [currentView, setCurrentView] = useState<ViewType>(() => {
+    return localStorage.getItem('arovoly_user') ? 'my_fields' : 'landing';
+  });
   const [parcels, setParcels] = useState<Parcel[]>(MOCK_PARCELS);
   const [selectedParcelId, setSelectedParcelId] = useState<string>(MOCK_PARCELS[0]?.id || '402-alaotra');
   const [sensors, setSensors] = useState<SensorProbe[]>(MOCK_SENSORS);
@@ -34,15 +47,18 @@ export function App() {
 
   const handleSignIn = (signedInUser: UserProfile) => {
     setUser(signedInUser);
+    localStorage.setItem('arovoly_user', JSON.stringify(signedInUser));
     setIsSignOutNotice(false);
     setCurrentView('my_fields');
-    showToast(`Bienvenue sur le terminal AgroField Madagascar, ${signedInUser.name}`);
+    showToast(`Bienvenue sur le terminal AROVOLY Madagascar, ${signedInUser.name}`);
   };
 
   const handleSignOut = () => {
     setUser(null);
+    localStorage.removeItem('arovoly_user');
+    localStorage.removeItem('arovoly_token');
     setIsSignOutNotice(true);
-    setCurrentView('sign_in');
+    setCurrentView('landing');
     showToast('Session fermée avec succès.');
   };
 
@@ -98,12 +114,37 @@ export function App() {
     }
   };
 
-  // If on Sign-In screen, show full-screen sign-in view
-  if (currentView === 'sign_in') {
+  // 1. Landing / Presentation page (accessible to all visitors and users)
+  if (currentView === 'landing') {
+    return (
+      <>
+        <LandingView
+          onGoToSignIn={() => setCurrentView('sign_in')}
+          onGoToDashboard={() => setCurrentView('my_fields')}
+          onQuickDemo={() => handleSignIn(INITIAL_USER)}
+          isAuthenticated={!!user}
+          userName={user?.name}
+          userRole={user?.role}
+          onSignOut={handleSignOut}
+          onNavigate={(view: ViewType) => {
+            if (['my_fields', 'crop_tracing', 'vra_dashboard', 'soil_sensors', 'yield_forecast'].includes(view) && !user) {
+              handleSignIn(INITIAL_USER);
+            }
+            setCurrentView(view);
+          }}
+        />
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+      </>
+    );
+  }
+
+  // 2. If on Sign-In screen or unauthenticated, show full-screen sign-in view
+  if (currentView === 'sign_in' || !user) {
     return (
       <>
         <SignInView
           onSignInSuccess={handleSignIn}
+          onGoToLanding={() => setCurrentView('landing')}
           isSignOutNotice={isSignOutNotice}
         />
         <Toast message={toastMessage} onClose={() => setToastMessage(null)} />

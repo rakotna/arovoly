@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Load .env file
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'agrofield-ai-secret-development-key-change-in-production')
+SECRET_KEY = os.getenv('SECRET_KEY', 'arovoly-secret-development-key-change-in-production')
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,0.0.0.0').split(',') if h.strip()]
 
@@ -22,7 +22,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    # AgroField AI Apps
+    # AROVOLY Apps
     'api.apps.ApiConfig',
 ]
 

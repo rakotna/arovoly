@@ -6,7 +6,7 @@ from rest_framework import status
 from api.models import Field, Sensor, Measurement, VRAPrescription, YieldForecast
 
 
-class AgroFieldApiTests(TestCase):
+class ArovolyApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         call_command('seed_data', verbosity=0)
@@ -136,8 +136,8 @@ class AgroFieldApiTests(TestCase):
     def test_auth_login(self):
         url = reverse('auth-login')
         payload = {
-            'email': 'e.vance@agrofield.mg',
-            'password': 'agrofield2024'
+            'email': 'e.vance@arovoly.mg',
+            'password': 'arovoly2024'
         }
         response = self.client.post(url, payload, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
