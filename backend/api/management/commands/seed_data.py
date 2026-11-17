@@ -83,6 +83,7 @@ class Command(BaseCommand):
             )
 
         log("✓ Users & UserProfiles configured.", self.style.SUCCESS)
+        demo_owner = User.objects.get(username='e.vance@arovoly.mg')
 
         # 2. Farms
         farm_alaotra, _ = Farm.objects.update_or_create(
@@ -266,7 +267,7 @@ class Command(BaseCommand):
         for p in parcels_data:
             field, _ = Field.objects.update_or_create(
                 slug=p['slug'],
-                defaults=p
+                defaults={**p, 'owner': demo_owner}
             )
             fields_dict[p['slug']] = field
 

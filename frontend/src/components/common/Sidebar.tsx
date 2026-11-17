@@ -12,6 +12,8 @@ import {
   ChevronRight,
   Sparkles,
   Home,
+  MoreHorizontal,
+  X,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 
@@ -28,6 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const { t, language } = useTranslation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
     {
@@ -69,11 +72,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside
-      className={`h-full bg-[#f0eee8] border-r border-[#e5e2dc] flex flex-col justify-between shrink-0 select-none transition-all duration-300 ease-in-out z-30 ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
-    >
+    <>
+      <aside
+        className={`hidden md:flex h-full bg-[#f0eee8] border-r border-[#e5e2dc] flex-col justify-between shrink-0 select-none transition-all duration-300 ease-in-out z-30 ${
+          isCollapsed ? 'w-20' : 'w-64'
+        }`}
+      >
       {/* Top Section with Sector Badge & Collapse Button */}
       <div className={`relative p-3 border-b border-[#e5e2dc] flex items-center gap-2 shrink-0 ${isCollapsed ? 'justify-end' : 'justify-between'}`}>
         {!isCollapsed ? (
@@ -209,6 +213,120 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
       </div>
-    </aside>
+      </aside>
+
+      <aside className="md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-[#d9d6ce] bg-[#fcf9f3]/95 px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2 shadow-[0_-8px_24px_rgba(28,28,24,0.12)] backdrop-blur-xl">
+      {isMobileMenuOpen && (
+        <div className="absolute bottom-full left-2 right-2 mb-2 max-h-[min(70vh,28rem)] overflow-y-auto rounded-2xl border border-[#e5e2dc] bg-[#fcf9f3]/98 p-2 shadow-2xl backdrop-blur-xl">
+          <div className="flex items-center justify-between border-b border-[#e5e2dc] px-2 pb-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#316b00]">
+              {language === 'fr' ? 'Navigation' : 'Navigation'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-[#717a68] hover:bg-[#e5e2dc] hover:text-[#1c1c18]"
+              aria-label={language === 'fr' ? 'Fermer le menu' : 'Close menu'}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <nav className="grid grid-cols-2 gap-1.5 pt-2">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = currentView === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    onNavigate(item.id);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`flex min-h-14 items-center gap-2 rounded-xl px-2.5 text-left text-xs font-semibold transition-colors ${
+                    isActive
+                      ? 'bg-[#316b00] text-white'
+                      : 'bg-[#f0eee8] text-[#414939] hover:bg-[#e5e2dc]'
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 shrink-0 ${isActive ? 'text-white' : 'text-[#316b00]'}`} />
+                  <span className="min-w-0 truncate">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="mt-2 border-t border-[#e5e2dc] pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                alert(
+                  'Télématique Machines Madagascar : 3 tracteurs autonomes connectés sur la plaine d’Ambatondrazaka. Débit CAN-bus actif.'
+                );
+              }}
+              className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-xs font-semibold text-[#414939] hover:bg-[#e5e2dc]"
+            >
+              <Tractor className="h-4 w-4 text-[#316b00]" />
+              <span className="truncate">{t.sidebar.machineryTelematics}</span>
+              <span className="ml-auto shrink-0 rounded-full bg-[#c3ecd2] px-1.5 py-0.5 text-[9px] font-bold text-[#316b00]">
+                {t.sidebar.activeUnits}
+              </span>
+            </button>
+
+            {onOpenReportModal && (
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  onOpenReportModal();
+                }}
+                className="flex min-h-11 w-full items-center gap-2 rounded-xl px-2.5 text-left text-xs font-semibold text-[#414939] hover:bg-[#e5e2dc]"
+              >
+                <FileSpreadsheet className="h-4 w-4 text-[#316b00]" />
+                <span className="truncate">{t.sidebar.generateReport}</span>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      <nav className="mx-auto grid max-w-lg grid-cols-5 gap-1">
+        {navItems.slice(0, 4).map((item) => {
+          const Icon = item.icon;
+          const isActive = currentView === item.id;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => {
+                onNavigate(item.id);
+                setIsMobileMenuOpen(false);
+              }}
+              className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-semibold transition-colors ${
+                isActive ? 'bg-[#c3ecd2] text-[#316b00]' : 'text-[#717a68] hover:bg-[#f0eee8]'
+              }`}
+            >
+              <Icon className={`h-5 w-5 ${isActive ? 'text-[#316b00]' : 'text-[#717a68]'}`} />
+              <span className="max-w-full truncate">{item.label.split(' ')[0]}</span>
+            </button>
+          );
+        })}
+        <button
+          type="button"
+          onClick={() => setIsMobileMenuOpen((open) => !open)}
+          className={`flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl px-1 text-[10px] font-semibold transition-colors ${
+            isMobileMenuOpen ? 'bg-[#c3ecd2] text-[#316b00]' : 'text-[#717a68] hover:bg-[#f0eee8]'
+          }`}
+          aria-expanded={isMobileMenuOpen}
+          aria-label={language === 'fr' ? 'Ouvrir plus de modules' : 'Open more modules'}
+        >
+          {isMobileMenuOpen ? <X className="h-5 w-5" /> : <MoreHorizontal className="h-5 w-5" />}
+          <span>{language === 'fr' ? 'Plus' : 'More'}</span>
+        </button>
+      </nav>
+      </aside>
+    </>
   );
 };

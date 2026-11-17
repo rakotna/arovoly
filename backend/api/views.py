@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from rest_framework import viewsets, permissions, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -78,9 +79,13 @@ class FieldViewSet(MultiLookupMixin, viewsets.ModelViewSet):
     queryset = Field.objects.all().order_by('-created_at')
     serializer_class = FieldSerializer
     lookup_field = 'slug'
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
         qs = super().get_queryset()
+        if not self.request.user.is_authenticated:
+            return qs.none()
+        qs = qs.filter(owner=self.request.user)
         region = self.request.query_params.get('region')
         crop = self.request.query_params.get('crop')
         status_filter = self.request.query_params.get('status')
@@ -92,62 +97,113 @@ class FieldViewSet(MultiLookupMixin, viewsets.ModelViewSet):
             qs = qs.filter(status__iexact=status_filter)
         return qs
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    @staticmethod
+    def _normalize_geometry(data):
+        """Accept existing [lat, lng] coordinates or a GeoJSON Polygon."""
+        data = data.copy()
+        boundary = data.get('boundaryGeojson') or data.get('boundary_geojson')
+        if boundary and 'coordinates' not in data:
+            geometry = boundary.get('geometry', boundary) if isinstance(boundary, dict) else {}
+            if geometry.get('type') != 'Polygon':
+                raise ValidationError({'boundaryGeojson': 'Only GeoJSON Polygon geometry is supported.'})
+            rings = geometry.get('coordinates') or []
+            if not rings or not isinstance(rings[0], list):
+                raise ValidationError({'boundaryGeojson': 'Polygon must contain an outer ring.'})
+            data['coordinates'] = [[point[1], point[0]] for point in rings[0] if len(point) >= 2]
+        if 'coordinates' in data:
+            coordinates = data['coordinates']
+            if not isinstance(coordinates, list) or len(coordinates) < 3:
+                raise ValidationError({'coordinates': 'At least three coordinate pairs are required.'})
+            try:
+                data['coordinates'] = [[float(point[0]), float(point[1])] for point in coordinates]
+            except (TypeError, ValueError, IndexError):
+                raise ValidationError({'coordinates': 'Coordinates must be numeric [lat, lng] pairs.'})
+            if any(abs(point[0]) > 90 or abs(point[1]) > 180 for point in data['coordinates']):
+                raise ValidationError({'coordinates': 'Latitude/longitude values are out of range.'})
+        return data
+
+    @staticmethod
+    def _normalize_payload(data):
+        """Accept both the API's camelCase fields and model-style snake_case aliases."""
+        data = data.copy()
+        aliases = {
+            'crop_type': 'crop',
+            'area_ha': 'areaHa',
+            'sown_date': 'sownDate',
+            'soil_type': 'soilType',
+            'irrigation_type': 'irrigationType',
+            'ndvi_trend': 'ndviTrend',
+            'moisture_pct': 'moisturePct',
+            'target_yield_t_ha': 'targetYieldTha',
+            'est_yield_t_ha': 'estYieldTha',
+            'health_alert': 'healthAlert',
+            'health_alert_detail': 'healthAlertDetail',
+            'urgent_action': 'urgentAction',
+            'fill_color': 'fillColor',
+            'boundary_geojson': 'boundaryGeojson',
+        }
+        for source, target in aliases.items():
+            if source in data and target not in data:
+                data[target] = data[source]
+        return data
+
+    @classmethod
+    def _geometry_metadata(cls, coordinates):
+        area_ha = cls._area_ha(coordinates)
+        center = [
+            round(sum(point[0] for point in coordinates) / len(coordinates), 5),
+            round(sum(point[1] for point in coordinates) / len(coordinates), 5),
+        ]
+        ring = [[point[1], point[0]] for point in coordinates]
+        if ring and ring[0] != ring[-1]:
+            ring.append(ring[0])
+        return area_ha, center, {
+            'type': 'Polygon',
+            'coordinates': [ring],
+        }
+
+    @staticmethod
+    def _area_ha(coordinates):
+        ring = coordinates[:-1] if coordinates and coordinates[0] == coordinates[-1] else coordinates
+        R = 6378137.0
+        area = 0.0
+        for i in range(len(ring)):
+            j = (i + 1) % len(ring)
+            lat1, lat2 = math.radians(ring[i][0]), math.radians(ring[j][0])
+            lon1, lon2 = math.radians(ring[i][1]), math.radians(ring[j][1])
+            area += (lon2 - lon1) * (2.0 + math.sin(lat1) + math.sin(lat2))
+        return round(abs((area * R * R) / 2.0) / 10000.0, 1)
+
     def create(self, request, *args, **kwargs):
         # Support payload with camelCase or snake_case
-        data = request.data.copy()
+        data = self._normalize_payload(self._normalize_geometry(request.data))
         
-        # If coordinates provided, calculate areaHa if areaHa is 0
         coords = data.get('coordinates', [])
-        area_ha = data.get('areaHa') or data.get('area_ha', 0)
-        if coords and not area_ha:
-            # Simple polygon area calculation
-            try:
-                R = 6378137.0
-                area = 0.0
-                for i in range(len(coords)):
-                    j = (i + 1) % len(coords)
-                    lat1 = math.radians(coords[i][0])
-                    lat2 = math.radians(coords[j][0])
-                    lon1 = math.radians(coords[i][1])
-                    lon2 = math.radians(coords[j][1])
-                    area += (lon2 - lon1) * (2.0 + math.sin(lat1) + math.sin(lat2))
-                area = abs((area * R * R) / 2.0)
-                data['area_ha'] = round(area / 10000.0, 1)
-            except Exception:
-                data['area_ha'] = 50.0
-
-        # Normalization
-        if 'crop' in data:
-            data['crop_type'] = data['crop']
-        if 'areaHa' in data:
-            data['area_ha'] = data['areaHa']
-        if 'sownDate' in data:
-            data['sown_date'] = data['sownDate']
-        if 'soilType' in data:
-            data['soil_type'] = data['soilType']
-        if 'irrigationType' in data:
-            data['irrigation_type'] = data['irrigationType']
-        if 'ndviTrend' in data:
-            data['ndvi_trend'] = data['ndviTrend']
-        if 'moisturePct' in data:
-            data['moisture_pct'] = data['moisturePct']
-        if 'targetYieldTha' in data:
-            data['target_yield_t_ha'] = data['targetYieldTha']
-        if 'estYieldTha' in data:
-            data['est_yield_t_ha'] = data['estYieldTha']
-        if 'healthAlert' in data:
-            data['health_alert'] = data['healthAlert']
-        if 'healthAlertDetail' in data:
-            data['health_alert_detail'] = data['healthAlertDetail']
-        if 'urgentAction' in data:
-            data['urgent_action'] = data['urgentAction']
-        if 'fillColor' in data:
-            data['fill_color'] = data['fillColor']
+        if coords:
+            area_ha, center, boundary = self._geometry_metadata(coords)
+            data['areaHa'] = area_ha
+            data['center'] = center
+            data['boundaryGeojson'] = boundary
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def update(self, request, *args, **kwargs):
+        data = self._normalize_payload(self._normalize_geometry(request.data))
+        if 'coordinates' in data:
+            area_ha, center, boundary = self._geometry_metadata(data['coordinates'])
+            data['areaHa'] = area_ha
+            data['center'] = center
+            data['boundaryGeojson'] = boundary
+        serializer = self.get_serializer(self.get_object(), data=data, partial=kwargs.pop('partial', False))
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
 
     @action(detail=True, methods=['get'])
     def geojson(self, request, slug=None):
@@ -524,23 +580,23 @@ def auth_login(request):
     email = request.data.get('email', '').strip()
     password = request.data.get('password', '').strip()
 
-    # Find user by email or username
-    user = User.objects.filter(email=email).first() or User.objects.filter(username=email).first()
-    if not user:
-        # If demo mode, check demo accounts or create demo profile
-        if email:
-            name_part = email.split('@')[0].replace('.', ' ').title()
-            user, _ = User.objects.get_or_create(username=email, defaults={'email': email})
-            user.set_password('arovoly2024')
-            user.save()
-            profile, _ = UserProfile.objects.get_or_create(
-                user=user,
-                defaults={
-                    'name': name_part,
-                    'role': 'Directrice Agronome Régionale • Madagascar',
-                    'terminal_unit': 'Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)'
-                }
-            )
+    if not email or not password:
+        return Response(
+            {'detail': 'Email et mot de passe requis.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    account = User.objects.filter(email__iexact=email).first() or User.objects.filter(username=email).first()
+    user = authenticate(
+        request=request,
+        username=account.username if account else email,
+        password=password,
+    )
+    if user is None:
+        return Response(
+            {'detail': 'Identifiants invalides.'},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
     token, _ = Token.objects.get_or_create(user=user)
     profile = getattr(user, 'profile', None)
@@ -555,6 +611,39 @@ def auth_login(request):
             "avatarUrl": profile.avatar_url if profile else "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
         }
     })
+
+
+@api_view(['POST'])
+def auth_register(request):
+    """Create a user account and return an authenticated session."""
+    email = request.data.get('email', '').strip().lower()
+    password = request.data.get('password', '')
+    name = request.data.get('name', '').strip()
+    if not email or not password or not name:
+        return Response({'detail': 'Nom, email et mot de passe requis.'}, status=status.HTTP_400_BAD_REQUEST)
+    if len(password) < 8:
+        return Response({'detail': 'Le mot de passe doit contenir au moins 8 caractères.'}, status=status.HTTP_400_BAD_REQUEST)
+    if User.objects.filter(email__iexact=email).exists() or User.objects.filter(username=email).exists():
+        return Response({'detail': 'Un compte existe déjà avec cet email.'}, status=status.HTTP_409_CONFLICT)
+
+    user = User.objects.create_user(username=email, email=email, password=password)
+    profile = UserProfile.objects.create(
+        user=user,
+        name=name,
+        role=request.data.get('role', 'Agronome'),
+        terminal_unit=request.data.get('region') or 'Madagascar',
+    )
+    token = Token.objects.create(user=user)
+    return Response({
+        'token': token.key,
+        'user': {
+            'name': profile.name,
+            'email': user.email,
+            'role': profile.role,
+            'terminalUnit': profile.terminal_unit,
+            'avatarUrl': profile.avatar_url,
+        },
+    }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])

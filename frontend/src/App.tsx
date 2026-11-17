@@ -199,7 +199,7 @@ export function App() {
           onOpenReportModal={() => setIsExportModalOpen(true)}
         />
 
-        <main className="flex-1 flex flex-col overflow-hidden relative">
+        <main className="flex-1 flex flex-col overflow-hidden relative pb-20 md:pb-0">
           {currentView === 'my_fields' && (
             <MyFieldsView
               parcels={parcels}

@@ -10,6 +10,7 @@ from .views import (
     YieldForecastViewSet,
     health_check,
     auth_login,
+    auth_register,
     auth_profile,
 )
 
@@ -26,6 +27,7 @@ router.register(r'forecasts', YieldForecastViewSet, basename='forecast')
 urlpatterns = [
     path('health/', health_check, name='health-check'),
     path('auth/login/', auth_login, name='auth-login'),
+    path('auth/register/', auth_register, name='auth-register'),
     path('auth/profile/', auth_profile, name='auth-profile'),
     path('', include(router.urls)),
 ]

@@ -47,6 +47,7 @@ class Field(models.Model):
     ]
 
     slug = models.SlugField(max_length=100, unique=True, blank=True)
+    owner = models.ForeignKey(User, related_name='fields', on_delete=models.CASCADE, null=True, blank=True)
     code = models.CharField(max_length=50) # e.g. #402
     name = models.CharField(max_length=255)
     farm = models.ForeignKey(Farm, related_name='fields', on_delete=models.SET_NULL, null=True, blank=True)

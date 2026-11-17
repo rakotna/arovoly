@@ -96,6 +96,12 @@
   scroll-margin-top: 5.5rem;
 }
 
+@media (max-width: 639px) {
+  .landing-page .landing-section[id] {
+    scroll-margin-top: 8rem;
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

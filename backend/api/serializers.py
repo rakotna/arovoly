@@ -172,6 +172,7 @@ class FieldSerializer(serializers.ModelSerializer):
     notes = serializers.CharField(allow_null=True, required=False, allow_blank=True)
     coordinates = serializers.JSONField(required=False)
     center = serializers.JSONField(required=False)
+    boundaryGeojson = serializers.JSONField(source='boundary_geojson', required=False)
     sensors = SensorSerializer(many=True, read_only=True)
 
     class Meta:
@@ -199,6 +200,7 @@ class FieldSerializer(serializers.ModelSerializer):
             'urgentAction',
             'coordinates',
             'center',
+            'boundaryGeojson',
             'color',
             'fillColor',
             'notes',

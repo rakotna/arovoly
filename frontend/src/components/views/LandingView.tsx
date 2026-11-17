@@ -21,6 +21,8 @@ import {
   Globe,
   ExternalLink,
   ChevronUp,
+  Menu,
+  X,
   Mail,
   Send,
   Check,
@@ -61,6 +63,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [activeSimTab, setActiveSimTab] = useState<'ndvi' | 'vra' | 'soil' | 'yield'>('ndvi');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
   const headerRef = useRef<HTMLElement | null>(null);
   const isSnappingScroll = useRef(false);
@@ -124,6 +127,16 @@ export const LandingView: React.FC<LandingViewProps> = ({
       if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobileMenuOpen]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -211,23 +224,60 @@ export const LandingView: React.FC<LandingViewProps> = ({
     }
   ];
 
+  const renderMetricCard = (className: string) => (
+    <div className={`${className} rounded-2xl bg-[#76c043] p-4 shadow-2xl shadow-black/40 border border-white/20 text-[#0a2000] backdrop-blur-sm`}>
+      <div className="flex items-start justify-between">
+        <div>
+          <div className="flex items-center gap-1">
+            <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">4.9</span>
+            <span className="text-lg font-bold">★</span>
+          </div>
+          <p className="text-[11px] sm:text-xs font-semibold text-[#183a00] mt-0.5">
+            {language === 'fr' ? '1200+ Agronomes & Exploitations Actifs' : '1200+ Agronomists & Farms Active'}
+          </p>
+        </div>
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#183a00] text-white flex items-center justify-center">
+          <span className="material-symbols-outlined text-sm sm:text-base">add</span>
+        </div>
+      </div>
+
+      <div className="mt-3 pt-2.5 border-t border-[#183a00]/15 flex items-center gap-2">
+        <div className="flex -space-x-1.5">
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#183a00] text-[9px] font-bold text-white border-2 border-[#76c043]">AK</span>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#204b00] text-[9px] font-bold text-white border-2 border-[#76c043]">RN</span>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#316b00] text-[9px] font-bold text-white border-2 border-[#76c043]">MD</span>
+        </div>
+        <span className="text-[10px] sm:text-[11px] leading-tight font-medium text-[#183a00]">
+          {language === 'fr'
+            ? 'Déployé dans 22 Régions (Alaotra, Vakinankaratra, Boeny)'
+            : 'Live in 22 Regions (Alaotra, Vakinankaratra, Boeny)'}
+        </span>
+      </div>
+
+      <div className="mt-3 flex items-center justify-between text-[10px] sm:text-[11px] font-bold pt-2 border-t border-[#183a00]/15">
+        <span className="px-2 py-0.5 rounded bg-[#183a00]/10 tracking-wide uppercase">SENTINEL-2 ESA ORBIT</span>
+        <span className="text-[#0a2000] font-mono">98.4% Telemetry Acc.</span>
+      </div>
+    </div>
+  );
+
   return (
     <div className="landing-page min-h-screen bg-[#fcf9f3] text-[#1c1c18] font-sans antialiased selection:bg-[#76c043]/30 selection:text-[#0a2000] p-0 m-0 overflow-x-clip relative">
       
       {/* Top Session Active Notification (if authenticated) */}
       {isAuthenticated && (
-        <aside aria-label="Notification de session active" className="bg-[#0b1d15] text-[#a9f773] border-b border-[#205234] px-4 py-2 text-xs flex items-center justify-between sticky top-0 z-[60]">
-          <div className="flex items-center gap-2 max-w-7xl mx-auto w-full justify-between">
-            <div className="flex items-center gap-2">
+        <aside aria-label="Notification de session active" className="bg-[#0b1d15] text-[#a9f773] border-b border-[#205234] px-3 sm:px-4 py-2 text-xs flex items-center justify-between sticky top-0 z-[60]">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 max-w-7xl mx-auto w-full justify-between">
+            <div className="flex items-center gap-2 min-w-0">
               <span className="w-2 h-2 rounded-full bg-[#8eda5a] animate-pulse"></span>
-              <span className="font-semibold text-white">
+              <span className="font-semibold text-white shrink-0">
                 {language === 'fr' ? 'Session active :' : 'Active session:'}
               </span>
-              <span>{userName || 'Utilisateur AROVOLY'}</span>
+              <span className="truncate">{userName || 'Utilisateur AROVOLY'}</span>
               {userRole && <span className="hidden sm:inline text-[#7fe88b]">({userRole})</span>}
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 self-end sm:self-auto">
               {onGoToDashboard && (
                 <button
                   onClick={onGoToDashboard}
@@ -254,11 +304,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
       {/* ==================== TOP NAVIGATION BAR ==================== */}
       <header
         ref={headerRef}
-        className={`sticky self-start ${isAuthenticated ? 'top-10' : 'top-0'} left-0 w-full z-50 px-3 sm:px-6 lg:px-10 py-3.5 sm:py-4 transition-all duration-300 ${
+        className={`sticky self-start ${isAuthenticated ? 'top-16 sm:top-10' : 'top-0'} left-0 w-full z-50 px-3 sm:px-6 lg:px-10 py-2.5 sm:py-4 transition-all duration-300 ${
           isHeaderScrolled ? 'bg-[#fcf9f3]/95 shadow-lg shadow-black/10 backdrop-blur-xl' : 'bg-transparent'
         }`}
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4">
           {/* Logo */}
           <BrandLogo tone={isHeaderScrolled ? 'dark' : 'light'} onClick={scrollToTop} />
 
@@ -296,7 +346,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Language Selector */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white/80 hover:bg-white backdrop-blur-md text-[#1c1c18] text-xs font-medium border border-white/40 shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-2.5 py-2 rounded-full bg-white/80 hover:bg-white backdrop-blur-md text-[#1c1c18] text-xs font-medium border border-white/40 shadow-sm transition-all"
               title={language === 'fr' ? 'Changer de langue' : 'Switch language'}
             >
               <span className="material-symbols-outlined text-sm">language</span>
@@ -319,7 +369,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {isAuthenticated && onGoToDashboard ? (
               <button
                 onClick={onGoToDashboard}
-                className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1b4332] hover:bg-[#143225] text-white text-xs font-semibold shadow-lg shadow-black/20 hover:scale-[1.02] transition-all"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1b4332] hover:bg-[#143225] text-white text-xs font-semibold shadow-lg shadow-black/20 hover:scale-[1.02] transition-all"
               >
                 <span>{language === 'fr' ? 'Tableau de Bord' : 'Open Dashboard'}</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
@@ -327,13 +377,117 @@ export const LandingView: React.FC<LandingViewProps> = ({
             ) : (
               <button
                 onClick={onGoToSignIn}
-                className="inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1b4332] hover:bg-[#143225] text-white text-xs font-semibold shadow-lg shadow-black/20 hover:scale-[1.02] transition-all"
+                className="hidden sm:inline-flex items-center gap-1.5 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#1b4332] hover:bg-[#143225] text-white text-xs font-semibold shadow-lg shadow-black/20 hover:scale-[1.02] transition-all"
               >
                 <span>{language === 'fr' ? 'Se Connecter' : 'Sign In'}</span>
                 <span className="material-symbols-outlined text-xs">arrow_forward</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen((open) => !open)}
+              className="inline-flex lg:hidden items-center justify-center w-10 h-10 rounded-full bg-[#1b4332] text-white shadow-lg shadow-black/20"
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-landing-navigation"
+              aria-label={isMobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
+
+          <nav
+            id="mobile-landing-navigation"
+            aria-hidden={!isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className={`lg:hidden fixed inset-0 z-[70] h-[100dvh] bg-black/35 transition-opacity duration-300 ${
+              isMobileMenuOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
+            }`}
+          >
+            <div
+              onClick={(event) => event.stopPropagation()}
+              className={`ml-auto flex h-full w-[min(88vw,24rem)] flex-col bg-[#fcf9f3] text-[#1c1c18] shadow-2xl transition-transform duration-300 ease-out ${
+                isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+              }`}
+            >
+              <div className="relative flex h-20 shrink-0 items-center justify-center border-b border-[#e5e2dc] bg-white/90 px-4">
+                <BrandLogo
+                  tone="dark"
+                  compact
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    scrollToTop();
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="absolute right-4 flex h-10 w-10 items-center justify-center rounded-full bg-[#1b4332] text-white shadow-lg"
+                  aria-label={language === 'fr' ? 'Fermer le menu' : 'Close menu'}
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex shrink-0 justify-center border-b border-[#e5e2dc] px-5 py-5">
+                <button
+                  onClick={toggleLanguage}
+                  className="flex items-center gap-2 rounded-full border border-[#e5e2dc] bg-white px-4 py-2.5 text-xs font-bold text-[#1c1c18] shadow-sm"
+                  title={language === 'fr' ? 'Changer de langue' : 'Switch language'}
+                >
+                  <span className="material-symbols-outlined text-sm text-[#316b00]">language</span>
+                  <span>{language === 'fr' ? 'Français' : 'English'} ({language.toUpperCase()})</span>
+                </button>
+              </div>
+
+              <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-5">
+                <span className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.18em] text-[#717a68]">
+                  {language === 'fr' ? 'Explorer AROVOLY' : 'Explore AROVOLY'}
+                </span>
+                <div className="flex flex-col gap-1">
+                  {[
+                    ['overview', language === 'fr' ? 'Présentation' : 'Overview'],
+                    ['how-it-works', language === 'fr' ? 'Fonctionnement' : 'How It Works'],
+                    ['simulator', language === 'fr' ? 'Simulateur' : 'Simulator'],
+                    ['features', language === 'fr' ? 'Fonctionnalités' : 'Features'],
+                    ['apropos', language === 'fr' ? 'À Propos' : 'About'],
+                    ['regions', language === 'fr' ? 'Terroirs' : 'Regions'],
+                    ['faq', language === 'fr' ? 'Aide & FAQ' : 'Help & FAQ'],
+                    ['contact', 'Contact'],
+                  ].map(([id, label]) => (
+                    <a
+                      key={id}
+                      href={`#${id}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`flex min-h-12 items-center rounded-xl px-3 text-sm font-semibold transition-colors ${
+                        activeSection === id
+                          ? 'bg-[#c3ecd2] text-[#316b00]'
+                          : 'text-[#414939] hover:bg-[#f0eee8] hover:text-[#316b00]'
+                      }`}
+                    >
+                      {label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="shrink-0 border-t border-[#e5e2dc] bg-white/70 p-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    if (isAuthenticated && onGoToDashboard) onGoToDashboard();
+                    else onGoToSignIn();
+                  }}
+                  className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[#1b4332] px-3 text-sm font-semibold text-white shadow-lg"
+                >
+                  {isAuthenticated
+                    ? (language === 'fr' ? 'Tableau de Bord' : 'Open Dashboard')
+                    : (language === 'fr' ? 'Se Connecter' : 'Sign In')}
+                </button>
+              </div>
+            </div>
+          </nav>
         </div>
       </header>
 
@@ -358,7 +512,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Left: Headline & Telemetry intro */}
             <div className="lg:col-span-8 flex flex-col items-start space-y-4 sm:space-y-5">
               {/* Tag Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#a9f773] text-[11px] sm:text-xs font-medium tracking-wide">
+              <div className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#a9f773] text-[11px] sm:text-xs font-medium tracking-wide">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#8eda5a] animate-pulse"></span>
                 <span>
                   {language === 'fr'
@@ -366,6 +520,15 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     : 'Integrated Precision Agriculture & Spatial Remote Sensing Platform'}
                 </span>
               </div>
+              <a
+                href="#overview"
+                className="-mt-2 inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-[#a9f773]"
+              >
+                <span>{language === 'fr' ? 'Faire défiler pour découvrir' : 'Scroll to explore'}</span>
+                <ChevronDown className="h-3.5 w-3.5 animate-bounce text-[#8eda5a]" />
+              </a>
+
+              {renderMetricCard('lg:hidden w-full')}
 
               {/* Main Title */}
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-5xl font-extrabold text-white tracking-tight leading-[1.14]">
@@ -394,11 +557,11 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </p>
 
               {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
+              <div className="grid w-full max-w-xl grid-cols-2 items-stretch gap-2.5 pt-1 lg:flex lg:flex-wrap lg:items-center lg:gap-3">
                 {isAuthenticated && onGoToDashboard ? (
                   <button
                     onClick={onGoToDashboard}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#20bb55] hover:bg-[#1caa4d] text-[#052511] font-bold text-xs sm:text-sm shadow-xl shadow-[#20bb55]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    className="col-span-1 inline-flex w-full justify-center items-center gap-2 px-3 py-2.5 lg:w-auto lg:px-6 lg:py-3 rounded-full bg-[#20bb55] hover:bg-[#1caa4d] text-[#052511] font-bold text-xs sm:text-sm shadow-xl shadow-[#20bb55]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     <span>{language === 'fr' ? 'Accéder au Tableau de Bord' : 'Open Dashboard'}</span>
                     <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -406,7 +569,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 ) : (
                   <button
                     onClick={onGoToSignIn}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 sm:px-6 sm:py-3 rounded-full bg-[#20bb55] hover:bg-[#1caa4d] text-[#052511] font-bold text-xs sm:text-sm shadow-xl shadow-[#20bb55]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                    className="col-span-1 inline-flex w-full justify-center items-center gap-2 px-3 py-2.5 lg:w-auto lg:px-6 lg:py-3 rounded-full bg-[#20bb55] hover:bg-[#1caa4d] text-[#052511] font-bold text-xs sm:text-sm shadow-xl shadow-[#20bb55]/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     <span>{language === 'fr' ? 'Se Connecter au Terminal' : 'Sign In to Terminal'}</span>
                     <span className="material-symbols-outlined text-base">arrow_forward</span>
@@ -416,7 +579,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 {onQuickDemo && !isAuthenticated && (
                   <button
                     onClick={onQuickDemo}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white font-semibold text-xs sm:text-sm transition-all hover:scale-[1.02]"
+                    className="col-span-1 inline-flex w-full justify-center items-center gap-1.5 px-3 py-2.5 lg:w-auto lg:px-5 lg:py-3 rounded-full bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-white font-semibold text-xs sm:text-sm transition-all hover:scale-[1.02]"
                   >
                     <span className="material-symbols-outlined text-sm text-[#8eda5a]">auto_awesome</span>
                     <span>{language === 'fr' ? 'Essai Démo Immédiat' : 'Instant 1-Click Demo'}</span>
@@ -424,7 +587,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                 )}
 
                 <a
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 sm:px-5 sm:py-3 rounded-full bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/15 text-white/90 font-medium text-xs sm:text-sm transition-all"
+                  className="col-span-2 inline-flex w-full justify-center items-center gap-1.5 px-4 py-2.5 lg:w-auto lg:col-span-1 lg:px-5 lg:py-3 rounded-full bg-black/30 hover:bg-black/40 backdrop-blur-md border border-white/15 text-white/90 font-medium text-xs sm:text-sm transition-all"
                   href="#overview"
                 >
                   <span className="material-symbols-outlined text-sm">menu_book</span>
@@ -433,45 +596,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </div>
             </div>
 
-            {/* Right: Top-right green metric badge */}
-            <div className="lg:col-span-4 w-full flex justify-start lg:justify-end">
-              <div className="w-full max-w-xs xl:max-w-sm rounded-2xl bg-[#76c043] p-4 sm:p-4.5 shadow-2xl shadow-black/40 border border-white/20 text-[#0a2000] backdrop-blur-sm">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">4.9</span>
-                      <span className="text-lg font-bold">★</span>
-                    </div>
-                    <p className="text-[11px] sm:text-xs font-semibold text-[#183a00] mt-0.5">
-                      {language === 'fr' ? '1200+ Agronomes & Exploitations Actifs' : '1200+ Agronomists & Farms Active'}
-                    </p>
-                  </div>
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#183a00] text-white flex items-center justify-center">
-                    <span className="material-symbols-outlined text-sm sm:text-base">add</span>
-                  </div>
-                </div>
-
-                {/* Avatar Badges & Region Note */}
-                <div className="mt-3 pt-2.5 border-t border-[#183a00]/15 flex items-center gap-2">
-                  <div className="flex -space-x-1.5">
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#183a00] text-[9px] font-bold text-white border-2 border-[#76c043]">AK</span>
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#204b00] text-[9px] font-bold text-white border-2 border-[#76c043]">RN</span>
-                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#316b00] text-[9px] font-bold text-white border-2 border-[#76c043]">MD</span>
-                  </div>
-                  <span className="text-[10px] sm:text-[11px] leading-tight font-medium text-[#183a00]">
-                    {language === 'fr'
-                      ? 'Déployé dans 22 Régions (Alaotra, Vakinankaratra, Boeny)'
-                      : 'Live in 22 Regions (Alaotra, Vakinankaratra, Boeny)'}
-                  </span>
-                </div>
-
-                {/* Sub Badges */}
-                <div className="mt-3 flex items-center justify-between text-[10px] sm:text-[11px] font-bold pt-2 border-t border-[#183a00]/15">
-                  <span className="px-2 py-0.5 rounded bg-[#183a00]/10 tracking-wide uppercase">SENTINEL-2 ESA ORBIT</span>
-                  <span className="text-[#0a2000] font-mono">98.4% Telemetry Acc.</span>
-                </div>
-              </div>
+            <div className="hidden lg:flex lg:col-span-4 w-full justify-end">
+              {renderMetricCard('w-full max-w-sm')}
             </div>
+
           </div>
         </div>
 
@@ -788,7 +916,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 pt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-white/60 uppercase font-semibold">Santé Végétale</span>
                     <div className="text-base font-extrabold text-[#7fe88b] mt-0.5">96% Optimal</div>
@@ -859,7 +987,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     : "VRA splits the parcel into 3 intra-field prescription zones. High biomass zones are cut down to 90 kg/ha to avoid lodging while lower vigor spots receive targeted boosts. 8,640 kg of fertilizer saved across the perimeter."}
                 </p>
 
-                <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-white/60 uppercase font-semibold">Zone A (Haute Vigueur)</span>
                     <div className="text-sm font-extrabold text-[#7fe88b] mt-0.5">85 kg/ha (-29%)</div>
@@ -975,7 +1103,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-white/60 uppercase font-semibold">Succion Matricielle</span>
                     <div className="text-sm font-extrabold text-[#7fe88b] mt-0.5">-28 kPa</div>
@@ -1048,7 +1176,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
                     : "Combining historical NDVI trends, growing degree-days, and root moisture, the AROVOLY model projects 6.8 t/ha yield for polder PC15 (+4.6% over baseline), with an estimated harvest value of 114.75M Ariary."}
                 </p>
 
-                <div className="grid grid-cols-3 gap-3 pt-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="p-3 rounded-xl bg-white/5 border border-white/10">
                     <span className="text-[10px] text-white/60 uppercase font-semibold">Rendement Projeté</span>
                     <div className="text-base font-extrabold text-[#7fe88b] mt-0.5">6.80 t/ha</div>
@@ -1345,7 +1473,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Alaotra */}
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-[#e5e2dc] flex flex-col justify-between hover:shadow-xl hover:border-[#76c043]/50 transition-all duration-300">
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#c3ecd2] text-[#002113] text-[11px] font-bold">
                     Secteur 04 • Alaotra-Mangoro
                   </span>
@@ -1369,7 +1497,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Vakinankaratra */}
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-[#e5e2dc] flex flex-col justify-between hover:shadow-xl hover:border-[#76c043]/50 transition-all duration-300">
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#ffdbce] text-[#c2410c] text-[11px] font-bold">
                     Secteur 02 • Vakinankaratra
                   </span>
@@ -1393,7 +1521,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Itasy */}
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-[#e5e2dc] flex flex-col justify-between hover:shadow-xl hover:border-[#76c043]/50 transition-all duration-300">
               <div>
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
                   <span className="px-2.5 py-0.5 rounded-full bg-[#c3ecd2] text-[#002113] text-[11px] font-bold">
                     Secteur 09 • Itasy
                   </span>
