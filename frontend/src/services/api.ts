@@ -1,7 +1,14 @@
 import { Parcel, SensorProbe, VRAZone, UserProfile } from '../types';
 import { MOCK_PARCELS, MOCK_SENSORS, MOCK_VRA_ZONES } from '../data/mockData';
 
-const API_BASE_URL = ((import.meta as any).env?.VITE_API_URL as string) || 'http://localhost:8000/api';
+const API_BASE_URL =
+  ((import.meta as any).env?.VITE_API_URL as string) ||
+  'https://silver-barnacle-7vvrg74vx65vfqqv-8000.app.github.dev/api';
+
+const authHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem('arovoly_token');
+  return token ? { Authorization: `Token ${token}` } : {};
+};
 
 /**
  * AROVOLY - Precision Agriculture & Crop Protection API Client
@@ -14,7 +21,7 @@ export const api = {
       const res = await fetch(`${API_BASE_URL}/parcels/`);
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
-      return Array.isArray(data) && data.length > 0 ? data : MOCK_PARCELS;
+      return Array.isArray(data) ? data : MOCK_PARCELS;
     } catch (err) {
       console.warn('[AROVOLY API] Backend unavailable, using local parcels data:', err);
       return MOCK_PARCELS;
@@ -25,7 +32,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/parcels/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(parcel),
       });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -36,10 +43,26 @@ export const api = {
     }
   },
 
+  async updateParcel(parcelId: string, parcel: Partial<Parcel>): Promise<Parcel | null> {
+    try {
+      const res = await fetch(`${API_BASE_URL}/parcels/${parcelId}/`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        body: JSON.stringify(parcel),
+      });
+      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      console.warn('[AROVOLY API] Parcel update unavailable, keeping local changes:', err);
+      return null;
+    }
+  },
+
   async deleteParcel(parcelId: string): Promise<boolean> {
     try {
       const res = await fetch(`${API_BASE_URL}/parcels/${parcelId}/`, {
         method: 'DELETE',
+        headers: authHeaders(),
       });
       return res.ok || res.status === 204;
     } catch (err) {
@@ -155,23 +178,45 @@ export const api = {
   },
 
   // --- AUTHENTICATION ---
-  async login(email: string, password: string): Promise<UserProfile | null> {
-    try {
-      const res = await fetch(`${API_BASE_URL}/auth/login/`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) throw new Error(`HTTP error ${res.status}`);
-      const data = await res.json();
-      if (data.token) {
-        localStorage.setItem('arovoly_token', data.token);
+  async login(email: string, password: string): Promise<UserProfile> {
+    const res = await fetch(`${API_BASE_URL}/auth/login/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    if (!res.ok) {
+      let detail = `Échec de connexion (${res.status})`;
+      try {
+        const data = await res.json();
+        if (typeof data.detail === 'string') detail = data.detail;
+      } catch {
+        // Keep the HTTP status message when the server does not return JSON.
       }
-      return data.user as UserProfile;
-    } catch (err) {
-      console.warn('[AROVOLY API] Backend auth unavailable, using offline profile:', err);
-      return null;
+      throw new Error(detail);
     }
+    const data = await res.json();
+    if (!data.token || !data.user) throw new Error('Réponse de connexion invalide.');
+    localStorage.setItem('arovoly_token', data.token);
+    return data.user as UserProfile;
+  },
+
+  async register(payload: {
+    name: string;
+    email: string;
+    password: string;
+    role: string;
+    region: string;
+  }): Promise<UserProfile> {
+    const res = await fetch(`${API_BASE_URL}/auth/register/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || `Échec de l'inscription (${res.status})`);
+    if (!data.token || !data.user) throw new Error("Réponse d'inscription invalide.");
+    localStorage.setItem('arovoly_token', data.token);
+    return data.user as UserProfile;
   },
 
   // --- EXPORT DOWNLOAD URLs ---

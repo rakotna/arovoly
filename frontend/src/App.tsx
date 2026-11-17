@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewType, UserProfile, Parcel, SensorProbe } from './types';
-import { INITIAL_USER, MOCK_PARCELS, MOCK_SENSORS } from './data/mockData';
+import { MOCK_PARCELS, MOCK_SENSORS } from './data/mockData';
 import { api } from './services/api';
 import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
@@ -17,6 +17,7 @@ import { YieldForecastView } from './components/views/YieldForecastView';
 
 export function App() {
   const [user, setUser] = useState<UserProfile | null>(() => {
+    if (!localStorage.getItem('arovoly_token')) return null;
     const saved = localStorage.getItem('arovoly_user');
     if (saved) {
       try {
@@ -28,7 +29,7 @@ export function App() {
     return null;
   });
   const [currentView, setCurrentView] = useState<ViewType>(() => {
-    return localStorage.getItem('arovoly_user') ? 'my_fields' : 'landing';
+    return localStorage.getItem('arovoly_user') && localStorage.getItem('arovoly_token') ? 'my_fields' : 'landing';
   });
   const [parcels, setParcels] = useState<Parcel[]>(MOCK_PARCELS);
   const [selectedParcelId, setSelectedParcelId] = useState<string>(MOCK_PARCELS[0]?.id || '402-alaotra');
@@ -70,10 +71,10 @@ export function App() {
           api.getParcels(),
           api.getSensors(),
         ]);
-        if (apiParcels && apiParcels.length > 0) {
+        if (apiParcels) {
           setParcels(apiParcels);
           setSelectedParcelId((prev) =>
-            apiParcels.some((p) => p.id === prev) ? prev : apiParcels[0].id
+            apiParcels.some((p) => p.id === prev) ? prev : apiParcels[0]?.id || ''
           );
         }
         if (apiSensors && apiSensors.length > 0) {
@@ -105,6 +106,18 @@ export function App() {
     }
   };
 
+  const handleUpdateParcel = async (updatedParcel: Parcel) => {
+    setParcels((prev) => prev.map((parcel) => (parcel.id === updatedParcel.id ? updatedParcel : parcel)));
+    try {
+      const persistedParcel = await api.updateParcel(updatedParcel.id, updatedParcel);
+      if (persistedParcel) {
+        setParcels((prev) => prev.map((parcel) => (parcel.id === updatedParcel.id ? persistedParcel : parcel)));
+      }
+    } catch (err) {
+      console.warn('Failed to update parcel on backend:', err);
+    }
+  };
+
   const handleDeleteParcel = async (parcelId: string) => {
     setParcels((prev) => prev.filter((p) => p.id !== parcelId));
     showToast('Parcelle supprimée du registre.');
@@ -121,15 +134,16 @@ export function App() {
       <>
         <LandingView
           onGoToSignIn={() => setCurrentView('sign_in')}
-          onGoToDashboard={() => setCurrentView('my_fields')}
-          onQuickDemo={() => handleSignIn(INITIAL_USER)}
+          onGoToDashboard={() => setCurrentView(user ? 'my_fields' : 'sign_in')}
+          onQuickDemo={() => setCurrentView('sign_in')}
           isAuthenticated={!!user}
           userName={user?.name}
           userRole={user?.role}
           onSignOut={handleSignOut}
           onNavigate={(view: ViewType) => {
             if (['my_fields', 'crop_tracing', 'vra_dashboard', 'soil_sensors', 'yield_forecast'].includes(view) && !user) {
-              handleSignIn(INITIAL_USER);
+              setCurrentView('sign_in');
+              return;
             }
             setCurrentView(view);
           }}
@@ -202,6 +216,7 @@ export function App() {
             <CropTracingView
               parcels={parcels}
               onSaveParcel={handleSaveParcel}
+              onUpdateParcel={handleUpdateParcel}
               onDeleteParcel={handleDeleteParcel}
               onShowToast={showToast}
               onOpenExportModal={() => setIsExportModalOpen(true)}

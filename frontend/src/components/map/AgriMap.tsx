@@ -197,18 +197,18 @@ export const AgriMap: React.FC<AgriMapProps> = ({
 
       {/* Floating Zoom & Controls */}
       <div className="absolute bottom-4 right-4 z-[400] flex flex-col gap-2">
-        <div className="flex flex-col rounded-2xl bg-white/90 backdrop-blur-md shadow-lg border border-white/60 overflow-hidden">
+        <div className="flex flex-col rounded-2xl bg-[#fcf9f3]/95 backdrop-blur-md shadow-lg border border-[#e5e2dc] overflow-hidden">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors font-bold text-lg"
+            className="w-10 h-10 flex items-center justify-center text-[#316b00] hover:bg-[#c3ecd2] transition-colors font-bold text-lg"
             title="Zoom avant"
           >
             +
           </button>
-          <div className="h-[1px] bg-slate-200"></div>
+          <div className="h-[1px] bg-[#e5e2dc]"></div>
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors font-bold text-lg"
+            className="w-10 h-10 flex items-center justify-center text-[#316b00] hover:bg-[#c3ecd2] transition-colors font-bold text-lg"
             title="Zoom arrière"
           >
             −
@@ -217,10 +217,10 @@ export const AgriMap: React.FC<AgriMapProps> = ({
 
         <button
           onClick={handleRecenter}
-          className="w-10 h-10 rounded-2xl bg-white/90 backdrop-blur-md shadow-lg border border-white/60 flex items-center justify-center text-slate-700 hover:bg-slate-100 transition-colors"
+          className="w-10 h-10 rounded-2xl bg-[#fcf9f3]/95 backdrop-blur-md shadow-lg border border-[#e5e2dc] flex items-center justify-center text-[#316b00] hover:bg-[#c3ecd2] transition-colors"
           title="Recentrer le secteur"
         >
-          <svg className="w-5 h-5 text-emerald-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-[#316b00]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="8" strokeWidth="2" />
             <circle cx="12" cy="12" r="3" fill="currentColor" />
           </svg>

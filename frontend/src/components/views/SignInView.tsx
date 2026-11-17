@@ -42,34 +42,17 @@ export const SignInView: React.FC<SignInViewProps> = ({
   const [remember, setRemember] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setAuthError(null);
     try {
       const backendUser = await api.login(email, password);
-      if (backendUser) {
-        onSignInSuccess(backendUser);
-      } else {
-        onSignInSuccess({
-          name:
-            activeRoleTab === 'agronomist'
-              ? 'Dr. Éléonore Vance (Andrianina)'
-              : activeRoleTab === 'analyst'
-                ? 'Rado Rakotomalala (Télédétection)'
-                : 'Mamy Razafindrakoto (Directeur)',
-          email,
-          role:
-            activeRoleTab === 'agronomist'
-              ? language === 'fr' ? 'Directrice Agronome Régionale' : 'Regional Lead Agronomist'
-              : activeRoleTab === 'analyst'
-                ? language === 'fr' ? 'Spécialiste Données Satellitaires' : 'Satellite Data Specialist'
-                : language === 'fr' ? 'Gestionnaire Exploitation' : 'Farm General Manager',
-          terminalUnit,
-          avatarUrl:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
-        });
-      }
+      onSignInSuccess(backendUser);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : 'Identifiants invalides.');
     } finally {
       setIsLoading(false);
     }
@@ -155,6 +138,11 @@ export const SignInView: React.FC<SignInViewProps> = ({
               {language === 'fr' ? 'Session fermée. Vous pouvez vous reconnecter ci-dessous.' : 'Session closed. Sign back in below.'}
             </div>
           )}
+          {authError && (
+            <div className="mb-4 rounded-xl border border-[#f0aaa5] bg-[#ffe1df] p-3 text-xs font-semibold text-[#ba1a1a]" role="alert">
+              {authError}
+            </div>
+          )}
 
           <div className="mb-3 grid grid-cols-3 gap-1 rounded-full bg-[#f0eee8] p-1 text-xs">
             {([
@@ -236,7 +224,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <div className="my-4 flex items-center gap-3 text-center font-mono text-[10px] uppercase text-[#717a68]">
             <span className="h-px flex-1 bg-[#e5e2dc]" /> ou protocoles tiers <span className="h-px flex-1 bg-[#e5e2dc]" />
           </div>
-          <button type="button" onClick={() => onSignInSuccess({ name: 'Dr. Éléonore Vance (Andrianina)', email: 'e.vance@arovoly.mg', role: language === 'fr' ? 'Directrice Agronome Régionale' : 'Regional Lead Agronomist', terminalUnit, avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256' })} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
+          <button type="button" onClick={() => { setEmail('e.vance@arovoly.mg'); setPassword('arovoly2024'); setAuthError(null); }} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
             <Sparkles className="h-4 w-4" /> {t.signIn.demoBtn}
           </button>
           {onGoToSignUp && <p className="mt-5 text-center text-xs text-[#414939]">Vous n'avez pas encore d'accès parcellaire ? <button onClick={onGoToSignUp} className="font-bold text-[#316b00] hover:underline">S'inscrire gratuitement</button></p>}

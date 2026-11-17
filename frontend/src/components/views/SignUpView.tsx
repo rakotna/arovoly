@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { api } from '../../services/api';
 import { BrandLogo } from '../common/BrandLogo';
 import {
   ArrowLeft,
@@ -46,6 +47,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const strength = useMemo(() => {
     let score = 0;
@@ -56,21 +58,28 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
     return score;
   }, [password]);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setSubmitted(true);
-    onSignUpSuccess({
-      name: `${firstName} ${lastName}`.trim(),
-      email,
-      role:
+    setAuthError(null);
+    try {
+      const role =
         profileType === 'agronomist'
           ? 'Agronome / R&D'
           : profileType === 'producer'
             ? 'Exploitant / Coop'
-            : 'Institution / ONG',
-      terminalUnit: region || 'Madagascar',
-      avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=256',
-    });
+            : 'Institution / ONG';
+      const user = await api.register({
+        name: `${firstName} ${lastName}`.trim(),
+        email,
+        password,
+        role,
+        region: region || 'Madagascar',
+      });
+      setSubmitted(true);
+      onSignUpSuccess(user);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Inscription impossible.");
+    }
   };
 
   const fieldClass =
@@ -140,6 +149,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {authError && <div className="rounded-lg border border-[#f0aaa5] bg-[#ffe1df] p-3 text-xs font-semibold text-[#ba1a1a]" role="alert">{authError}</div>}
             <fieldset>
               <legend className="mb-1 text-sm font-semibold">Type d'Accréditation</legend>
               <div className="grid grid-cols-1 gap-1 rounded-xl bg-[#ebe8e2] p-1 sm:grid-cols-3">
