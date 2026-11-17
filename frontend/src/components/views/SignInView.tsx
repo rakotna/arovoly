@@ -2,17 +2,35 @@ import React, { useState } from 'react';
 import { UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
-import { Globe, ArrowLeft, ArrowRight, Lock, Eye, EyeOff, Sparkles, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Badge,
+  CheckCircle2,
+  ChevronDown,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LockKeyhole,
+  Satellite,
+  Sparkles,
+  Waves,
+} from 'lucide-react';
 
 interface SignInViewProps {
   onSignInSuccess: (user: UserProfile) => void;
   onGoToLanding?: () => void;
+  onGoToSignUp?: () => void;
   isSignOutNotice?: boolean;
 }
+
+const aerialImage =
+  'https://lh3.googleusercontent.com/aida-public/AB6AXuDMcgQtF2IHVxbjGGL9gyJvgjzeCOMP3wL5EvRrI9PVHP_ydRSlScv5ZXfgfRk7nS7M3hFiqE_wS-Dq9CIDFfHewmY1OCIjeuS0s4mI04SYK4fb9qPGlY84I8u0V_pX0ddEEBi-DVXK5fxHLgR4VQmb7Nao0lqthA5hwBVdwVqkRIc5CLcrjUVYXWPdcxJyevzAu93OhwfQrIydtGC0m8';
 
 export const SignInView: React.FC<SignInViewProps> = ({
   onSignInSuccess,
   onGoToLanding,
+  onGoToSignUp,
   isSignOutNotice = false,
 }) => {
   const { language, toggleLanguage, t } = useTranslation();
@@ -37,15 +55,15 @@ export const SignInView: React.FC<SignInViewProps> = ({
             activeRoleTab === 'agronomist'
               ? 'Dr. Éléonore Vance (Andrianina)'
               : activeRoleTab === 'analyst'
-              ? 'Rado Rakotomalala (Télédétection)'
-              : 'Mamy Razafindrakoto (Directeur)',
+                ? 'Rado Rakotomalala (Télédétection)'
+                : 'Mamy Razafindrakoto (Directeur)',
           email,
           role:
             activeRoleTab === 'agronomist'
               ? language === 'fr' ? 'Directrice Agronome Régionale' : 'Regional Lead Agronomist'
               : activeRoleTab === 'analyst'
-              ? language === 'fr' ? 'Spécialiste Données Satellitaires' : 'Satellite Data Specialist'
-              : language === 'fr' ? 'Gestionnaire Exploitation' : 'Farm General Manager',
+                ? language === 'fr' ? 'Spécialiste Données Satellitaires' : 'Satellite Data Specialist'
+                : language === 'fr' ? 'Gestionnaire Exploitation' : 'Farm General Manager',
           terminalUnit,
           avatarUrl:
             'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
@@ -70,261 +88,185 @@ export const SignInView: React.FC<SignInViewProps> = ({
     }
   };
 
-  return (
-    <div className="h-screen w-screen overflow-hidden bg-slate-950 font-sans text-white relative flex flex-col justify-center items-center p-4 selection:bg-emerald-500 selection:text-white select-none">
-      {/* Background High-Resolution Aerial Canvas */}
-      <div
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBdEHkw-7swFm4ksAAIHwFQVOFQet9TpONRcnl0Za8KL-OVg0EURbQjqSlx3uefkC1C5Hytg7KQK86eoVLG6U1HEnAbCO4srByqXD1ooOffEh4Z-ht6DJs4opnZT-kovkCJDYe4pBNlzAtqzVmVSn_JQTwF-cWs_F3KKq4OgW34i5EBGVsDwLlHziwpZdjeunoCF-KVxbb-0wPoL6s9lr_0E890vKl97ICqh9P5I9kk")',
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-slate-950/85"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/80"></div>
-      </div>
+  const panelClass =
+    'bg-[#fcf9f3]/90 backdrop-blur-xl shadow-[0_16px_36px_-8px_rgba(10,36,18,0.25)]';
 
-      {/* Top Floating Controls Bar */}
-      <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between max-w-5xl mx-auto w-full">
-        {onGoToLanding ? (
+  return (
+    <main className="relative flex min-h-screen w-full items-center justify-center overflow-hidden bg-[#fcf9f3] p-3 font-sans text-[#1c1c18] sm:p-6 lg:p-10">
+      <div className="absolute inset-0 scale-105 bg-cover bg-center" style={{ backgroundImage: `url("${aerialImage}")` }} />
+      <div className="absolute inset-0 bg-gradient-to-tr from-[#0b1c11]/95 via-[#0e2417]/80 to-[#07130b]/70 backdrop-blur-[2px]" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.07]"
+        style={{ backgroundImage: 'radial-gradient(circle, #76c043 1px, transparent 1px)', backgroundSize: '32px 32px' }}
+      />
+
+      <div className="absolute left-4 top-4 z-20">
+        {onGoToLanding && (
           <button
             onClick={onGoToLanding}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900/80 hover:bg-slate-900 border border-emerald-500/30 text-emerald-300 text-xs font-bold backdrop-blur-md transition-all hover:border-emerald-400 hover:text-white shadow-lg"
+            className="group flex items-center gap-2 rounded-full border border-[#e5e2dc]/40 bg-[#fcf9f3]/90 px-4 py-2 text-xs font-bold text-[#1c1c18] shadow-lg backdrop-blur-xl transition hover:text-[#316b00]"
           >
-            <ArrowLeft className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{language === 'fr' ? '← Page d’accueil (À propos & Infos)' : '← Home Page (About & Info)'}</span>
+            <ArrowLeft className="h-4 w-4 text-[#316b00] transition group-hover:-translate-x-0.5" />
+            <span>Accueil</span>
+            <span className="text-[#717a68]">•</span>
+            <span className="font-mono tracking-wider text-[#316b00]">AROVOLY</span>
           </button>
-        ) : (
-          <div></div>
         )}
+      </div>
 
+      <div className="absolute right-4 top-4 z-20 flex items-center gap-2">
+        <div className="hidden items-center gap-2 rounded-full border border-[#e5e2dc]/40 bg-[#fcf9f3]/90 px-4 py-2 font-mono text-[10px] font-semibold tracking-wider backdrop-blur-xl sm:flex">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-[#76c043]" />
+          <LockKeyhole className="h-4 w-4 text-[#316b00]" />
+          TELEMETRY GUARD
+        </div>
         <button
           onClick={toggleLanguage}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/70 hover:bg-slate-900 border border-white/15 text-slate-200 text-xs font-semibold backdrop-blur-md transition-all"
+          className="rounded-full border border-[#e5e2dc]/40 bg-[#fcf9f3]/90 px-3 py-2 text-xs font-bold uppercase shadow-lg backdrop-blur-xl"
         >
-          <Globe className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{language.toUpperCase()}</span>
+          {language} <ChevronDown className="ml-1 inline h-3 w-3" />
         </button>
       </div>
 
-      {/* Main Glassmorphic Sign-In Card (Strictly Fits in Viewport, No Vertical Scroll) */}
-      <div className="relative z-10 w-full max-w-md bg-slate-900/85 backdrop-blur-2xl border border-white/15 rounded-2xl p-4 sm:p-6 shadow-2xl text-white">
-        {/* Subtle Ambient Card Glow */}
-        <div className="absolute top-0 right-0 -mr-12 -mt-12 w-48 h-48 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-
-        {/* Card Header: Brand & Status */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white shadow-glow-emerald shrink-0">
-              <span className="text-lg">🌱</span>
+      <div className="signin-content relative z-10 flex w-full max-w-7xl flex-col items-center justify-center gap-4 lg:flex-row lg:gap-8">
+        <section className={`${panelClass} relative w-full max-w-xl overflow-hidden rounded-2xl p-5 sm:p-7 lg:p-8`}>
+          <div className="pointer-events-none absolute -right-24 -top-24 h-48 w-48 rounded-full bg-[#76c043]/20 blur-3xl" />
+          <div className="mb-4 flex items-center justify-between gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full bg-[#f0eee8] px-3 py-1 font-mono text-[10px] font-semibold tracking-wider">
+              <span className="h-2 w-2 animate-pulse rounded-full bg-[#76c043]" />
+              TERMINAL v3.4 <span className="opacity-40">•</span> <span className="text-[#416652]">SECURE GATEWAY</span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-extrabold text-white text-base tracking-tight leading-none">
-                  ARO<span className="text-emerald-400">VOLY</span>
-                </span>
-                <span className="text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
-                  v3.4 • Madagascar
-                </span>
-              </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">
-                {language === 'fr' ? 'Portail Sécurisé d’Agriculture de Précision' : 'Secure Precision Ag Terminal'}
-              </p>
+            <div className="hidden items-center gap-1 font-mono text-[10px] text-[#52634a] sm:flex">
+              <LockKeyhole className="h-4 w-4 text-[#316b00]" /> E2EE 256-BIT
             </div>
           </div>
 
-          <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-semibold px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>Sentinel-2</span>
+          <div className="mb-5">
+            <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">Accéder au Terminal AROVOLY</h1>
+            <p className="mt-1 text-sm leading-5 text-[#414939]">
+              Connectez-vous pour monitorer vos parcelles, le flux multispectral Sentinel-2 et vos sondes IoT LoRaWAN.
+            </p>
           </div>
-        </div>
 
-        {/* Sign-Out Notice */}
-        {isSignOutNotice && (
-          <div className="mb-3 p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-            <span className="text-[11px] leading-tight">
+          {isSignOutNotice && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl bg-[#c3ecd2] p-3 text-xs text-[#2a4e3b]">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
               {language === 'fr' ? 'Session fermée. Vous pouvez vous reconnecter ci-dessous.' : 'Session closed. Sign back in below.'}
-            </span>
-          </div>
-        )}
-
-        {/* Role Presets */}
-        <div className="flex items-center gap-1.5 mb-3.5 p-1 rounded-xl bg-white/5 border border-white/10 text-xs">
-          <button
-            type="button"
-            onClick={() => handleRolePreset('agronomist')}
-            className={`flex-1 py-1 rounded-lg text-center font-bold text-xs transition-all ${
-              activeRoleTab === 'agronomist'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {t.signIn.roleAgronomist}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRolePreset('analyst')}
-            className={`flex-1 py-1 rounded-lg text-center font-bold text-xs transition-all ${
-              activeRoleTab === 'analyst'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {t.signIn.roleAnalyst}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleRolePreset('manager')}
-            className={`flex-1 py-1 rounded-lg text-center font-bold text-xs transition-all ${
-              activeRoleTab === 'manager'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            {t.signIn.roleManager}
-          </button>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {/* Email */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
-              {t.signIn.emailLabel}
-            </label>
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-slate-950/70 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-              placeholder="agronome@arovoly.mg"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300">
-                {t.signIn.passwordLabel}
-              </label>
-              <a href="#forgot" className="text-[10px] text-emerald-400 hover:text-emerald-300 transition-colors">
-                {t.signIn.forgotToken}
-              </a>
             </div>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-950/70 border border-white/15 rounded-xl pl-3.5 pr-9 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-colors"
-                placeholder="••••••••••••"
-              />
+          )}
+
+          <div className="mb-3 grid grid-cols-3 gap-1 rounded-full bg-[#f0eee8] p-1 text-xs">
+            {([
+              ['agronomist', t.signIn.roleAgronomist],
+              ['analyst', t.signIn.roleAnalyst],
+              ['manager', t.signIn.roleManager],
+            ] as const).map(([role, label]) => (
               <button
+                key={role}
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                onClick={() => handleRolePreset(role)}
+                className={`rounded-full py-2 font-bold transition ${activeRoleTab === role ? 'bg-[#76c043] text-white shadow-sm' : 'text-[#717a68] hover:text-[#1c1c18]'}`}
               >
-                {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                {label}
               </button>
+            ))}
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <label className="block text-sm font-semibold">
+              {t.signIn.emailLabel}
+              <span className="relative mt-1 block">
+                <Badge className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#52634a]" />
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="nom.agronome@coop-centrale.mg"
+                  className="w-full rounded-full bg-[#f0eee8] py-3 pl-12 pr-4 text-sm font-normal outline-none transition focus:bg-white focus:ring-2 focus:ring-[#76c043]"
+                />
+              </span>
+            </label>
+
+            <label className="block text-sm font-semibold">
+              <span className="flex items-center justify-between">
+                {t.signIn.passwordLabel}
+                <a href="#forgot" className="text-xs font-bold text-[#316b00] hover:underline">{t.signIn.forgotToken}</a>
+              </span>
+              <span className="relative mt-1 block">
+                <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#52634a]" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••••••••••"
+                  className="w-full rounded-full bg-[#f0eee8] py-3 pl-12 pr-12 text-sm font-normal outline-none transition focus:bg-white focus:ring-2 focus:ring-[#76c043]"
+                />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#52634a]" aria-label="Afficher ou masquer le mot de passe">
+                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </span>
+            </label>
+
+            <label className="block text-sm font-semibold">
+              {t.signIn.terminalLabel}
+              <select value={terminalUnit} onChange={(e) => setTerminalUnit(e.target.value)} className="mt-1 w-full appearance-none rounded-full bg-[#f0eee8] px-4 py-3 text-sm font-normal outline-none focus:ring-2 focus:ring-[#76c043]">
+                <option>Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)</option>
+                <option>Secteur 02 • Vakinankaratra (Antsirabe)</option>
+                <option>Secteur 09 • Itasy (Miarinarivo / Ampefy)</option>
+              </select>
+            </label>
+
+            <div className="flex items-center justify-between gap-3 text-xs text-[#414939]">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} className="h-4 w-4 accent-[#316b00]" />
+                {t.signIn.rememberMe}
+              </label>
+              <span className="hidden font-mono text-[10px] text-[#52634a] sm:inline">TTL: 30 JOURS</span>
+            </div>
+
+            <button type="submit" disabled={isLoading} className="group flex w-full items-center justify-center gap-2 rounded-full bg-[#76c043] px-4 py-3.5 text-sm font-bold text-white shadow-[0_8px_20px_-4px_rgba(118,192,67,0.45)] transition hover:bg-[#316b00] disabled:opacity-70">
+              <span>{isLoading ? t.signIn.authenticating : t.signIn.submitBtn}</span>
+              <ArrowRight className="h-5 w-5 transition group-hover:translate-x-1" />
+            </button>
+          </form>
+
+          <div className="my-4 flex items-center gap-3 text-center font-mono text-[10px] uppercase text-[#717a68]">
+            <span className="h-px flex-1 bg-[#e5e2dc]" /> ou protocoles tiers <span className="h-px flex-1 bg-[#e5e2dc]" />
+          </div>
+          <button type="button" onClick={() => onSignInSuccess({ name: 'Dr. Éléonore Vance (Andrianina)', email: 'e.vance@arovoly.mg', role: language === 'fr' ? 'Directrice Agronome Régionale' : 'Regional Lead Agronomist', terminalUnit, avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256' })} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
+            <Sparkles className="h-4 w-4" /> {t.signIn.demoBtn}
+          </button>
+          {onGoToSignUp && <p className="mt-5 text-center text-xs text-[#414939]">Vous n'avez pas encore d'accès parcellaire ? <button onClick={onGoToSignUp} className="font-bold text-[#316b00] hover:underline">S'inscrire gratuitement</button></p>}
+        </section>
+
+        <aside className="hidden w-full max-w-lg flex-col gap-4 lg:flex">
+          <div className={`${panelClass} rounded-2xl p-6`}>
+            <div className="mb-2 flex items-center justify-between font-mono text-[10px] font-semibold text-[#316b00]">
+              <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 animate-ping rounded-full bg-[#76c043]" /> ORBITAL REVISIT: J-2</span>
+              <span className="text-[#717a68]">MSI BANDS B04/B08</span>
+            </div>
+            <h2 className="text-lg font-extrabold">Station Spatiale Sentinel-2 ESA</h2>
+            <p className="mt-1 text-xs leading-5 text-[#414939]">Couverture optique 10m haute résolution calibrée sur le couloir agronomique central de Madagascar.</p>
+            <div className="mt-4 flex items-end justify-between rounded-xl bg-[#f0eee8] p-3">
+              <div><span className="block font-mono text-[10px] text-[#717a68]">NDVI MOYEN RÉGIONAL</span><strong className="text-3xl text-[#316b00]">0.74</strong><span className="ml-2 text-xs font-bold text-[#416652]">Vigoureux (+3.1%)</span></div>
+              <Waves className="h-10 w-20 text-[#76c043]" />
             </div>
           </div>
-
-          {/* Terminal select */}
-          <div>
-            <label className="block text-[10px] font-bold uppercase tracking-wider text-slate-300 mb-1">
-              {t.signIn.terminalLabel}
-            </label>
-            <select
-              value={terminalUnit}
-              onChange={(e) => setTerminalUnit(e.target.value)}
-              className="w-full bg-slate-950/70 border border-white/15 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
-            >
-              <option value="Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)">
-                Secteur 04 • Alaotra-Mangoro (Ambatondrazaka - 4 850 ha)
-              </option>
-              <option value="Secteur 02 • Vakinankaratra (Antsirabe / Betafo)">
-                Secteur 02 • Vakinankaratra (Antsirabe / Betafo - 2 400 ha)
-              </option>
-              <option value="Secteur 09 • Itasy (Miarinarivo / Ampefy)">
-                Secteur 09 • Itasy (Miarinarivo / Ampefy - 1 650 ha)
-              </option>
-              <option value="Secteur 06 • Menabe (Morondava / Baiboho)">
-                Secteur 06 • Menabe (Morondava / Baiboho - 3 100 ha)
-              </option>
-              <option value="Secteur 11 • Boeny (Marovoay Riziculture)">
-                Secteur 11 • Boeny (Marovoay Riziculture - 2 800 ha)
-              </option>
-            </select>
+          <div className={`${panelClass} rounded-2xl p-6`}>
+            <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#416652]"><span>Réseau Terrain LoRaWAN</span><span className="flex items-center gap-1 font-mono text-[10px] text-[#316b00]"><Satellite className="h-4 w-4" /> 1,420 SONDES ACTIVES</span></div>
+            <div className="mt-3 grid grid-cols-2 gap-2">
+              <div className="rounded-xl bg-[#f0eee8] p-3"><span className="block font-mono text-[10px] text-[#717a68]">Humidité du Sol</span><strong className="text-xl">62.8%</strong><span className="block text-xs font-bold text-[#316b00]">Zone Optimale</span></div>
+              <div className="rounded-xl bg-[#f0eee8] p-3"><span className="block font-mono text-[10px] text-[#717a68]">Précision Modèle</span><strong className="text-xl">98.4%</strong><span className="block text-xs font-bold text-[#416652]">IA Calibrée</span></div>
+            </div>
           </div>
-
-          {/* Remember Me Checkbox */}
-          <div className="flex items-center text-xs text-slate-400 pt-0.5">
-            <label className="flex items-center gap-2 cursor-pointer text-[11px]">
-              <input
-                type="checkbox"
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}
-                className="w-3.5 h-3.5 rounded bg-slate-800 border-white/20 text-emerald-500 focus:ring-emerald-500"
-              />
-              <span>{t.signIn.rememberMe}</span>
-            </label>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-2.5 px-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs shadow-glow-emerald transition-all transform hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
-          >
-            {isLoading ? (
-              <span>{t.signIn.authenticating}</span>
-            ) : (
-              <>
-                <span>{t.signIn.submitBtn}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </>
-            )}
-          </button>
-        </form>
-
-        {/* 1-Click Instant Demo Button */}
-        <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              onSignInSuccess({
-                name: 'Dr. Éléonore Vance (Andrianina)',
-                email: 'e.vance@arovoly.mg',
-                role: language === 'fr' ? 'Directrice Agronome Régionale' : 'Regional Lead Agronomist',
-                terminalUnit: 'Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)',
-                avatarUrl:
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256',
-              });
-            }}
-            className="w-full py-2 px-3 rounded-xl bg-white/10 hover:bg-white/15 text-[11px] font-semibold text-emerald-300 border border-white/15 flex items-center justify-center gap-1.5 transition-all"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
-            <span>{t.signIn.demoBtn}</span>
-          </button>
-        </div>
-
-        {/* Link to Landing / About & Help */}
-        {onGoToLanding && (
-          <div className="mt-3 text-center">
-            <button
-              type="button"
-              onClick={onGoToLanding}
-              className="text-[11px] text-slate-400 hover:text-emerald-300 inline-flex items-center gap-1 transition-colors"
-            >
-              <span>{language === 'fr' ? 'Découvrir AROVOLY (À propos, Aide & Guide)' : 'Discover AROVOLY (About, Help & Guide)'}</span>
-              <ArrowRight className="w-3 h-3" />
-            </button>
-          </div>
-        )}
+          <div className="flex items-center gap-3 rounded-2xl bg-[#c3ecd2]/90 p-4 text-[#2a4e3b]"><CheckCircle2 className="h-6 w-6" /><div><p className="text-xs font-bold">Synchronisation Télédétection OK</p><p className="text-xs opacity-80">Dernier passage orbital il y a 38 min</p></div></div>
+        </aside>
       </div>
-    </div>
+
+      <div className="absolute bottom-3 left-4 hidden items-center gap-2 rounded-full bg-[#fcf9f3]/75 px-4 py-2 font-mono text-[10px] text-[#414939] backdrop-blur-xl md:flex">✓ ISO 27001 &amp; RGPD <span className="opacity-30">•</span> SERVEURS SOUVERAINS</div>
+      <div className="absolute bottom-3 right-4 hidden items-center gap-2 rounded-full bg-[#fcf9f3]/85 px-4 py-2 text-xs backdrop-blur-xl sm:flex"><Satellite className="h-4 w-4 text-[#316b00]" /> <strong>Sentinel S2-B</strong> <span className="opacity-30">•</span> Sécurité / Support</div>
+    </main>
   );
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { ViewType } from '../../types';
 import {
@@ -59,6 +59,10 @@ export const LandingView: React.FC<LandingViewProps> = ({
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [activeSimTab, setActiveSimTab] = useState<'ndvi' | 'vra' | 'soil' | 'yield'>('ndvi');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('overview');
+  const headerRef = useRef<HTMLElement | null>(null);
+  const isSnappingScroll = useRef(false);
 
   // Contact form state
   const [contactForm, setContactForm] = useState({
@@ -70,13 +74,54 @@ export const LandingView: React.FC<LandingViewProps> = ({
   });
   const [contactSubmitted, setContactSubmitted] = useState(false);
 
-  // Monitor scroll for back-to-top button
+  // Keep the sticky navigation aligned with the section currently in view.
   useEffect(() => {
+    let scrollStopTimer: number | undefined;
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('.landing-section'));
+
     const handleScroll = () => {
-      setShowScrollTop(window.scrollY > 400);
+      const scrollY = window.scrollY;
+      const headerHeight = headerRef.current?.offsetHeight ?? 72;
+      setShowScrollTop(scrollY > 400);
+      setIsHeaderScrolled(scrollY > 24);
+
+      const visibleSection = sections.reduce((current, section) => {
+        return section.getBoundingClientRect().top <= headerHeight + 32 ? section.id || 'hero' : current;
+      }, 'hero');
+      setActiveSection(visibleSection);
+
+      if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
+      scrollStopTimer = window.setTimeout(() => {
+        if (isSnappingScroll.current || scrollY < 80) return;
+
+        const nearestSection = sections
+          .map((section) => ({
+            section,
+            distance: Math.abs(section.getBoundingClientRect().top - headerHeight),
+          }))
+          .sort((a, b) => a.distance - b.distance)[0];
+
+        if (!nearestSection || nearestSection.distance < 24) return;
+
+        const targetTop = Math.max(
+          0,
+          window.scrollY + nearestSection.section.getBoundingClientRect().top - headerHeight,
+        );
+        if (Math.abs(window.scrollY - targetTop) < 24) return;
+
+        isSnappingScroll.current = true;
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        window.setTimeout(() => {
+          isSnappingScroll.current = false;
+        }, 650);
+      }, 240);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollStopTimer) window.clearTimeout(scrollStopTimer);
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -166,7 +211,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#fcf9f3] text-[#1c1c18] font-sans antialiased selection:bg-[#76c043]/30 selection:text-[#0a2000] p-0 m-0 overflow-x-hidden relative">
+    <div className="landing-page min-h-screen bg-[#fcf9f3] text-[#1c1c18] font-sans antialiased selection:bg-[#76c043]/30 selection:text-[#0a2000] p-0 m-0 overflow-x-clip relative">
       
       {/* Top Session Active Notification (if authenticated) */}
       {isAuthenticated && (
@@ -206,7 +251,12 @@ export const LandingView: React.FC<LandingViewProps> = ({
       )}
 
       {/* ==================== TOP NAVIGATION BAR ==================== */}
-      <header className={`absolute ${isAuthenticated ? 'top-10' : 'top-0'} left-0 w-full z-50 px-3 sm:px-6 lg:px-10 py-3.5 sm:py-4 transition-all`}>
+      <header
+        ref={headerRef}
+        className={`sticky self-start ${isAuthenticated ? 'top-10' : 'top-0'} left-0 w-full z-50 px-3 sm:px-6 lg:px-10 py-3.5 sm:py-4 transition-all duration-300 ${
+          isHeaderScrolled ? 'bg-[#fcf9f3]/95 shadow-lg shadow-black/10 backdrop-blur-xl' : 'bg-transparent'
+        }`}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo */}
           <div
@@ -216,36 +266,36 @@ export const LandingView: React.FC<LandingViewProps> = ({
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 backdrop-blur-md shadow-md shadow-black/10 flex items-center justify-center border border-white/40 group-hover:scale-105 transition-transform duration-300">
               <span className="material-symbols-outlined text-[#316b00] text-xl sm:text-2xl">potted_plant</span>
             </div>
-            <span className="font-extrabold text-lg sm:text-xl tracking-tight text-white drop-shadow-md">
+            <span className={`font-extrabold text-lg sm:text-xl tracking-tight drop-shadow-md ${isHeaderScrolled ? 'text-[#1c1c18]' : 'text-white'}`}>
               ARO<span className="text-[#8eda5a]">VOLY</span>
             </span>
           </div>
 
           {/* Pill Nav (Desktop) */}
           <nav className="hidden lg:flex items-center bg-white/90 backdrop-blur-md px-3.5 py-1.5 xl:px-5 xl:py-2 rounded-full shadow-lg shadow-black/5 border border-white/60 gap-2.5 xl:gap-5 text-[11px] xl:text-xs font-semibold text-[#1c1c18]">
-            <a className="text-[#316b00] transition-colors hover:text-[#204b00]" href="#overview">
+            <a className={`${activeSection === 'overview' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#overview">
               {language === 'fr' ? 'Présentation' : 'Overview'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#how-it-works">
+            <a className={`${activeSection === 'how-it-works' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#how-it-works">
               {language === 'fr' ? 'Fonctionnement' : 'How It Works'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors flex items-center gap-1" href="#simulator">
+            <a className={`${activeSection === 'simulator' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} flex items-center gap-1 transition-colors`} href="#simulator">
               <span className="material-symbols-outlined text-xs text-[#316b00]">auto_awesome</span>
               <span>{language === 'fr' ? 'Simulateur' : 'Simulator'}</span>
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#features">
+            <a className={`${activeSection === 'features' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#features">
               {language === 'fr' ? 'Fonctionnalités' : 'Features'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#apropos">
+            <a className={`${activeSection === 'apropos' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#apropos">
               {language === 'fr' ? 'À Propos' : 'About'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#regions">
+            <a className={`${activeSection === 'regions' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#regions">
               {language === 'fr' ? 'Terroirs' : 'Regions'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#faq">
+            <a className={`${activeSection === 'faq' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#faq">
               {language === 'fr' ? 'Aide & FAQ' : 'Help & FAQ'}
             </a>
-            <a className="text-[#414939] hover:text-[#1c1c18] transition-colors" href="#contact">
+            <a className={`${activeSection === 'contact' ? 'text-[#316b00]' : 'text-[#414939] hover:text-[#1c1c18]'} transition-colors`} href="#contact">
               {language === 'fr' ? 'Contact' : 'Contact'}
             </a>
           </nav>
@@ -297,7 +347,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </header>
 
       {/* ==================== HERO SECTION (FULL SCREEN, EDGE-TO-EDGE) ==================== */}
-      <section className="relative min-h-[85vh] lg:min-h-[92vh] w-full flex flex-col justify-between pt-24 sm:pt-28 pb-8 sm:pb-12 px-4 sm:px-8 lg:px-12 overflow-hidden">
+      <section id="hero" className="landing-section relative min-h-[85vh] lg:min-h-[92vh] w-full flex flex-col justify-between pt-24 sm:pt-28 pb-8 sm:pb-12 px-4 sm:px-8 lg:px-12 overflow-hidden">
         {/* Background Image with Ambient Gradient & Darkening Overlay for Sharp Legibility */}
         <div className="absolute inset-0 z-0">
           <img
@@ -540,7 +590,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== PLATFORM VALUE PILLARS SECTION ==================== */}
-      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12 bg-[#fcf9f3]" id="overview">
+      <section className="landing-section py-12 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12 bg-[#fcf9f3]" id="overview">
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
@@ -639,7 +689,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== INTERACTIVE SIMULATOR SHOWCASE ==================== */}
-      <section id="simulator" className="px-4 sm:px-8 lg:px-12 py-10 sm:py-14 max-w-7xl mx-auto border-t border-[#e5e2dc]">
+      <section id="simulator" className="landing-section px-4 sm:px-8 lg:px-12 py-10 sm:py-14 max-w-7xl mx-auto border-t border-[#e5e2dc]">
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#c3ecd2] text-[#002113] text-xs font-bold uppercase tracking-wider mb-2">
             <span className="material-symbols-outlined text-sm text-[#316b00]">auto_awesome</span>
@@ -1073,7 +1123,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== HOW IT WORKS / PIPELINE ==================== */}
-      <section id="how-it-works" className="py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
+      <section id="how-it-works" className="landing-section py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c3ecd2] text-[#002113] text-xs font-bold mb-2.5">
@@ -1177,7 +1227,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== ABOUT AROVOLY SECTION ==================== */}
-      <section id="apropos" className="py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#fcf9f3] border-t border-[#e5e2dc]">
+      <section id="apropos" className="landing-section py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#fcf9f3] border-t border-[#e5e2dc]">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             <div className="lg:col-span-6 space-y-4 sm:space-y-5">
@@ -1281,7 +1331,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== AGRICULTURAL BASINS OF MADAGASCAR ==================== */}
-      <section id="regions" className="py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
+      <section id="regions" className="landing-section py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c3ecd2] text-[#002113] text-xs font-bold mb-2.5">
@@ -1377,7 +1427,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== FAQ ACCORDION ==================== */}
-      <section id="faq" className="py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#fcf9f3] border-t border-[#e5e2dc]">
+      <section id="faq" className="landing-section py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#fcf9f3] border-t border-[#e5e2dc]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c3ecd2] text-[#002113] text-xs font-bold mb-2.5">
@@ -1429,7 +1479,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== CONTACT & DEPLOYMENT REQUEST ==================== */}
-      <section id="contact" className="py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
+      <section id="contact" className="landing-section py-12 sm:py-16 px-4 md:px-8 lg:px-12 bg-[#f0eee8] border-t border-[#e5e2dc]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#c3ecd2] text-[#002113] text-xs font-bold mb-2.5">

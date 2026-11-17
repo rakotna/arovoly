@@ -87,6 +87,15 @@
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* Keep the sign-in terminal visible in short browser windows without scrolling. */
+.signin-content {
+  zoom: clamp(0.78, calc(100vh / 800px), 1);
+}
+
+.landing-page .landing-section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

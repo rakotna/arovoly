@@ -5,7 +5,8 @@ export type ViewType =
   | 'vra_dashboard'
   | 'soil_sensors'
   | 'yield_forecast'
-  | 'sign_in';
+  | 'sign_in'
+  | 'sign_up';
 
 export type CropType =
   | 'Riz Paddy'

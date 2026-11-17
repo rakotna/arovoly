@@ -7,6 +7,7 @@ import { Sidebar } from './components/common/Sidebar';
 import { ExportModal } from './components/common/ExportModal';
 import { Toast } from './components/common/Toast';
 import { SignInView } from './components/views/SignInView';
+import { SignUpView } from './components/views/SignUpView';
 import { LandingView } from './components/views/LandingView';
 import { MyFieldsView } from './components/views/MyFieldsView';
 import { CropTracingView } from './components/views/CropTracingView';
@@ -138,6 +139,19 @@ export function App() {
     );
   }
 
+  if (currentView === 'sign_up') {
+    return (
+      <>
+        <SignUpView
+          onSignUpSuccess={handleSignIn}
+          onGoToSignIn={() => setCurrentView('sign_in')}
+          onGoToLanding={() => setCurrentView('landing')}
+        />
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+      </>
+    );
+  }
+
   // 2. If on Sign-In screen or unauthenticated, show full-screen sign-in view
   if (currentView === 'sign_in' || !user) {
     return (
@@ -145,6 +159,7 @@ export function App() {
         <SignInView
           onSignInSuccess={handleSignIn}
           onGoToLanding={() => setCurrentView('landing')}
+          onGoToSignUp={() => setCurrentView('sign_up')}
           isSignOutNotice={isSignOutNotice}
         />
         <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
