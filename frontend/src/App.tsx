@@ -57,6 +57,7 @@ export function App() {
   };
 
   const handleSignOut = () => {
+    void api.logout();
     setUser(null);
     localStorage.removeItem('arovoly_user');
     localStorage.removeItem('arovoly_token');

@@ -18,7 +18,7 @@ export const api = {
   // --- PARCELS / FIELDS ---
   async getParcels(): Promise<Parcel[]> {
     try {
-      const res = await fetch(`${API_BASE_URL}/parcels/`);
+      const res = await fetch(`${API_BASE_URL}/parcels/`, { headers: authHeaders() });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       return Array.isArray(data) ? data : MOCK_PARCELS;
@@ -74,7 +74,7 @@ export const api = {
   // --- SENSORS & TELEMETRY ---
   async getSensors(): Promise<SensorProbe[]> {
     try {
-      const res = await fetch(`${API_BASE_URL}/sensors/`);
+      const res = await fetch(`${API_BASE_URL}/sensors/`, { headers: authHeaders() });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
       return Array.isArray(data) && data.length > 0 ? data : MOCK_SENSORS;
@@ -88,7 +88,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/sensors/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(sensor),
       });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -103,6 +103,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/sensors/simulate/`, {
         method: 'POST',
+        headers: authHeaders(),
       });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       const data = await res.json();
@@ -119,7 +120,7 @@ export const api = {
       const url = parcelId
         ? `${API_BASE_URL}/prescriptions/current/?parcel_id=${parcelId}`
         : `${API_BASE_URL}/prescriptions/current/`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers: authHeaders() });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
@@ -132,7 +133,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/prescriptions/calculate/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           parcel_id: parcelId,
           base_rate_kg_ha: baseRateKgHa,
@@ -153,7 +154,7 @@ export const api = {
       const url = parcelId
         ? `${API_BASE_URL}/forecasts/current/?parcel_id=${parcelId}`
         : `${API_BASE_URL}/forecasts/current/`;
-      const res = await fetch(url);
+      const res = await fetch(url, { headers: authHeaders() });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
       return await res.json();
     } catch (err) {
@@ -166,7 +167,7 @@ export const api = {
     try {
       const res = await fetch(`${API_BASE_URL}/forecasts/simulate_scenario/`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ parcel_id: parcelId, scenario }),
       });
       if (!res.ok) throw new Error(`HTTP error ${res.status}`);
@@ -217,6 +218,33 @@ export const api = {
     if (!data.token || !data.user) throw new Error("Réponse d'inscription invalide.");
     localStorage.setItem('arovoly_token', data.token);
     return data.user as UserProfile;
+  },
+
+  async getProfile(): Promise<UserProfile | null> {
+    const res = await fetch(`${API_BASE_URL}/auth/profile/`, { headers: authHeaders() });
+    if (!res.ok) return null;
+    return await res.json();
+  },
+
+  async logout(): Promise<void> {
+    await fetch(`${API_BASE_URL}/auth/logout/`, {
+      method: 'POST',
+      headers: authHeaders(),
+    }).catch(() => undefined);
+  },
+
+  async uploadAvatar(image: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('image', image);
+    const res = await fetch(`${API_BASE_URL}/auth/avatar/`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: formData,
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || `Échec du téléchargement (${res.status})`);
+    if (!data.avatarUrl) throw new Error("Réponse Cloudinary invalide.");
+    return data.avatarUrl;
   },
 
   // --- EXPORT DOWNLOAD URLs ---

@@ -106,7 +106,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
         <button onClick={toggleLanguage} className="rounded-full bg-[#fcf9f3]/90 px-3 py-2 text-xs font-bold uppercase shadow backdrop-blur-xl">{language} <ChevronDown className="ml-1 inline h-3 w-3" /></button>
       </div>
 
-      <div className="signin-content relative z-10 grid w-full max-w-7xl grid-cols-1 items-start gap-6 pb-20 lg:gap-8 lg:py-10">
+      <div className="signin-content relative z-10 grid w-full max-w-7xl grid-cols-1 items-start gap-6 pb-20 lg:grid-cols-12 lg:gap-8 lg:py-10">
         <section className="flex flex-col gap-5 lg:col-span-5">
           <div className="flex flex-col gap-2">
             <span className="inline-flex w-fit items-center gap-2 rounded-full bg-[#fcf9f3]/90 px-3 py-1 font-mono text-[10px] uppercase tracking-wider text-[#316b00] shadow">

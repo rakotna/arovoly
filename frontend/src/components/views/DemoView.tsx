@@ -72,13 +72,13 @@ export const DemoView: React.FC<DemoViewProps> = ({
           onSelectParcel={setSelectedParcelId}
           sensors={MOCK_SENSORS}
           activeLayer={activeLayer}
-          controlsClassName="bottom-32 right-4 sm:bottom-28 sm:right-6"
+          controlsClassName="bottom-24 right-3 sm:bottom-28 sm:right-6"
           className="h-full w-full"
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-[#031309]/35 via-transparent to-[#031309]/55" />
 
-        <div className="absolute left-4 top-24 z-[400] max-w-[calc(100%-2rem)] sm:left-6 sm:top-28">
-          <div className="pointer-events-auto rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl sm:p-4">
+        <div className="absolute left-3 top-24 z-[400] max-w-[172px] sm:left-6 sm:top-28 sm:max-w-[calc(100%-3rem)]">
+          <div className="pointer-events-auto rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-2.5 shadow-2xl backdrop-blur-xl sm:p-4">
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#c3ecd2] text-[#316b00]">
                 <Satellite className="h-4 w-4" />
@@ -93,7 +93,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
                 </h1>
               </div>
             </div>
-            <p className="mt-2 max-w-xs text-[11px] leading-relaxed text-[#414939]">
+            <p className="mt-2 hidden max-w-xs text-[11px] leading-relaxed text-[#414939] sm:block">
               {language === 'fr'
                 ? 'Explorez une console AgTech conçue pour décider plus vite, du satellite à la racine.'
                 : 'Explore an AgTech console built to turn satellite and root-zone signals into action.'}
@@ -126,8 +126,32 @@ export const DemoView: React.FC<DemoViewProps> = ({
           </div>
         </div>
 
-        <div className="absolute bottom-4 left-4 right-4 z-[400] flex gap-3 overflow-x-auto pb-1 sm:bottom-6 sm:left-6 sm:right-6 sm:grid sm:grid-cols-3 sm:overflow-visible">
-          <div className="min-w-[220px] rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1 sm:min-w-0">
+        <div className="absolute bottom-3 left-3 right-3 z-[400] grid grid-cols-3 divide-x divide-[#e5e2dc] rounded-2xl border border-white/60 bg-[#fcf9f3]/95 px-1 py-2 shadow-2xl backdrop-blur-xl sm:hidden">
+          <div className="px-2 text-center">
+            <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wide text-[#717a68]">
+              <Leaf className="h-3 w-3 text-[#316b00]" />
+              NDVI
+            </div>
+            <strong className="mt-0.5 block text-base leading-tight text-[#1c1c18]">0.81</strong>
+          </div>
+          <div className="px-2 text-center">
+            <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wide text-[#717a68]">
+              <Waves className="h-3 w-3 text-[#2563eb]" />
+              {language === 'fr' ? 'Eau' : 'Water'}
+            </div>
+            <strong className="mt-0.5 block text-base leading-tight text-[#1c1c18]">42.8%</strong>
+          </div>
+          <div className="px-2 text-center">
+            <div className="flex items-center justify-center gap-1 text-[9px] font-bold uppercase tracking-wide text-[#717a68]">
+              <CloudSun className="h-3 w-3 text-[#d97706]" />
+              {language === 'fr' ? 'Terrain' : 'Field'}
+            </div>
+            <strong className="mt-0.5 block text-base leading-tight text-[#1c1c18]">24°C</strong>
+          </div>
+        </div>
+
+        <div className="absolute bottom-6 left-6 right-6 z-[400] hidden grid-cols-3 gap-3 sm:grid">
+          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><Leaf className="h-3.5 w-3.5 text-[#316b00]" /> NDVI régional</span>
               <span className="text-[#316b00]">+4.2%</span>
@@ -137,7 +161,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
               <span className="text-[10px] font-semibold text-[#316b00]">{language === 'fr' ? 'Vigueur optimale' : 'Optimal vigor'}</span>
             </div>
           </div>
-          <div className="min-w-[220px] rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-75 duration-300 hover:-translate-y-1">
+          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-75 duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><Waves className="h-3.5 w-3.5 text-[#2563eb]" /> {language === 'fr' ? 'Sondes racinaires' : 'Root probes'}</span>
               <span className="text-[#316b00]">5/5</span>
@@ -147,7 +171,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
               <span className="text-[10px] font-semibold text-[#316b00]">{language === 'fr' ? 'Humidité idéale' : 'Ideal moisture'}</span>
             </div>
           </div>
-          <div className="min-w-[220px] rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-150 duration-300 hover:-translate-y-1">
+          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-150 duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><CloudSun className="h-3.5 w-3.5 text-[#d97706]" /> {language === 'fr' ? 'Contexte terrain' : 'Field context'}</span>
               <span className="text-[#316b00]">24°C</span>
