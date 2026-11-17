@@ -3,7 +3,7 @@ import { MOCK_PARCELS, MOCK_SENSORS, MOCK_VRA_ZONES } from '../data/mockData';
 
 const API_BASE_URL =
   ((import.meta as any).env?.VITE_API_URL as string) ||
-  'https://silver-barnacle-7vvrg74vx65vfqqv-8000.app.github.dev/api';
+  'https://arovoly.onrender.com/api';
 
 const authHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('arovoly_token');
