@@ -214,6 +214,33 @@ npm run dev                    # Interface accessible sur http://localhost:5173
 Les variables sensibles devront être placées dans un fichier `.env` local et ne
 devront jamais être commitées.
 
+## Déploiement Render
+
+Le backend peut être créé directement depuis le blueprint [`render.yaml`](./render.yaml).
+
+1. Pousser les fichiers sur le dépôt GitHub.
+2. Dans Render, sélectionner **New > Blueprint** puis le dépôt.
+3. Renseigner `DATABASE_URL` avec la chaîne PostgreSQL Neon.
+4. Renseigner `CLOUDINARY_URL` avec l’URL fournie par Cloudinary.
+5. Renseigner `CORS_ALLOWED_ORIGINS` avec l’URL exacte du frontend.
+6. Renseigner `CSRF_TRUSTED_ORIGINS` avec l’URL Render du backend.
+7. Déployer le blueprint.
+
+Variables importantes :
+
+```env
+DEBUG=False
+ALLOWED_HOSTS=.onrender.com
+CORS_ALLOWED_ORIGINS=https://your-frontend.onrender.com
+CSRF_TRUSTED_ORIGINS=https://your-backend.onrender.com
+DATABASE_URL=postgresql://...
+SECRET_KEY=<secret-long-et-aleatoire>
+SECURE_SSL_REDIRECT=True
+```
+
+`SECRET_KEY` doit être généré automatiquement par Render. Les migrations et les
+fichiers statiques sont exécutés par [`backend/build.sh`](./backend/build.sh).
+
 ## Feuille de route
 
 1. Initialiser les applications React et Django.

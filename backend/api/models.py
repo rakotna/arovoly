@@ -18,6 +18,7 @@ class UserProfile(models.Model):
 
 
 class Farm(models.Model):
+    owner = models.ForeignKey(User, related_name='farms', on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200)
     sector_code = models.CharField(max_length=100, default='Secteur 04')
     region = models.CharField(max_length=100, default='Alaotra-Mangoro')
@@ -29,6 +30,7 @@ class Farm(models.Model):
 
 
 class Crop(models.Model):
+    owner = models.ForeignKey(User, related_name='crops', on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=100)
     variety = models.CharField(max_length=150)
     sowing_date = models.DateField(null=True, blank=True)

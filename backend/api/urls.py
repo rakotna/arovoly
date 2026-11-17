@@ -12,6 +12,8 @@ from .views import (
     auth_login,
     auth_register,
     auth_profile,
+    auth_logout,
+    auth_avatar,
 )
 
 router = DefaultRouter()
@@ -29,5 +31,7 @@ urlpatterns = [
     path('auth/login/', auth_login, name='auth-login'),
     path('auth/register/', auth_register, name='auth-register'),
     path('auth/profile/', auth_profile, name='auth-profile'),
+    path('auth/logout/', auth_logout, name='auth-logout'),
+    path('auth/avatar/', auth_avatar, name='auth-avatar'),
     path('', include(router.urls)),
 ]

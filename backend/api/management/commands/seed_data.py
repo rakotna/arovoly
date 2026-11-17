@@ -89,6 +89,7 @@ class Command(BaseCommand):
         farm_alaotra, _ = Farm.objects.update_or_create(
             name="Exploitation Rizicole d'Ambatondrazaka (PC15)",
             defaults={
+                'owner': demo_owner,
                 'sector_code': 'Secteur 04',
                 'region': 'Alaotra-Mangoro',
                 'total_area_ha': 725.0
@@ -97,6 +98,7 @@ class Command(BaseCommand):
         farm_vakinankaratra, _ = Farm.objects.update_or_create(
             name="Domaine Agro-Sylvo-Pastoral des Tanety (Betafo)",
             defaults={
+                'owner': demo_owner,
                 'sector_code': 'Secteur 02',
                 'region': 'Vakinankaratra',
                 'total_area_ha': 310.0
@@ -105,6 +107,7 @@ class Command(BaseCommand):
         farm_itasy, _ = Farm.objects.update_or_create(
             name="Terroirs Volcaniques d'Ampefy",
             defaults={
+                'owner': demo_owner,
                 'sector_code': 'Secteur 09',
                 'region': 'Itasy',
                 'total_area_ha': 195.0
@@ -115,22 +118,22 @@ class Command(BaseCommand):
         crop_rice, _ = Crop.objects.update_or_create(
             name='Riz Paddy',
             variety='Vary Makalioka 34 (Riz de Luxe)',
-            defaults={'target_yield_t_ha': 6.2}
+            defaults={'owner': demo_owner, 'target_yield_t_ha': 6.2}
         )
         crop_corn, _ = Crop.objects.update_or_create(
             name='Maïs',
             variety='IRAT 200 (Hybride Jaune)',
-            defaults={'target_yield_t_ha': 4.8}
+            defaults={'owner': demo_owner, 'target_yield_t_ha': 4.8}
         )
         crop_soy, _ = Crop.objects.update_or_create(
             name='Soja',
             variety='UFV-1 (Grain haute teneur protéique)',
-            defaults={'target_yield_t_ha': 2.2}
+            defaults={'owner': demo_owner, 'target_yield_t_ha': 2.2}
         )
         crop_cassava, _ = Crop.objects.update_or_create(
             name='Manioc',
             variety='Ampasimbe (Haute fécule)',
-            defaults={'target_yield_t_ha': 18.0}
+            defaults={'owner': demo_owner, 'target_yield_t_ha': 18.0}
         )
 
         # 4. Fields (Parcels)

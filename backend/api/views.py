@@ -1,5 +1,6 @@
 import math
 import random
+import os
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
@@ -9,6 +10,8 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view, action, permission_classes
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+import cloudinary
+import cloudinary.uploader
 
 from .models import (
     UserProfile,
@@ -68,11 +71,25 @@ class MultiLookupMixin:
 class FarmViewSet(viewsets.ModelViewSet):
     queryset = Farm.objects.all().order_by('id')
     serializer_class = FarmSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Farm.objects.filter(owner=self.request.user).order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all().order_by('id')
     serializer_class = CropSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Crop.objects.filter(owner=self.request.user).order_by('id')
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class FieldViewSet(MultiLookupMixin, viewsets.ModelViewSet):
@@ -326,6 +343,10 @@ class SensorViewSet(MultiLookupMixin, viewsets.ModelViewSet):
     queryset = Sensor.objects.all().order_by('-last_synced')
     serializer_class = SensorSerializer
     lookup_field = 'slug'
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Sensor.objects.filter(field__owner=self.request.user).order_by('-last_synced')
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -333,15 +354,13 @@ class SensorViewSet(MultiLookupMixin, viewsets.ModelViewSet):
         # Link parcel
         parcel_id = data.get('parcelId') or data.get('parcel_id')
         if parcel_id:
-            field = Field.objects.filter(slug=parcel_id).first()
+            field = Field.objects.filter(slug=parcel_id, owner=request.user).first()
             if not field and str(parcel_id).isdigit():
-                field = Field.objects.filter(pk=int(parcel_id)).first()
+                field = Field.objects.filter(pk=int(parcel_id), owner=request.user).first()
             if field:
                 data['field_id'] = field.id
             else:
-                first_field = Field.objects.first()
-                if first_field:
-                    data['field_id'] = first_field.id
+                raise ValidationError({'parcelId': 'Parcelle introuvable ou inaccessible.'})
 
         if 'stationCode' in data:
             data['station_code'] = data['stationCode']
@@ -401,7 +420,7 @@ class SensorViewSet(MultiLookupMixin, viewsets.ModelViewSet):
     def simulate(self, request):
         """Simulate realistic sensor fluctuations for all online probes."""
         updated = 0
-        for sensor in Sensor.objects.all():
+        for sensor in self.get_queryset():
             latest = sensor.measurements.first()
             base_m10 = latest.moisture_10cm if latest else 38.0
             base_temp = latest.temperature_c if latest else 24.0
@@ -435,9 +454,10 @@ class SensorViewSet(MultiLookupMixin, viewsets.ModelViewSet):
 class MeasurementViewSet(viewsets.ModelViewSet):
     queryset = Measurement.objects.all().order_by('-recorded_at')
     serializer_class = MeasurementSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        qs = super().get_queryset()
+        qs = Measurement.objects.filter(sensor__field__owner=self.request.user).order_by('-recorded_at')
         sensor_id = self.request.query_params.get('sensor')
         if sensor_id:
             qs = qs.filter(sensor__slug=sensor_id) | qs.filter(sensor_id=sensor_id)
@@ -447,18 +467,19 @@ class MeasurementViewSet(viewsets.ModelViewSet):
 class VRAPrescriptionViewSet(viewsets.ModelViewSet):
     queryset = VRAPrescription.objects.all().order_by('-date_prescribed')
     serializer_class = VRAPrescriptionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return VRAPrescription.objects.filter(field__owner=self.request.user).order_by('-date_prescribed')
 
     @action(detail=False, methods=['get'])
     def current(self, request):
         """Get the active prescription for a given parcel."""
         parcel_id = request.query_params.get('parcel_id')
         if not parcel_id:
-            prescription = VRAPrescription.objects.first()
+            prescription = self.get_queryset().first()
         else:
-            prescription = (
-                VRAPrescription.objects.filter(field__slug=parcel_id).first() or
-                VRAPrescription.objects.first()
-            )
+            prescription = self.get_queryset().filter(field__slug=parcel_id).first()
         if not prescription:
             return Response({"error": "No prescription found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(self.get_serializer(prescription).data)
@@ -470,9 +491,9 @@ class VRAPrescriptionViewSet(viewsets.ModelViewSet):
         base_rate = float(request.data.get('base_rate_kg_ha', 180.0))
         cost_per_kg = float(request.data.get('cost_per_kg', 0.68))
 
-        field = Field.objects.filter(slug=parcel_id).first()
+        field = Field.objects.filter(slug=parcel_id, owner=request.user).first()
         if not field:
-            field = Field.objects.first()
+            return Response({'detail': 'Parcelle introuvable ou inaccessible.'}, status=status.HTTP_404_NOT_FOUND)
 
         prescription = VRAPrescription.objects.filter(field=field).first()
         if not prescription:
@@ -520,18 +541,19 @@ class VRAPrescriptionViewSet(viewsets.ModelViewSet):
 class YieldForecastViewSet(viewsets.ModelViewSet):
     queryset = YieldForecast.objects.all().order_by('-created_at')
     serializer_class = YieldForecastSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return YieldForecast.objects.filter(field__owner=self.request.user).order_by('-created_at')
 
     @action(detail=False, methods=['get'])
     def current(self, request):
         """Get yield forecast for a given parcel."""
         parcel_id = request.query_params.get('parcel_id')
         if not parcel_id:
-            forecast = YieldForecast.objects.first()
+            forecast = self.get_queryset().first()
         else:
-            forecast = (
-                YieldForecast.objects.filter(field__slug=parcel_id).first() or
-                YieldForecast.objects.first()
-            )
+            forecast = self.get_queryset().filter(field__slug=parcel_id).first()
         if not forecast:
             return Response({"error": "No forecast found"}, status=status.HTTP_404_NOT_FOUND)
         return Response(self.get_serializer(forecast).data)
@@ -542,10 +564,7 @@ class YieldForecastViewSet(viewsets.ModelViewSet):
         parcel_id = request.data.get('parcel_id')
         scenario_key = request.data.get('scenario', 'baseline')
         
-        forecast = (
-            YieldForecast.objects.filter(field__slug=parcel_id).first() or
-            YieldForecast.objects.first()
-        )
+        forecast = self.get_queryset().filter(field__slug=parcel_id).first()
         if not forecast:
             return Response({"error": "No forecast found"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -633,6 +652,14 @@ def auth_register(request):
         role=request.data.get('role', 'Agronome'),
         terminal_unit=request.data.get('region') or 'Madagascar',
     )
+    region = request.data.get('region') or 'Madagascar'
+    Farm.objects.create(
+        owner=user,
+        name=f"Exploitation de {name}",
+        sector_code='Secteur initial',
+        region=region,
+        total_area_ha=0.0,
+    )
     token = Token.objects.create(user=user)
     return Response({
         'token': token.key,
@@ -647,21 +674,10 @@ def auth_register(request):
 
 
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def auth_profile(request):
     """Get profile of current user."""
     user = request.user
-    if not user or not user.is_authenticated:
-        # Return default leader profile if unauthenticated in dev
-        profile = UserProfile.objects.first()
-        if profile:
-            return Response(UserProfileSerializer(profile).data)
-        return Response({
-            "name": "Dr. Éléonore Vance (Andrianina)",
-            "email": "e.vance@arovoly.mg",
-            "role": "Directrice Agronome Régionale • Madagascar",
-            "terminalUnit": "Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)",
-            "avatarUrl": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256"
-        })
     profile = getattr(user, 'profile', None)
     if profile:
         return Response(UserProfileSerializer(profile).data)
@@ -672,6 +688,51 @@ def auth_profile(request):
         "terminalUnit": "Secteur 04 • Alaotra-Mangoro",
         "avatarUrl": ""
     })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def auth_logout(request):
+    """Invalidate the current authentication token."""
+    Token.objects.filter(user=request.user).delete()
+    return Response({'status': 'logged_out'})
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def auth_avatar(request):
+    """Upload and attach a profile photo in Cloudinary."""
+    image = request.FILES.get('image')
+    if not image:
+        return Response({'detail': 'Photo requise.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not os.getenv('CLOUDINARY_URL'):
+        return Response({'detail': 'Cloudinary n’est pas configuré.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+    if not image.content_type or not image.content_type.startswith('image/'):
+        return Response({'detail': 'Le fichier doit être une image.'}, status=status.HTTP_400_BAD_REQUEST)
+    if image.size > 5 * 1024 * 1024:
+        return Response({'detail': 'La photo ne doit pas dépasser 5 Mo.'}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+    result = cloudinary.uploader.upload(
+        image,
+        folder='arovoly/avatars',
+        public_id=f"user-{request.user.id}",
+        overwrite=True,
+        invalidate=True,
+        resource_type='image',
+        transformation=[
+            {'width': 512, 'height': 512, 'crop': 'fill', 'gravity': 'face'},
+            {'quality': 'auto', 'fetch_format': 'auto'},
+        ],
+    )
+    profile = getattr(request.user, 'profile', None)
+    if not profile:
+        profile = UserProfile.objects.create(
+            user=request.user,
+            name=request.user.get_full_name() or request.user.username,
+        )
+    profile.avatar_url = result['secure_url']
+    profile.save(update_fields=['avatar_url'])
+    return Response({'avatarUrl': profile.avatar_url}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
