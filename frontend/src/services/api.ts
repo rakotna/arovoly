@@ -201,6 +201,17 @@ export const api = {
     return data.user as UserProfile;
   },
 
+  async requestMagicLink(email: string): Promise<string> {
+    const res = await fetch(`${API_BASE_URL}/auth/magic-request/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || `Échec de l’envoi (${res.status})`);
+    return data.detail || 'Lien envoyé.';
+  },
+
   async register(payload: {
     name: string;
     email: string;

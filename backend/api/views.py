@@ -1,6 +1,11 @@
 import math
 import random
 import os
+from urllib.parse import urlencode
+from django.core import signing
+from django.core.mail import send_mail
+from django.conf import settings
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
@@ -671,6 +676,72 @@ def auth_register(request):
             'avatarUrl': profile.avatar_url,
         },
     }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def auth_magic_request(request):
+    """Send a short-lived passwordless login link."""
+    email = request.data.get('email', '').strip().lower()
+    if not email:
+        return Response({'detail': 'Adresse email requise.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    account = User.objects.filter(email__iexact=email).first() or User.objects.filter(username=email).first()
+    if account:
+        token = signing.dumps(
+            {'uid': account.id, 'purpose': 'magic-login'},
+            salt='arovoly.magic-login',
+        )
+        magic_url = request.build_absolute_uri(
+            f"/api/auth/magic-login/?{urlencode({'token': token})}"
+        )
+        send_mail(
+            subject='Votre lien de connexion AROVOLY',
+            message=f'Cliquez sur ce lien pour accéder à AROVOLY :\n\n{magic_url}\n\nCe lien expire dans 15 minutes.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[account.email],
+            fail_silently=False,
+        )
+
+    return Response({
+        'status': 'sent',
+        'detail': 'Lien envoyé si ce compte existe.',
+    })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+def auth_magic_login(request):
+    """Validate a magic link and redirect to the frontend."""
+    token = request.query_params.get('token', '')
+    try:
+        payload = signing.loads(
+            token,
+            salt='arovoly.magic-login',
+            max_age=15 * 60,
+        )
+    except signing.BadSignature:
+        return HttpResponseRedirect(
+            f"{settings.FRONTEND_URL}/?magic_status=invalid"
+        )
+
+    if payload.get('purpose') != 'magic-login':
+        return HttpResponseRedirect(
+            f"{settings.FRONTEND_URL}/?magic_status=invalid"
+        )
+
+    account = User.objects.filter(id=payload.get('uid'), is_active=True).first()
+    if not account:
+        return HttpResponseRedirect(
+            f"{settings.FRONTEND_URL}/?magic_status=invalid"
+        )
+
+    auth_token, _ = Token.objects.get_or_create(user=account)
+    query = urlencode({
+        'magic_status': 'success',
+        'auth_token': auth_token.key,
+    })
+    return HttpResponseRedirect(f"{settings.FRONTEND_URL}/?{query}")
 
 
 @api_view(['GET'])

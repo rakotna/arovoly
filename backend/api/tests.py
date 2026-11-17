@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.core.management import call_command
+from django.core import signing
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
@@ -244,3 +245,27 @@ class ArovolyApiTests(TestCase):
             'password': 'SecurePass123!',
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
+
+    def test_magic_link_request_is_generic_and_account_gets_link(self):
+        url = reverse('auth-magic-request')
+        response = self.client.post(url, {
+            'email': 'e.vance@arovoly.mg',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('Lien', response.data['detail'])
+
+    def test_magic_link_login_redirects_with_auth_token(self):
+        user = User.objects.get(username='e.vance@arovoly.mg')
+        token = signing.dumps(
+            {'uid': user.id, 'purpose': 'magic-login'},
+            salt='arovoly.magic-login',
+        )
+        response = self.client.get(reverse('auth-magic-login'), {'token': token})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('magic_status=success', response['Location'])
+        self.assertIn('auth_token=', response['Location'])
+
+    def test_magic_link_rejects_invalid_token(self):
+        response = self.client.get(reverse('auth-magic-login'), {'token': 'invalid'})
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('magic_status=invalid', response['Location'])

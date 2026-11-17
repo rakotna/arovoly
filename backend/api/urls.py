@@ -14,6 +14,8 @@ from .views import (
     auth_profile,
     auth_logout,
     auth_avatar,
+    auth_magic_request,
+    auth_magic_login,
 )
 
 router = DefaultRouter()
@@ -33,5 +35,7 @@ urlpatterns = [
     path('auth/profile/', auth_profile, name='auth-profile'),
     path('auth/logout/', auth_logout, name='auth-logout'),
     path('auth/avatar/', auth_avatar, name='auth-avatar'),
+    path('auth/magic-request/', auth_magic_request, name='auth-magic-request'),
+    path('auth/magic-login/', auth_magic_login, name='auth-magic-login'),
     path('', include(router.urls)),
 ]

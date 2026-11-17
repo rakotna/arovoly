@@ -43,6 +43,25 @@ export const SignInView: React.FC<SignInViewProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [magicMessage, setMagicMessage] = useState<string | null>(null);
+  const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
+
+  const handleMagicLink = async () => {
+    setMagicMessage(null);
+    if (!email) {
+      setMagicMessage('Saisissez votre adresse email.');
+      return;
+    }
+    setIsMagicLinkLoading(true);
+    try {
+      const message = await api.requestMagicLink(email);
+      setMagicMessage(message);
+    } catch (error) {
+      setMagicMessage(error instanceof Error ? error.message : 'Impossible d’envoyer le lien.');
+    } finally {
+      setIsMagicLinkLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,6 +246,19 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <button type="button" onClick={() => { setEmail('e.vance@arovoly.mg'); setPassword('arovoly2024'); setAuthError(null); }} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
             <Sparkles className="h-4 w-4" /> {t.signIn.demoBtn}
           </button>
+          <button
+            type="button"
+            onClick={handleMagicLink}
+            disabled={isMagicLinkLoading}
+            className="mt-3 w-full rounded-full border border-[#76c043] px-4 py-2.5 text-xs font-bold text-[#316b00] transition hover:bg-[#c3ecd2] disabled:opacity-70"
+          >
+            {isMagicLinkLoading ? 'Envoi du lien...' : 'Recevoir un lien magique par email'}
+          </button>
+          {magicMessage && (
+            <p className="mt-3 text-center text-xs text-[#416652]" role="status">
+              {magicMessage}
+            </p>
+          )}
           {onGoToSignUp && <p className="mt-5 text-center text-xs text-[#414939]">Vous n'avez pas encore d'accès parcellaire ? <button onClick={onGoToSignUp} className="font-bold text-[#316b00] hover:underline">S'inscrire gratuitement</button></p>}
         </section>
 

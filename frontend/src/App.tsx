@@ -67,6 +67,34 @@ export function App() {
   };
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const magicStatus = params.get('magic_status');
+    const authToken = params.get('auth_token');
+
+    if (magicStatus === 'success' && authToken) {
+      localStorage.setItem('arovoly_token', authToken);
+      void api.getProfile().then((profile) => {
+        if (profile) {
+          setUser(profile);
+          localStorage.setItem('arovoly_user', JSON.stringify(profile));
+          setCurrentView('my_fields');
+          showToast('Connexion sécurisée confirmée.');
+        }
+      });
+    } else if (magicStatus === 'invalid') {
+      showToast('Ce lien magique est invalide ou a expiré.');
+      setCurrentView('sign_in');
+    }
+
+    if (magicStatus) {
+      params.delete('magic_status');
+      params.delete('auth_token');
+      const cleaned = params.toString();
+      window.history.replaceState({}, '', `${window.location.pathname}${cleaned ? `?${cleaned}` : ''}${window.location.hash}`);
+    }
+  }, []);
+
+  useEffect(() => {
     async function loadData() {
       try {
         const [apiParcels, apiSensors] = await Promise.all([
