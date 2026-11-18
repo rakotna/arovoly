@@ -21,6 +21,13 @@ class ArovolyApiTests(TestCase):
         self.assertEqual(response.data['status'], 'healthy')
         self.assertIn('counts', response.data['database'])
 
+    def test_cassava_latest_prediction(self):
+        url = reverse('cassava-latest-prediction')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['status'], 'ready')
+        self.assertEqual(response.data['crop'], 'cassava')
+
     def test_list_parcels(self):
         url = reverse('parcel-list')
         response = self.client.get(url)
