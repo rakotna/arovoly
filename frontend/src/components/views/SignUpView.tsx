@@ -42,7 +42,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [region, setRegion] = useState('');
-  const [surface, setSurface] = useState('50 — 500 Hectares');
+  const [surface, setSurface] = useState('');
   const [password, setPassword] = useState('');
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -171,7 +171,7 @@ export const SignUpView: React.FC<SignUpViewProps> = ({
             <label className="block text-xs font-semibold">Courriel d'exploitation ou institutionnel<span className="relative block"><Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#52634a]" /><input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="contact.agronome@coop-terroirs.mg" className={`${fieldClass} pl-11`} /></span></label>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="text-xs font-semibold">Bassin Hydro-Agricole<select required value={region} onChange={(e) => setRegion(e.target.value)} className={fieldClass}><option value="">Sélectionner la région cible</option><option>Alaotra-Mangoro</option><option>Vakinankaratra</option><option>Boeny</option><option>Menabe</option><option>Itasy</option></select></label>
-              <label className="text-xs font-semibold">Superficie Parcellaire Estimée<select value={surface} onChange={(e) => setSurface(e.target.value)} className={fieldClass}><option>&lt; 50 Hectares</option><option>50 — 500 Hectares</option><option>500 — 2 500 Hectares</option><option>&gt; 2 500 Hectares</option></select></label>
+              <label className="text-xs font-semibold">Superficie Parcellaire Estimée<select value={surface} onChange={(e) => setSurface(e.target.value)} className={fieldClass}><option value="">Sélectionner une superficie estimée</option><option>&lt; 50 Hectares</option><option>50 — 500 Hectares</option><option>500 — 2 500 Hectares</option><option>&gt; 2 500 Hectares</option></select></label>
             </div>
             <label className="block text-xs font-semibold">Mot de passe d'authentification chiffrée<span className="relative block"><input required minLength={8} type={showPassword ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 8 caractères, un symbole & chiffre" className={`${fieldClass} pr-12`} /><button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#52634a]" aria-label="Afficher ou masquer le mot de passe">{showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button></span><span className="mt-2 grid grid-cols-4 gap-1">{[0, 1, 2, 3].map((meter) => <span key={meter} className={`h-1.5 rounded-full ${strength > meter ? strength === 1 ? 'bg-[#ba1a1a]' : 'bg-[#76c043]' : 'bg-[#ebe8e2]'}`} />)}</span></label>
             <label className="flex items-start gap-2 text-xs leading-relaxed text-[#414939]"><input required type="checkbox" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} className="mt-1 h-4 w-4 accent-[#316b00]" /><span>J'approuve les conditions d'exploitation des flux orbitaux Sentinel et la <a href="#ethics" className="font-semibold underline">charte éthique de souveraineté des données agronomiques</a> de Madagascar.</span></label>

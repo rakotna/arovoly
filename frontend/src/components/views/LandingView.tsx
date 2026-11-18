@@ -80,6 +80,21 @@ export const LandingView: React.FC<LandingViewProps> = ({
   // Keep the sticky navigation aligned with the section currently in view.
   useEffect(() => {
     const sections = Array.from(document.querySelectorAll<HTMLElement>('.landing-section'));
+    const revealElements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('landing-reveal-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -40px' }
+    );
+
+    revealElements.forEach((element) => revealObserver.observe(element));
 
     const handleScroll = () => {
       const scrollY = window.scrollY;
@@ -96,6 +111,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
     handleScroll();
     return () => {
       window.removeEventListener('scroll', handleScroll);
+      revealObserver.disconnect();
     };
   }, []);
 
@@ -468,7 +484,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div className="absolute inset-0 z-0">
           <img
             alt="Breathtaking high angle drone view of lush green terraced rice paddy fields in Madagascar"
-            className="w-full h-full object-cover object-center scale-[1.02] filter contrast-[1.05]"
+            className="landing-hero-image w-full h-full object-cover object-center scale-[1.02] filter contrast-[1.05]"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZQw3FJG9f2xd3_PvHYPePQoDL2ey7yTqIa3HIX7I9z4Clje1bSuSU4sjAWCRQo4RXPsHJy4pIG05DWQY09ef38jFEwqAmCxVjHnhRjKXkR3NM8uu0DGaVJWwPJmo6rzZKkTmKlzeVAFhjIAjfBQ85-oGUJzOT5j7QCkScud8Cphqt9xQf7kTpszfZL1RIxjpZU_-cBuQIRZ1vmt5LRMkEKpeWbCSAEgWgw4Yz6qE"
           />
           {/* Deep cinematic dark gradient layers for crystal contrast */}
@@ -483,7 +499,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             {/* Left: Headline & Telemetry intro */}
             <div className="lg:col-span-8 flex flex-col items-start space-y-4 sm:space-y-5">
               {/* Tag Pill */}
-              <div className="inline-flex w-full sm:w-auto items-center justify-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#a9f773] text-[11px] sm:text-xs font-medium tracking-wide">
+              <div className="landing-hero-tag inline-flex w-full sm:w-auto items-center justify-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#a9f773] text-[11px] sm:text-xs font-medium tracking-wide">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#8eda5a] animate-pulse"></span>
                 <span>
                   {language === 'fr'
@@ -502,7 +518,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
               {renderMetricCard('lg:hidden w-full')}
 
               {/* Main Title */}
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-5xl font-extrabold text-white tracking-tight leading-[1.14]">
+              <h1 className="landing-hero-title text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] xl:text-5xl font-extrabold text-white tracking-tight leading-[1.14]">
                 {language === 'fr' ? (
                   <>
                     L’intelligence spatiale et l’IoT au service des{' '}
@@ -521,14 +537,14 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </h1>
 
               {/* Body Description */}
-              <p className="text-white/85 text-xs sm:text-sm md:text-base max-w-2xl font-normal leading-relaxed">
+              <p className="landing-hero-copy text-white/85 text-xs sm:text-sm md:text-base max-w-2xl font-normal leading-relaxed">
                 {language === 'fr'
                   ? "AROVOLY (« Protection des cultures » en malgache) réunit la cartographie satellite Sentinel-2 (ESA), les indices multispectraux NDVI, les sondes racinaires IoT LoRaWAN et la modulation d'engrais VRA pour donner aux exploitants et agronomes les moyens de sécuriser leurs rendements."
                   : "AROVOLY (« Crop Protection » in Malagasy) unifies Sentinel-2 (ESA) orbital telemetry, NDVI vegetative indices, LoRaWAN root-zone IoT capacitive probes, and VRA precision fertilizer modulation to empower farmers and agronomists across Madagascar."}
               </p>
 
               {/* CTAs */}
-              <div className="grid w-full max-w-xl grid-cols-2 items-stretch gap-2.5 pt-1 lg:flex lg:flex-wrap lg:items-center lg:gap-3">
+              <div className="landing-hero-actions grid w-full max-w-xl grid-cols-2 items-stretch gap-2.5 pt-1 lg:flex lg:flex-wrap lg:items-center lg:gap-3">
                 {isAuthenticated && onGoToDashboard ? (
                   <button
                     onClick={onGoToDashboard}
@@ -578,7 +594,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div className="relative z-10 max-w-7xl mx-auto w-full pt-4 sm:pt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4.5">
             {/* Card 1: Sentinel-2 Multispectral */}
-            <div className="bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-3.5 sm:p-4 shadow-xl border border-white/60 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-0.5 duration-200">
+            <div className="landing-telemetry-card bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-3.5 sm:p-4 shadow-xl border border-white/60 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-1 duration-300">
               {/* Mini Viz Box */}
               <div className="w-full sm:w-36 md:w-40 bg-[#0a2012] rounded-xl p-2.5 sm:p-3 text-white flex flex-col justify-between shrink-0">
                 <div className="flex justify-between items-center text-[9px] font-mono text-[#a8d0b7]">
@@ -627,7 +643,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
             </div>
 
             {/* Card 2: Capacitive Soil Probe Matrix */}
-            <div className="bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-3.5 sm:p-4 shadow-xl border border-white/60 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-0.5 duration-200">
+            <div className="landing-telemetry-card bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl p-3.5 sm:p-4 shadow-xl border border-white/60 flex flex-col sm:flex-row items-center gap-3 sm:gap-4 transition-transform hover:-translate-y-1 duration-300">
               {/* Card Info */}
               <div className="flex-1 flex flex-col justify-between w-full h-full order-2 sm:order-1 py-0.5">
                 <div>
@@ -680,7 +696,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
       </section>
 
       {/* ==================== PLATFORM VALUE PILLARS SECTION ==================== */}
-      <section className="landing-section py-12 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12 bg-[#fcf9f3]" id="overview">
+      <section className="landing-section py-12 sm:py-16 lg:py-20 px-4 sm:px-8 lg:px-12 bg-[#fcf9f3]" id="overview" data-reveal>
         <div className="max-w-7xl mx-auto">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">

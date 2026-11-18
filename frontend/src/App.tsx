@@ -18,6 +18,41 @@ import { YieldForecastView } from './components/views/YieldForecastView';
 import { ProfileView } from './components/views/ProfileView';
 
 export function App() {
+  useEffect(() => {
+    const revealSelector =
+      '[data-reveal], .landing-section, .agri-card-reveal, .grid > .rounded-2xl, .grid > .bg-white';
+
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('component-reveal-visible');
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.08, rootMargin: '0px 0px -30px' }
+    );
+
+    const observeElements = () => {
+      document.querySelectorAll<HTMLElement>(revealSelector).forEach((element) => {
+        if (!element.classList.contains('component-reveal-visible')) {
+          element.classList.add('component-reveal');
+          revealObserver.observe(element);
+        }
+      });
+    };
+
+    observeElements();
+    const mutationObserver = new MutationObserver(observeElements);
+    mutationObserver.observe(document.body, { childList: true, subtree: true });
+
+    return () => {
+      mutationObserver.disconnect();
+      revealObserver.disconnect();
+    };
+  }, []);
+
   const [user, setUser] = useState<UserProfile | null>(() => {
     if (!localStorage.getItem('arovoly_token')) return null;
     const saved = localStorage.getItem('arovoly_user');

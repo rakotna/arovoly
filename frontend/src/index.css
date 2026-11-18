@@ -210,3 +210,105 @@
     animation: none;
   }
 }
+
+.landing-hero-image {
+  animation: landing-ken-burns 18s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.landing-hero-tag,
+.landing-hero-title,
+.landing-hero-copy,
+.landing-hero-actions {
+  animation: landing-hero-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-hero-title { animation-delay: 0.08s; }
+.landing-hero-copy { animation-delay: 0.16s; }
+.landing-hero-actions { animation-delay: 0.24s; }
+
+.landing-telemetry-card {
+  animation: landing-card-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-telemetry-card:last-child {
+  animation-delay: 0.14s;
+}
+
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.75s ease, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal].landing-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes landing-ken-burns {
+  0% { transform: scale(1.02) translate3d(0, 0, 0); }
+  100% { transform: scale(1.09) translate3d(-0.6%, -0.35%, 0); }
+}
+
+@keyframes landing-hero-enter {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes landing-card-enter {
+  from { opacity: 0; transform: translateY(22px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-hero-image,
+  .landing-hero-tag,
+  .landing-hero-title,
+  .landing-hero-copy,
+  .landing-hero-actions,
+  .landing-telemetry-card {
+    animation: none;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.component-reveal {
+  opacity: 0;
+  transform: translateY(18px) scale(0.992);
+  transition:
+    opacity 0.65s ease,
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.component-reveal-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.component-reveal:nth-child(2) {
+  transition-delay: 70ms;
+}
+
+.component-reveal:nth-child(3) {
+  transition-delay: 140ms;
+}
+
+.component-reveal:nth-child(4) {
+  transition-delay: 210ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .component-reveal,
+  .component-reveal-visible {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

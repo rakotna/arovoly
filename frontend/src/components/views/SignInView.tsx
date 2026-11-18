@@ -35,9 +35,9 @@ export const SignInView: React.FC<SignInViewProps> = ({
   isSignOutNotice = false,
 }) => {
   const { language, toggleLanguage, t } = useTranslation();
-  const [email, setEmail] = useState('e.vance@arovoly.mg');
-  const [password, setPassword] = useState('arovoly2024');
-  const [terminalUnit, setTerminalUnit] = useState('Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [terminalUnit, setTerminalUnit] = useState('');
   const [activeRoleTab, setActiveRoleTab] = useState<'agronomist' | 'analyst' | 'manager'>('agronomist');
   const [remember, setRemember] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,16 +79,6 @@ export const SignInView: React.FC<SignInViewProps> = ({
 
   const handleRolePreset = (role: 'agronomist' | 'analyst' | 'manager') => {
     setActiveRoleTab(role);
-    if (role === 'agronomist') {
-      setEmail('e.vance@arovoly.mg');
-      setTerminalUnit('Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)');
-    } else if (role === 'analyst') {
-      setEmail('analyst.satellite@arovoly.mg');
-      setTerminalUnit('Secteur 02 • Vakinankaratra (Antsirabe)');
-    } else {
-      setEmail('direction.exploitation@arovoly.mg');
-      setTerminalUnit('Secteur 09 • Itasy (Miarinarivo / Ampefy)');
-    }
   };
 
   const panelClass =
@@ -220,6 +210,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <label className="block text-sm font-semibold">
               {t.signIn.terminalLabel}
               <select value={terminalUnit} onChange={(e) => setTerminalUnit(e.target.value)} className="mt-1 w-full appearance-none rounded-full bg-[#f0eee8] px-4 py-3 text-sm font-normal outline-none focus:ring-2 focus:ring-[#76c043]">
+                <option value="">Sélectionner un secteur</option>
                 <option>Secteur 04 • Alaotra-Mangoro (Ambatondrazaka)</option>
                 <option>Secteur 02 • Vakinankaratra (Antsirabe)</option>
                 <option>Secteur 09 • Itasy (Miarinarivo / Ampefy)</option>
