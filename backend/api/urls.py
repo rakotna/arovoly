@@ -20,7 +20,8 @@ from .views import (
     auth_magic_login,
     auth_password_reset_request,
     auth_password_reset_confirm,
-    cassava_latest_prediction,
+    cassava_prediction_ingest,
+    cassava_prediction_latest,
 )
 
 router = DefaultRouter()
@@ -34,7 +35,6 @@ router.register(r'prescriptions', VRAPrescriptionViewSet, basename='prescription
 router.register(r'forecasts', YieldForecastViewSet, basename='forecast')
 
 urlpatterns = [
-    path('cassava/predictions/latest/', cassava_latest_prediction, name='cassava-latest-prediction'),
     path('health/', health_check, name='health-check'),
     path('auth/login/', auth_login, name='auth-login'),
     path('auth/register/', auth_register, name='auth-register'),
@@ -47,5 +47,7 @@ urlpatterns = [
     path('auth/magic-login/', auth_magic_login, name='auth-magic-login'),
     path('auth/password-reset/request/', auth_password_reset_request, name='auth-password-reset-request'),
     path('auth/password-reset/confirm/', auth_password_reset_confirm, name='auth-password-reset-confirm'),
+    path('cassava/predict/', cassava_prediction_ingest, name='cassava-prediction-ingest'),
+    path('cassava/predictions/latest/', cassava_prediction_latest, name='cassava-prediction-latest'),
     path('', include(router.urls)),
 ]

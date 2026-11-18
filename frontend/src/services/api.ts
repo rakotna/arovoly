@@ -1,14 +1,30 @@
 import { Parcel, SensorProbe, VRAZone, UserProfile } from '../types';
 import { MOCK_PARCELS, MOCK_SENSORS, MOCK_VRA_ZONES } from '../data/mockData';
 
+const viteEnv = (import.meta as any).env;
 const API_BASE_URL =
-  ((import.meta as any).env?.VITE_API_URL as string) ||
-  'https://arovoly.onrender.com/api';
+  (viteEnv?.VITE_API_URL as string) ||
+  (viteEnv?.DEV ? 'http://127.0.0.1:8000/api' : 'https://arovoly.onrender.com/api');
 
 const authHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('arovoly_token');
   return token ? { Authorization: `Token ${token}` } : {};
 };
+
+export interface CassavaPrediction {
+  id: number;
+  sensor_id: string;
+  created_at: string;
+  predicted_class: string;
+  class_name: string;
+  confidence: number;
+  probabilities: Record<string, number>;
+  risk_level: 'low' | 'moderate' | 'high';
+  decision: 'monitor' | 'inspect';
+  requires_human_review: boolean;
+  recommended_actions: string[];
+  recommended_actions_fr?: string[];
+}
 
 /**
  * AROVOLY - Precision Agriculture & Crop Protection API Client
@@ -178,13 +194,34 @@ export const api = {
     }
   },
 
+  async getLatestCassavaPrediction(): Promise<CassavaPrediction | null> {
+    const res = await fetch(`${API_BASE_URL}/cassava/predictions/latest/`, {
+      headers: authHeaders(),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(data.detail || `Unable to load cassava diagnosis (${res.status})`);
+    }
+    return data.prediction ?? null;
+  },
+
   // --- AUTHENTICATION ---
   async login(email: string, password: string): Promise<UserProfile> {
-    const res = await fetch(`${API_BASE_URL}/auth/login/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${API_BASE_URL}/auth/login/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+    } catch (error) {
+      if (error instanceof TypeError) {
+        throw new Error(
+          `Unable to reach the API at ${API_BASE_URL}. Check that the backend is running and that CORS allows this frontend origin.`
+        );
+      }
+      throw error;
+    }
     if (!res.ok) {
       let detail = `Échec de connexion (${res.status})`;
       try {

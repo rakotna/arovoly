@@ -5,7 +5,8 @@ from django.core import signing
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 from rest_framework import status
-from api.models import Field, Sensor, Measurement, VRAPrescription, YieldForecast
+from unittest.mock import patch
+from api.models import CassavaPrediction, Field, Sensor, Measurement, VRAPrescription, YieldForecast
 
 
 class ArovolyApiTests(TestCase):
@@ -20,13 +21,6 @@ class ArovolyApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['status'], 'healthy')
         self.assertIn('counts', response.data['database'])
-
-    def test_cassava_latest_prediction(self):
-        url = reverse('cassava-latest-prediction')
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['status'], 'ready')
-        self.assertEqual(response.data['crop'], 'cassava')
 
     def test_list_parcels(self):
         url = reverse('parcel-list')
@@ -374,3 +368,52 @@ class ArovolyApiTests(TestCase):
             'newPassword': 'ResetSecure123!',
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+class CassavaPredictionApiTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='cassava@arovoly.mg', password='SecurePass123!')
+        self.client.force_authenticate(user=self.user)
+
+    @patch('api.views.predict_image')
+    def test_sensor_image_returns_and_persists_structured_prediction(self, predict_image):
+        predict_image.return_value = {
+            'predicted_class': 'cmd',
+            'class_name': 'Cassava mosaic disease',
+            'confidence': 0.91,
+            'probabilities': {'cbb': 0.01, 'cbsd': 0.02, 'cgm': 0.03, 'cmd': 0.91, 'healthy': 0.03},
+            'risk_level': 'high',
+            'decision': 'inspect',
+            'requires_human_review': True,
+            'recommended_actions': ['Inspect nearby plants.'],
+        }
+        response = self.client.post(
+            reverse('cassava-prediction-ingest'),
+            data=b'sensor-image-bytes',
+            content_type='image/jpeg',
+            HTTP_X_SENSOR_ID='camera-07',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['sensor_id'], 'camera-07')
+        self.assertEqual(response.data['predicted_class'], 'cmd')
+        predict_image.assert_called_once_with(b'sensor-image-bytes')
+        self.assertEqual(CassavaPrediction.objects.count(), 1)
+
+        latest = self.client.get(reverse('cassava-prediction-latest'))
+        self.assertEqual(latest.status_code, status.HTTP_200_OK)
+        self.assertEqual(latest.data['prediction']['recommended_actions'], ['Inspect nearby plants.'])
+
+    def test_prediction_ingest_requires_sensor_image_content_type(self):
+        response = self.client.post(
+            reverse('cassava-prediction-ingest'),
+            {'image': 'not-a-sensor-payload'},
+            format='json',
+            HTTP_X_SENSOR_ID='camera-07',
+        )
+        self.assertEqual(response.status_code, status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
+
+    def test_prediction_endpoints_require_authentication(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get(reverse('cassava-prediction-latest'))
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)

@@ -15,6 +15,7 @@ import { CropTracingView } from './components/views/CropTracingView';
 import { VraDashboardView } from './components/views/VraDashboardView';
 import { SoilSensorsView } from './components/views/SoilSensorsView';
 import { YieldForecastView } from './components/views/YieldForecastView';
+import { CassavaDiagnosisView } from './components/views/CassavaDiagnosisView';
 import { ProfileView } from './components/views/ProfileView';
 
 export function App() {
@@ -224,7 +225,7 @@ export function App() {
           userRole={user?.role}
           onSignOut={handleSignOut}
           onNavigate={(view: ViewType) => {
-            if (['my_fields', 'crop_tracing', 'vra_dashboard', 'soil_sensors', 'yield_forecast'].includes(view) && !user) {
+            if (['my_fields', 'crop_tracing', 'vra_dashboard', 'soil_sensors', 'yield_forecast', 'cassava_diagnosis'].includes(view) && !user) {
               setCurrentView('sign_in');
               return;
             }
@@ -344,6 +345,8 @@ export function App() {
               onShowToast={showToast}
             />
           )}
+
+          {currentView === 'cassava_diagnosis' && <CassavaDiagnosisView />}
 
           {currentView === 'profile' && (
             <ProfileView
