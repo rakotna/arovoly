@@ -7,7 +7,7 @@ import { api } from '../../services/api';
 interface ExportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedParcel: Parcel;
+  selectedParcel: Parcel | undefined;
   onSuccess: (message: string) => void;
 }
 
@@ -24,6 +24,22 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const [isExporting, setIsExporting] = useState(false);
 
   if (!isOpen) return null;
+  if (!selectedParcel) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl flex items-center justify-between gap-4">
+          <p className="text-sm font-semibold text-slate-700">Aucune parcelle à exporter.</p>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            aria-label="Fermer"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleExport = async () => {
     setIsExporting(true);

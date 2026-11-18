@@ -149,7 +149,11 @@ export function App() {
   };
 
   const handleDeleteParcel = async (parcelId: string) => {
-    setParcels((prev) => prev.filter((p) => p.id !== parcelId));
+    const remainingParcels = parcels.filter((p) => p.id !== parcelId);
+    setParcels(remainingParcels);
+    setSelectedParcelId((prev) =>
+      remainingParcels.some((p) => p.id === prev) ? prev : remainingParcels[0]?.id || ''
+    );
     showToast('Parcelle supprimée du registre.');
     try {
       await api.deleteParcel(parcelId);

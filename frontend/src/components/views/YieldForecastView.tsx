@@ -30,6 +30,19 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
 
   const selectedParcel = parcels.find((p) => p.id === selectedParcelId) || parcels[0];
 
+  if (!selectedParcel) {
+    return (
+      <div className="flex-1 flex items-center justify-center bg-[#fcf9f3] p-6">
+        <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center shadow-sm">
+          <h2 className="text-base font-bold text-slate-900">Aucune parcelle disponible</h2>
+          <p className="mt-2 text-xs text-slate-500">
+            Ajoutez une parcelle avant d’afficher les prévisions de rendement.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Adjust yield according to weather scenario
   const adjustedYieldTha = (selectedParcel.estYieldTha * (1 + scenario.yieldImpactPct / 100)).toFixed(1);
   const totalProductionTonnes = Math.round(selectedParcel.areaHa * Number(adjustedYieldTha));
