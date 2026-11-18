@@ -18,6 +18,8 @@ from .views import (
     auth_avatar,
     auth_magic_request,
     auth_magic_login,
+    cassava_prediction_ingest,
+    cassava_prediction_latest,
 )
 
 router = DefaultRouter()
@@ -41,5 +43,7 @@ urlpatterns = [
     path('auth/avatar/', auth_avatar, name='auth-avatar'),
     path('auth/magic-request/', auth_magic_request, name='auth-magic-request'),
     path('auth/magic-login/', auth_magic_login, name='auth-magic-login'),
+    path('cassava/predict/', cassava_prediction_ingest, name='cassava-prediction-ingest'),
+    path('cassava/predictions/latest/', cassava_prediction_latest, name='cassava-prediction-latest'),
     path('', include(router.urls)),
 ]

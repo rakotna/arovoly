@@ -214,6 +214,30 @@ npm run dev                    # Interface accessible sur http://localhost:5173
 Les variables sensibles devront être placées dans un fichier `.env` local et ne
 devront jamais être commitées.
 
+### Diagnostic IA du manioc par capteur
+
+Le troisième module « IA & Degrés-Jours GDD » ouvre le diagnostic des images de
+manioc pour les utilisateurs connectés. L'interface n'accepte aucun fichier :
+les caméras/capteurs transmettent les octets de l'image directement à l'API
+authentifiée, qui appelle `api.cassava_inference.predict_image(image_bytes)`.
+Le modèle et `config.json` doivent être présents dans `final model/`.
+
+```http
+POST /api/cassava/predict/
+Authorization: Token <user-or-device-token>
+Content-Type: image/jpeg
+X-Sensor-ID: camera-07
+
+<raw image bytes>
+```
+
+Le point d'accès accepte les octets bruts JPEG, PNG ou `application/octet-stream`
+(10 Mo maximum). Il renvoie et conserve le diagnostic structuré (classe,
+probabilités, confiance, niveau de risque, décision et actions recommandées).
+`GET /api/cassava/predictions/latest/` renvoie le dernier résultat du compte
+connecté, affiché dans l'interface et actualisé toutes les 30 secondes. Une
+classification IA doit être confirmée sur le terrain avant toute intervention.
+
 ## Déploiement Render
 
 Le backend peut être créé directement depuis le blueprint [`render.yaml`](./render.yaml).

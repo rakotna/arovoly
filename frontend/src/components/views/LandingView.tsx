@@ -1290,7 +1290,27 @@ export const LandingView: React.FC<LandingViewProps> = ({
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-[#e5e2dc] flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div
+              className={`bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-[#e5e2dc] flex flex-col justify-between transition-all ${
+                isAuthenticated
+                  ? 'cursor-pointer hover:shadow-md hover:border-[#76c043] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#316b00]'
+                  : ''
+              }`}
+              onClick={isAuthenticated ? () => onNavigate?.('cassava_diagnosis') : undefined}
+              onKeyDown={
+                isAuthenticated
+                  ? (event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onNavigate?.('cassava_diagnosis');
+                      }
+                    }
+                  : undefined
+              }
+              role={isAuthenticated ? 'button' : undefined}
+              tabIndex={isAuthenticated ? 0 : undefined}
+              aria-label={isAuthenticated ? (language === 'fr' ? 'Ouvrir le diagnostic IA du manioc' : 'Open cassava AI diagnosis') : undefined}
+            >
               <div>
                 <span className="text-2xl sm:text-3xl font-extrabold text-[#76c043] font-mono">03</span>
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-[#c3ecd2] flex items-center justify-center text-[#316b00] my-3">
