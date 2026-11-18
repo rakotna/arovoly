@@ -237,6 +237,34 @@ export const api = {
     return await res.json();
   },
 
+  async updateProfile(payload: {
+    name: string;
+    email: string;
+    role: string;
+    terminalUnit: string;
+    currentPassword?: string;
+    newPassword?: string;
+  }): Promise<UserProfile> {
+    const res = await fetch(`${API_BASE_URL}/auth/profile/update/`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Échec de la mise à jour du profil.');
+    return data as UserProfile;
+  },
+
+  async deleteAccount(password: string): Promise<void> {
+    const res = await fetch(`${API_BASE_URL}/auth/account/`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ password }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Échec de la suppression du compte.');
+  },
+
   async logout(): Promise<void> {
     await fetch(`${API_BASE_URL}/auth/logout/`, {
       method: 'POST',

@@ -246,6 +246,50 @@ class ArovolyApiTests(TestCase):
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_409_CONFLICT)
 
+    def test_auth_profile_update(self):
+        url = reverse('auth-profile-update')
+        response = self.client.patch(url, {
+            'name': 'Éléonore Andrianina',
+            'email': 'e.vance.updated@arovoly.mg',
+            'role': 'Directrice Régionale',
+            'terminalUnit': 'Alaotra-Mangoro',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Éléonore Andrianina')
+        self.assertEqual(response.data['email'], 'e.vance.updated@arovoly.mg')
+
+        user = User.objects.get(username='e.vance.updated@arovoly.mg')
+        self.assertEqual(user.profile.role, 'Directrice Régionale')
+
+    def test_auth_profile_password_change_requires_current_password(self):
+        url = reverse('auth-profile-update')
+        response = self.client.patch(url, {
+            'newPassword': 'NewSecurePass123!',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_auth_profile_password_change(self):
+        url = reverse('auth-profile-update')
+        response = self.client.patch(url, {
+            'currentPassword': 'arovoly2024',
+            'newPassword': 'NewSecurePass123!',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user = User.objects.get(username='e.vance@arovoly.mg')
+        self.assertTrue(user.check_password('NewSecurePass123!'))
+
+    def test_auth_account_delete_requires_password(self):
+        url = reverse('auth-account-delete')
+        response = self.client.delete(url, {'password': 'wrong-password'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertTrue(User.objects.filter(username='e.vance@arovoly.mg').exists())
+
+    def test_auth_account_delete(self):
+        url = reverse('auth-account-delete')
+        response = self.client.delete(url, {'password': 'arovoly2024'}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(User.objects.filter(username='e.vance@arovoly.mg').exists())
+
     def test_magic_link_request_is_generic_and_account_gets_link(self):
         url = reverse('auth-magic-request')
         response = self.client.post(url, {

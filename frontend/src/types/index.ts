@@ -6,6 +6,7 @@ export type ViewType =
   | 'vra_dashboard'
   | 'soil_sensors'
   | 'yield_forecast'
+  | 'profile'
   | 'sign_in'
   | 'sign_up';
 

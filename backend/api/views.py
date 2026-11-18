@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import viewsets, permissions, status
 from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view, action, permission_classes
@@ -759,6 +761,77 @@ def auth_profile(request):
         "terminalUnit": "Secteur 04 • Alaotra-Mangoro",
         "avatarUrl": ""
     })
+
+
+@api_view(['PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def auth_profile_update(request):
+    """Update the authenticated user's profile and optionally their password."""
+    user = request.user
+    profile = getattr(user, 'profile', None)
+    if not profile:
+        profile = UserProfile.objects.create(
+            user=user,
+            name=user.get_full_name() or user.username,
+        )
+
+    name = request.data.get('name')
+    email = request.data.get('email')
+    role = request.data.get('role')
+    terminal_unit = request.data.get('terminalUnit')
+    current_password = request.data.get('currentPassword', '')
+    new_password = request.data.get('newPassword', '')
+
+    if email is not None:
+        email = str(email).strip().lower()
+        if not email:
+            return Response({'detail': 'Email requis.'}, status=status.HTTP_400_BAD_REQUEST)
+        if User.objects.filter(email__iexact=email).exclude(pk=user.pk).exists():
+            return Response({'detail': 'Cet email est déjà utilisé.'}, status=status.HTTP_409_CONFLICT)
+        user.email = email
+        user.username = email
+
+    if name is not None:
+        name = str(name).strip()
+        if not name:
+            return Response({'detail': 'Nom requis.'}, status=status.HTTP_400_BAD_REQUEST)
+        profile.name = name
+        user.first_name = name
+
+    if role is not None:
+        profile.role = str(role).strip()
+    if terminal_unit is not None:
+        profile.terminal_unit = str(terminal_unit).strip()
+
+    if new_password:
+        if not user.check_password(current_password):
+            return Response({'detail': 'Mot de passe actuel incorrect.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            validate_password(new_password, user)
+        except DjangoValidationError as exc:
+            return Response({'detail': ' '.join(exc.messages)}, status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(new_password)
+
+    user_fields = ['email', 'username', 'first_name']
+    if new_password:
+        user_fields.append('password')
+    user.save(update_fields=user_fields)
+    profile.save(update_fields=['name', 'role', 'terminal_unit'])
+    return Response(UserProfileSerializer(profile).data)
+
+
+@api_view(['DELETE'])
+@permission_classes([permissions.IsAuthenticated])
+def auth_account_delete(request):
+    """Delete the authenticated user's account and all related data."""
+    password = request.data.get('password', '')
+    if not request.user.check_password(password):
+        return Response({'detail': 'Mot de passe requis pour confirmer la suppression.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = request.user
+    Token.objects.filter(user=user).delete()
+    user.delete()
+    return Response({'status': 'account_deleted'}, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

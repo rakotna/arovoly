@@ -151,7 +151,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
         </div>
 
         <div className="absolute bottom-6 left-6 right-6 z-[400] hidden grid-cols-3 gap-3 sm:grid">
-          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1">
+          <div className="agri-card-entry rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><Leaf className="h-3.5 w-3.5 text-[#316b00]" /> NDVI régional</span>
               <span className="text-[#316b00]">+4.2%</span>
@@ -161,7 +161,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
               <span className="text-[10px] font-semibold text-[#316b00]">{language === 'fr' ? 'Vigueur optimale' : 'Optimal vigor'}</span>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-75 duration-300 hover:-translate-y-1">
+          <div className="agri-card-entry rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-75 duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><Waves className="h-3.5 w-3.5 text-[#2563eb]" /> {language === 'fr' ? 'Sondes racinaires' : 'Root probes'}</span>
               <span className="text-[#316b00]">5/5</span>
@@ -171,7 +171,7 @@ export const DemoView: React.FC<DemoViewProps> = ({
               <span className="text-[10px] font-semibold text-[#316b00]">{language === 'fr' ? 'Humidité idéale' : 'Ideal moisture'}</span>
             </div>
           </div>
-          <div className="rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-150 duration-300 hover:-translate-y-1">
+          <div className="agri-card-entry rounded-2xl border border-white/50 bg-[#fcf9f3]/90 p-3 shadow-2xl backdrop-blur-xl transition-transform delay-150 duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#717a68]">
               <span className="flex items-center gap-1.5"><CloudSun className="h-3.5 w-3.5 text-[#d97706]" /> {language === 'fr' ? 'Contexte terrain' : 'Field context'}</span>
               <span className="text-[#316b00]">24°C</span>

@@ -241,6 +241,16 @@ export const Header: React.FC<HeaderProps> = ({
                   <button
                     onClick={() => {
                       setIsProfileOpen(false);
+                      onNavigate('profile');
+                    }}
+                    className="w-full mb-2 flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-[#f0eee8] hover:bg-[#e5e2dc] text-[#414939] border border-[#e5e2dc] text-xs font-bold transition-colors"
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>Modifier mon profil</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsProfileOpen(false);
                       onSignOut();
                     }}
                     className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 text-xs font-bold transition-colors"

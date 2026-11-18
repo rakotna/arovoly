@@ -181,7 +181,7 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
     drawnPoints.forEach((pt, idx) => {
       const isFirst = idx === 0;
       const markerHtml = `
-        <div class="w-4 h-4 rounded-full ${isFirst ? 'bg-amber-400 ring-4 ring-amber-300/50' : 'bg-emerald-500 ring-2 ring-white'} shadow-md flex items-center justify-center text-[9px] font-bold text-slate-900 cursor-pointer">
+        <div class="relative w-4 h-4 rounded-full ${isFirst ? 'bg-amber-400 ring-4 ring-amber-300/50' : 'bg-emerald-500 ring-2 ring-white'} shadow-md flex items-center justify-center text-[9px] font-bold text-slate-900 cursor-pointer agri-vertex-pulse">
           ${idx + 1}
         </div>
       `;
@@ -211,6 +211,7 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
         dashArray: '4, 4',
         fillColor: '#34d399',
         fillOpacity: 0.35,
+        className: 'agri-drawing-parcel',
       });
       group.addLayer(poly);
     } else if (drawnPoints.length === 2) {
@@ -218,6 +219,7 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
         color: '#10b981',
         weight: 3,
         dashArray: '4, 4',
+        className: 'agri-drawing-parcel',
       });
       group.addLayer(line);
     }
@@ -258,6 +260,7 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
         dashArray: isSelected ? undefined : '5, 5',
         fillColor: fillColor,
         fillOpacity: fillOpacity,
+        className: isSelected ? 'agri-animated-parcel' : undefined,
       });
 
       polygon.bindTooltip(
@@ -406,6 +409,9 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
     <div className="relative w-full h-full overflow-hidden bg-[#fcf9f3] select-none">
       {/* Fullscreen Map Canvas */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <div className="pointer-events-none absolute inset-0 z-[300] overflow-hidden" aria-hidden="true">
+        <div className="agri-map-scan-line absolute left-0 right-0 h-24" />
+      </div>
 
       {/* Top Floating Command Bar */}
       <div className="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none">

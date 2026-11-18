@@ -12,6 +12,7 @@ interface AgriMapProps {
   showSensors?: boolean;
   className?: string;
   controlsClassName?: string;
+  animated?: boolean;
 }
 
 export const AgriMap: React.FC<AgriMapProps> = ({
@@ -23,6 +24,7 @@ export const AgriMap: React.FC<AgriMapProps> = ({
   showSensors = true,
   className = 'w-full h-full min-h-[500px]',
   controlsClassName = 'bottom-4 right-4',
+  animated = true,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -104,6 +106,7 @@ export const AgriMap: React.FC<AgriMapProps> = ({
         dashArray: isSelected ? undefined : '6, 6',
         fillColor: fillColor,
         fillOpacity: fillOpacity,
+        className: isSelected && animated ? 'agri-animated-parcel' : undefined,
       });
 
       // Custom HTML Tooltip
@@ -196,6 +199,17 @@ export const AgriMap: React.FC<AgriMapProps> = ({
     <div className={`relative rounded-2xl overflow-hidden shadow-lg border border-slate-200/80 ${className}`}>
       {/* Real Map Canvas */}
       <div ref={mapContainerRef} className="w-full h-full min-h-[500px]" />
+      {animated && (
+        <>
+          <div className="pointer-events-none absolute inset-0 z-[300] overflow-hidden" aria-hidden="true">
+            <div className="agri-map-scan-line absolute left-0 right-0 h-24" />
+          </div>
+          <div className="pointer-events-none absolute left-[52%] top-[58%] z-[300] h-3 w-3" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-300/70" />
+            <span className="absolute inset-1 rounded-full bg-emerald-500 ring-2 ring-white" />
+          </div>
+        </>
+      )}
 
       {/* Floating Zoom & Controls */}
       <div className={`absolute z-[400] flex flex-col gap-2 ${controlsClassName}`}>

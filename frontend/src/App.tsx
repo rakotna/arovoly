@@ -15,6 +15,7 @@ import { CropTracingView } from './components/views/CropTracingView';
 import { VraDashboardView } from './components/views/VraDashboardView';
 import { SoilSensorsView } from './components/views/SoilSensorsView';
 import { YieldForecastView } from './components/views/YieldForecastView';
+import { ProfileView } from './components/views/ProfileView';
 
 export function App() {
   const [user, setUser] = useState<UserProfile | null>(() => {
@@ -64,6 +65,19 @@ export function App() {
     setIsSignOutNotice(true);
     setCurrentView('landing');
     showToast('Session fermée avec succès.');
+  };
+
+  const handleProfileUpdate = (updatedUser: UserProfile) => {
+    setUser(updatedUser);
+    localStorage.setItem('arovoly_user', JSON.stringify(updatedUser));
+  };
+
+  const handleDeleteAccount = () => {
+    setUser(null);
+    localStorage.removeItem('arovoly_user');
+    localStorage.removeItem('arovoly_token');
+    setCurrentView('landing');
+    showToast('Votre compte a été supprimé définitivement.');
   };
 
   useEffect(() => {
@@ -292,6 +306,15 @@ export function App() {
               selectedParcelId={selectedParcelId}
               onSelectParcel={setSelectedParcelId}
               onOpenExportModal={() => setIsExportModalOpen(true)}
+              onShowToast={showToast}
+            />
+          )}
+
+          {currentView === 'profile' && (
+            <ProfileView
+              user={user}
+              onUpdateUser={handleProfileUpdate}
+              onDeleteAccount={handleDeleteAccount}
               onShowToast={showToast}
             />
           )}
