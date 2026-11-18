@@ -8,6 +8,7 @@ import {
   Layers,
   PlusCircle,
   ShieldCheck,
+  X,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 
@@ -357,7 +358,7 @@ export const SoilSensorsView: React.FC<SoilSensorsViewProps> = ({
                 onClick={() => setIsDeployModalOpen(false)}
                 className="text-slate-400 hover:text-slate-700 text-sm font-bold"
               >
-                ✕
+                <X className="h-4 w-4" />
               </button>
             </div>
 

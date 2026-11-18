@@ -16,6 +16,7 @@ import {
   Satellite,
   Sparkles,
   Waves,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface SignInViewProps {
@@ -277,7 +278,7 @@ export const SignInView: React.FC<SignInViewProps> = ({
         </aside>
       </div>
 
-      <div className="absolute bottom-3 left-4 hidden items-center gap-2 rounded-full bg-[#fcf9f3]/75 px-4 py-2 font-mono text-[10px] text-[#414939] backdrop-blur-xl md:flex">✓ ISO 27001 &amp; RGPD <span className="opacity-30">•</span> SERVEURS SOUVERAINS</div>
+      <div className="absolute bottom-3 left-4 hidden items-center gap-2 rounded-full bg-[#fcf9f3]/75 px-4 py-2 font-mono text-[10px] text-[#414939] backdrop-blur-xl md:flex"><ShieldCheck className="h-4 w-4 text-[#316b00]" /> ISO 27001 &amp; RGPD <span className="opacity-30">•</span> SERVEURS SOUVERAINS</div>
       <div className="absolute bottom-3 right-4 hidden items-center gap-2 rounded-full bg-[#fcf9f3]/85 px-4 py-2 text-xs backdrop-blur-xl sm:flex"><Satellite className="h-4 w-4 text-[#316b00]" /> <strong>Sentinel S2-B</strong> <span className="opacity-30">•</span> Sécurité / Support</div>
     </main>
   );

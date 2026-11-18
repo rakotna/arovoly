@@ -11,6 +11,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { useCurrency } from '../../i18n/CurrencyContext';
 
 interface VraDashboardViewProps {
   parcels: Parcel[];
@@ -30,6 +31,7 @@ export const VraDashboardView: React.FC<VraDashboardViewProps> = ({
   onShowToast,
 }) => {
   const { language, t } = useTranslation();
+  const { currency, formatAmount } = useCurrency();
   const [baseFertilizerRate, setBaseFertilizerRate] = useState<number>(180); // kg/ha
   const [selectedZoneId, setSelectedZoneId] = useState<string>('zone-2');
   const [selectedDate, setSelectedDate] = useState<string>('2024-05-18');
@@ -149,12 +151,14 @@ export const VraDashboardView: React.FC<VraDashboardViewProps> = ({
               <span className="text-[10px] sm:text-[11px] text-slate-400 font-semibold uppercase">{t.vraDashboard.estSavings}</span>
               <div className="flex items-baseline gap-2">
                 <span className="text-2xl sm:text-3xl font-extrabold text-emerald-700 font-heading">
-                  ${totalSavingsUsd.toLocaleString()}
+                  {formatAmount(totalSavingsUsd)}
                 </span>
                 <span className="text-xs font-bold text-emerald-600">{t.vraDashboard.intakeCut}</span>
               </div>
               <span className="text-[11px] text-slate-500">
-                ~{(totalSavingsUsd * 4600).toLocaleString()} Ar • {savedFertilizerKg > 0 ? savedFertilizerKg.toLocaleString() : '14,800'} kg {language === 'fr' ? 'd’urée économisés' : 'urea saved'}
+                {currency === 'MGA'
+                  ? `~${(totalSavingsUsd * 4600).toLocaleString()} Ar`
+                  : `~${formatAmount(totalSavingsUsd)}`} • {savedFertilizerKg > 0 ? savedFertilizerKg.toLocaleString() : '14,800'} kg {language === 'fr' ? 'd’urée économisés' : 'urea saved'}
               </span>
             </div>
 

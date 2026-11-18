@@ -541,7 +541,7 @@ export const CropTracingView: React.FC<CropTracingViewProps> = ({
               onClick={() => setIsParcelsListOpen(false)}
               className="text-[#717a68] hover:text-[#1c1c18] text-xs font-bold"
             >
-              ✕
+              <X className="h-4 w-4" />
             </button>
           </div>
 

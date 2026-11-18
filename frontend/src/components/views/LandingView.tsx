@@ -35,6 +35,7 @@ import {
   LogOut,
   Sliders,
   Tractor,
+  Star,
 } from 'lucide-react';
 
 interface LandingViewProps {
@@ -79,7 +80,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
 
   // Keep the sticky navigation aligned with the section currently in view.
   useEffect(() => {
-    const sections = Array.from(document.querySelectorAll<HTMLElement>('.landing-section'));
+    const sections = Array.from(document.querySelectorAll<HTMLElement>('.landing-section, [data-section-anchor]'));
     const revealElements = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]'));
 
     const revealObserver = new IntersectionObserver(
@@ -217,7 +218,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
         <div>
           <div className="flex items-center gap-1">
             <span className="text-2xl sm:text-3xl font-extrabold tracking-tight">4.9</span>
-            <span className="text-lg font-bold">★</span>
+            <Star className="h-4 w-4 fill-[#183a00] text-[#183a00]" />
           </div>
           <p className="text-[11px] sm:text-xs font-semibold text-[#183a00] mt-0.5">
             {language === 'fr' ? '1200+ Agronomes & Exploitations Actifs' : '1200+ Agronomists & Farms Active'}
@@ -721,7 +722,7 @@ export const LandingView: React.FC<LandingViewProps> = ({
           </div>
 
           {/* Feature 3-Grid Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+          <div id="features" data-section-anchor className="grid scroll-mt-28 grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
             {/* Pillar 1 */}
             <div className="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-[#e5e2dc] flex flex-col justify-between hover:shadow-xl hover:border-[#76c043]/50 transition-all duration-300 group">
               <div>

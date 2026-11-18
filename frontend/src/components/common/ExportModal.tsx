@@ -18,7 +18,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   onSuccess,
 }) => {
   const { language, t } = useTranslation();
-  const [format, setFormat] = useState<'shp' | 'kml' | 'geojson' | 'pdf'>('shp');
+  const [format, setFormat] = useState<'shp' | 'kml' | 'geojson' | 'csv' | 'pdf'>('shp');
   const [includeVra, setIncludeVra] = useState(true);
   const [includeSensors, setIncludeSensors] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
@@ -44,26 +44,52 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const handleExport = async () => {
     setIsExporting(true);
     try {
-      if (format === 'geojson') {
-        const url = api.getParcelGeoJsonUrl(selectedParcel.id);
-        const res = await fetch(url);
-        if (res.ok) {
-          const blob = await res.blob();
-          const downloadUrl = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = downloadUrl;
-          a.download = `${selectedParcel.id || 'parcel'}.geojson`;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          window.URL.revokeObjectURL(downloadUrl);
-        }
+      let url: string;
+      let filename: string;
+
+      if (format === 'shp') {
+        url = api.getParcelShapefileUrl(selectedParcel.id);
+        filename = `${selectedParcel.id}-shapefile.zip`;
       } else if (format === 'kml') {
-        const url = api.getParcelKmlUrl(selectedParcel.id);
-        window.open(url, '_blank');
+        url = api.getParcelKmlUrl(selectedParcel.id);
+        filename = `${selectedParcel.id}.kml`;
+      } else if (format === 'geojson') {
+        url = api.getParcelGeoJsonUrl(selectedParcel.id);
+        filename = `${selectedParcel.id}.geojson`;
+      } else if (format === 'csv') {
+        url = api.getParcelCsvUrl(selectedParcel.id, includeVra, includeSensors);
+        filename = `${selectedParcel.id}-rapport.csv`;
+      } else {
+        url = api.getParcelPdfUrl(selectedParcel.id, includeVra, includeSensors);
+        filename = `${selectedParcel.id}-rapport.pdf`;
       }
+
+      const token = localStorage.getItem('arovoly_token');
+      const res = await fetch(url, {
+        headers: token ? { Authorization: `Token ${token}` } : {},
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail || `Erreur d’export (${res.status}).`);
+      }
+
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = downloadUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
-      console.warn('Direct API export fallback:', err);
+      setIsExporting(false);
+      onSuccess(
+        language === 'fr'
+          ? (err instanceof Error ? err.message : 'Échec de la génération du document.')
+          : (err instanceof Error ? err.message : 'Document generation failed.')
+      );
+      return;
     }
 
     setTimeout(() => {
@@ -106,6 +132,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
               { id: 'shp', label: 'Shapefile (ESRI .SHP)', desc: t.exportModal.shpDesc },
               { id: 'kml', label: 'Google Earth (.KML)', desc: t.exportModal.kmlDesc },
               { id: 'geojson', label: 'GeoJSON (.JSON)', desc: t.exportModal.geojsonDesc },
+              { id: 'csv', label: 'Données (.CSV)', desc: language === 'fr' ? 'Tableau exportable Excel / LibreOffice.' : 'Spreadsheet export for Excel / LibreOffice.' },
               { id: 'pdf', label: 'Rapport (.PDF)', desc: t.exportModal.pdfDesc },
             ].map((item) => (
               <button

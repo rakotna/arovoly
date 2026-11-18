@@ -138,6 +138,29 @@ class ArovolyApiTests(TestCase):
         self.assertIn('application/vnd.google-earth.kml+xml', response['Content-Type'])
         self.assertIn('<kml', response.content.decode('utf-8'))
 
+    def test_parcel_shapefile_export(self):
+        url = reverse('parcel-shapefile', kwargs={'slug': '402-alaotra'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('application/zip', response['Content-Type'])
+        self.assertIn('.zip', response['Content-Disposition'])
+        self.assertGreater(len(response.content), 100)
+
+    def test_parcel_csv_export(self):
+        url = reverse('parcel-csv', kwargs={'slug': '402-alaotra'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('text/csv', response['Content-Type'])
+        self.assertIn('section,key,value', response.content.decode('utf-8'))
+
+    def test_parcel_pdf_export(self):
+        url = reverse('parcel-pdf', kwargs={'slug': '402-alaotra'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('application/pdf', response['Content-Type'])
+        self.assertIn('.pdf', response['Content-Disposition'])
+        self.assertTrue(response.content.startswith(b'%PDF'))
+
     def test_list_sensors(self):
         url = reverse('sensor-list')
         response = self.client.get(url)

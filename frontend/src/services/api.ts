@@ -294,4 +294,24 @@ export const api = {
   getParcelKmlUrl(parcelSlug: string): string {
     return `${API_BASE_URL}/parcels/${parcelSlug}/kml/`;
   },
+
+  getParcelShapefileUrl(parcelSlug: string): string {
+    return `${API_BASE_URL}/parcels/${parcelSlug}/shapefile/`;
+  },
+
+  getParcelCsvUrl(parcelSlug: string, includeVra = true, includeSensors = true): string {
+    const params = new URLSearchParams({
+      include_vra: String(includeVra),
+      include_sensors: String(includeSensors),
+    });
+    return `${API_BASE_URL}/parcels/${parcelSlug}/csv/?${params.toString()}`;
+  },
+
+  getParcelPdfUrl(parcelSlug: string, includeVra = true, includeSensors = true): string {
+    const params = new URLSearchParams({
+      include_vra: String(includeVra),
+      include_sensors: String(includeSensors),
+    });
+    return `${API_BASE_URL}/parcels/${parcelSlug}/pdf/?${params.toString()}`;
+  },
 };

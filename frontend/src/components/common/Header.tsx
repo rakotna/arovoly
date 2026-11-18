@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { BrandLogo } from './BrandLogo';
+import { useCurrency } from '../../i18n/CurrencyContext';
 
 interface HeaderProps {
   user: UserProfile | null;
@@ -34,6 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
   onSignOut,
 }) => {
   const { language, toggleLanguage, t } = useTranslation();
+  const { currency, toggleCurrency } = useCurrency();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -126,6 +128,16 @@ export const Header: React.FC<HeaderProps> = ({
         >
           <Globe className="w-3.5 h-3.5 text-[#316b00]" />
           <span className="tracking-wider">{language.toUpperCase()}</span>
+        </button>
+
+        {/* Currency Switcher */}
+        <button
+          onClick={toggleCurrency}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-[#f0eee8] hover:bg-[#e5e2dc] border border-[#e5e2dc] text-xs font-bold text-[#1c1c18] transition-all shadow-sm"
+          title={currency === 'MGA' ? 'Afficher les montants en dollars' : 'Afficher les montants en Ariary'}
+        >
+          <span className="text-[#316b00]">{currency === 'MGA' ? 'Ar' : '$'}</span>
+          <span className="hidden sm:inline">{currency}</span>
         </button>
 
         {/* About & Home Navigation */}

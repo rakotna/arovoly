@@ -11,8 +11,11 @@ import {
   Send,
   Radio,
   ChevronRight,
+  PenTool,
+  Zap,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { useCurrency } from '../../i18n/CurrencyContext';
 
 interface MyFieldsViewProps {
   parcels: Parcel[];
@@ -34,6 +37,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
   onShowToast,
 }) => {
   const { language, t } = useTranslation();
+  const { formatAmount } = useCurrency();
   const [activeLayer, setActiveLayer] = useState<'ndvi' | 'hydrology' | 'elevation'>('ndvi');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCropFilter, setSelectedCropFilter] = useState<string>('all');
@@ -82,6 +86,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
             onClick={() => onNavigate('crop_tracing')}
             className="flex items-center gap-1.5 px-3.5 py-1.5 sm:py-2 rounded-full bg-emerald-700 hover:bg-emerald-600 text-xs font-bold text-white shadow-md transition-all"
           >
+            <PenTool className="h-3.5 w-3.5" />
             <span>{t.myFields.drawBtn}</span>
           </button>
           <button
@@ -108,8 +113,12 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
             <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 uppercase tracking-wider">
               {t.myFields.estValuation}
             </span>
-            <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">$1,842,500</span>
-            <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">~8.47 Mds Ar</span>
+            <span className="text-xl sm:text-2xl font-extrabold text-slate-900 font-heading">
+              {formatAmount(1842500)}
+            </span>
+            <span className="text-[10px] sm:text-[11px] text-slate-400 font-medium">
+              {formatAmount(1842500, { compact: true })}
+            </span>
             <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
               <span>↑</span> +12.4% {t.myFields.vsAverage}
             </span>
@@ -367,7 +376,7 @@ export const MyFieldsView: React.FC<MyFieldsViewProps> = ({
                     {/* Bottom Actions */}
                     <div className="flex items-center justify-between pt-1">
                       <div className="text-xs text-slate-600 font-medium flex items-center gap-1.5">
-                        <span className="text-emerald-600">⚡</span>
+                        <Zap className="h-3.5 w-3.5 shrink-0 fill-emerald-100 text-emerald-600" />
                         <span>{parcel.urgentAction}</span>
                       </div>
 

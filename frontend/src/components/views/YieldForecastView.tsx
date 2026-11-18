@@ -8,6 +8,7 @@ import {
   CloudRain,
 } from 'lucide-react';
 import { useTranslation } from '../../i18n/LanguageContext';
+import { useCurrency } from '../../i18n/CurrencyContext';
 
 interface YieldForecastViewProps {
   parcels: Parcel[];
@@ -25,6 +26,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
   onShowToast,
 }) => {
   const { language, t } = useTranslation();
+  const { currency, formatAmount } = useCurrency();
   const [activeScenarioId, setActiveScenarioId] = useState<string>('baseline');
   const scenario = MOCK_WEATHER_SCENARIOS[activeScenarioId] || MOCK_WEATHER_SCENARIOS.baseline;
 
@@ -145,9 +147,13 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl sm:text-3xl font-extrabold text-emerald-700 font-heading">
-              ${totalValuationUsd.toLocaleString()}
+              {formatAmount(totalValuationUsd)}
             </span>
-            <span className="text-[11px] font-bold text-slate-500">~{((totalValuationUsd * 4600) / 1000000000).toFixed(2)} Mds Ar</span>
+            {currency === 'MGA' && (
+              <span className="text-[11px] font-bold text-slate-500">
+                ~{((totalValuationUsd * 4600) / 1000000000).toFixed(2)} Mds Ar
+              </span>
+            )}
           </div>
           <span className="text-[11px] text-slate-500 mt-0.5">
             Cours de gros région Alaotra • ~4 600 Ar / USD
@@ -323,9 +329,7 @@ export const YieldForecastView: React.FC<YieldForecastViewProps> = ({
                   scenario.valuationChangeUsd >= 0 ? 'text-emerald-700' : 'text-red-600'
                 }`}
               >
-                {scenario.valuationChangeUsd >= 0
-                  ? `+$${scenario.valuationChangeUsd.toLocaleString()}`
-                  : `-$${Math.abs(scenario.valuationChangeUsd).toLocaleString()}`}
+                {formatAmount(scenario.valuationChangeUsd)}
               </span>
             </div>
           </div>

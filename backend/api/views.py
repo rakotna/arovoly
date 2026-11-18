@@ -1,6 +1,9 @@
 import math
 import random
 import os
+import io
+import tempfile
+import zipfile
 from urllib.parse import urlencode
 from django.core import signing
 from django.core.mail import send_mail
@@ -19,6 +22,13 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 import cloudinary
 import cloudinary.uploader
+import shapefile
+from django.http import HttpResponse
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 
 from .models import (
     UserProfile,
@@ -343,6 +353,167 @@ class FieldViewSet(MultiLookupMixin, viewsets.ModelViewSet):
 </kml>"""
         response = HttpResponse(kml_content, content_type='application/vnd.google-earth.kml+xml')
         response['Content-Disposition'] = f'attachment; filename="{field.slug}.kml"'
+        return response
+
+    @action(detail=True, methods=['get'])
+    def shapefile(self, request, slug=None):
+        """Export a parcel boundary as a downloadable ESRI Shapefile archive."""
+        field = self.get_object()
+        coordinates = [[c[1], c[0]] for c in field.coordinates if len(c) >= 2]
+        if len(coordinates) < 3:
+            return Response(
+                {'detail': 'Au moins trois points sont requis pour générer le Shapefile.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if coordinates[0] != coordinates[-1]:
+            coordinates.append(coordinates[0])
+
+        with tempfile.TemporaryDirectory() as directory:
+            base_path = os.path.join(directory, field.slug or 'parcel')
+            writer = shapefile.Writer(base_path, shapeType=shapefile.POLYGON)
+            writer.field('ID', 'C', size=80)
+            writer.field('CODE', 'C', size=30)
+            writer.field('NAME', 'C', size=200)
+            writer.field('CROP', 'C', size=100)
+            writer.field('AREA_HA', 'N', decimal=2)
+            writer.field('NDVI', 'N', decimal=3)
+            writer.field('STATUS', 'C', size=30)
+            writer.poly([coordinates])
+            writer.record(
+                field.slug,
+                field.code,
+                field.name,
+                field.crop_type,
+                field.area_ha,
+                field.ndvi,
+                field.status,
+            )
+            writer.close()
+
+            archive_buffer = io.BytesIO()
+            with zipfile.ZipFile(archive_buffer, 'w', zipfile.ZIP_DEFLATED) as archive:
+                for extension in ('shp', 'shx', 'dbf', 'prj'):
+                    path = f'{base_path}.{extension}'
+                    if os.path.exists(path):
+                        arcname = f'{field.slug}.{extension}'
+                        archive.write(path, arcname)
+
+        archive_buffer.seek(0)
+        response = HttpResponse(
+            archive_buffer.getvalue(),
+            content_type='application/zip',
+        )
+        response['Content-Disposition'] = f'attachment; filename="{field.slug}-shapefile.zip"'
+        return response
+
+    @action(detail=True, methods=['get'])
+    def csv(self, request, slug=None):
+        """Export a parcel record as a CSV document."""
+        field = self.get_object()
+        include_vra = request.query_params.get('include_vra', 'true').lower() == 'true'
+        include_sensors = request.query_params.get('include_sensors', 'true').lower() == 'true'
+
+        buffer = io.StringIO()
+        buffer.write('section,key,value\n')
+        rows = [
+            ('parcel', 'id', field.slug),
+            ('parcel', 'name', field.name),
+            ('parcel', 'code', field.code),
+            ('parcel', 'region', field.region),
+            ('parcel', 'crop', field.crop_type),
+            ('parcel', 'variety', field.variety),
+            ('parcel', 'area_ha', str(field.area_ha)),
+            ('parcel', 'status', field.status),
+            ('parcel', 'ndvi', str(field.ndvi)),
+            ('parcel', 'soil_type', field.soil_type),
+            ('parcel', 'irrigation_type', field.irrigation_type),
+        ]
+        if include_vra:
+            rows.extend([
+                ('vra', 'layer', 'included'),
+                ('vra', 'status', 'Available'),
+            ])
+        if include_sensors:
+            sensor_count = field.sensors.count()
+            rows.append(('sensors', 'count', str(sensor_count)))
+
+        for section, key, value in rows:
+            buffer.write(','.join([
+                f'"{str(section).replace(chr(34), chr(34) * 2)}"',
+                f'"{str(key).replace(chr(34), chr(34) * 2)}"',
+                f'"{str(value).replace(chr(34), chr(34) * 2)}"',
+            ]) + '\n')
+
+        response = HttpResponse(buffer.getvalue(), content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = f'attachment; filename="{field.slug}-rapport.csv"'
+        return response
+
+    @action(detail=True, methods=['get'])
+    def pdf(self, request, slug=None):
+        """Generate a PDF agronomic report for a parcel."""
+        field = self.get_object()
+        include_vra = request.query_params.get('include_vra', 'true').lower() == 'true'
+        include_sensors = request.query_params.get('include_sensors', 'true').lower() == 'true'
+
+        buffer = io.BytesIO()
+        document = SimpleDocTemplate(
+            buffer,
+            pagesize=A4,
+            rightMargin=18 * mm,
+            leftMargin=18 * mm,
+            topMargin=18 * mm,
+            bottomMargin=18 * mm,
+        )
+        styles = getSampleStyleSheet()
+        story = [
+            Paragraph('AROVOLY - Rapport Parcellaire', styles['Title']),
+            Spacer(1, 5 * mm),
+            Paragraph(field.name, styles['Heading2']),
+            Spacer(1, 3 * mm),
+        ]
+
+        table_data = [
+            ['Information', 'Valeur'],
+            ['Code', field.code],
+            ['Région', field.region],
+            ['Culture', field.crop_type],
+            ['Variété', field.variety],
+            ['Surface', f'{field.area_ha} ha'],
+            ['Statut', field.status],
+            ['NDVI', str(field.ndvi)],
+            ['Type de sol', field.soil_type or 'Non renseigné'],
+            ['Irrigation', field.irrigation_type or 'Non renseignée'],
+        ]
+        if include_vra:
+            table_data.append(['Couche VRA', 'Incluse'])
+        if include_sensors:
+            table_data.append(['Sondes associées', str(field.sensors.count())])
+
+        table = Table(table_data, colWidths=[55 * mm, 115 * mm], repeatRows=1)
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#316b00')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 0.25, colors.HexColor('#d1d5db')),
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f3f4f6')]),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('TOPPADDING', (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+        ]))
+        story.append(table)
+        story.extend([
+            Spacer(1, 8 * mm),
+            Paragraph(
+                'Document généré automatiquement par AROVOLY. '
+                'Les données présentes dans ce rapport sont à confirmer avant toute décision opérationnelle.',
+                styles['BodyText'],
+            ),
+        ])
+        document.build(story)
+
+        buffer.seek(0)
+        response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{field.slug}-rapport.pdf"'
         return response
 
 
