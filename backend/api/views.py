@@ -917,6 +917,89 @@ def auth_magic_login(request):
     return HttpResponseRedirect(f"{settings.FRONTEND_URL}/?{query}")
 
 
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def auth_password_reset_request(request):
+    """Send a short-lived password reset link without revealing account existence."""
+    email = request.data.get('email', '').strip().lower()
+    if not email:
+        return Response({'detail': 'Adresse email requise.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    account = User.objects.filter(email__iexact=email, is_active=True).first()
+    if account:
+        token = signing.dumps(
+            {'uid': account.id, 'purpose': 'password-reset'},
+            salt='arovoly.password-reset',
+        )
+        reset_query = urlencode({
+            'reset_status': 'ready',
+            'reset_token': token,
+        })
+        reset_url = f"{settings.FRONTEND_URL}/?{reset_query}"
+        send_mail(
+            subject='Réinitialisation de votre mot de passe AROVOLY',
+            message=(
+                'Vous avez demandé la réinitialisation de votre mot de passe AROVOLY.\n\n'
+                f'Utilisez ce lien pour choisir un nouveau mot de passe :\n{reset_url}\n\n'
+                'Ce lien expire dans 30 minutes. Si vous n’êtes pas à l’origine de cette demande, '
+                'ignorez cet email.'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[account.email],
+            fail_silently=False,
+        )
+
+    return Response({
+        'status': 'sent',
+        'detail': 'Si ce compte existe, un lien de réinitialisation a été envoyé.',
+    })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def auth_password_reset_confirm(request):
+    """Validate a signed reset token and set a new password."""
+    token = request.data.get('token', '')
+    new_password = request.data.get('newPassword', '')
+    if not token or not new_password:
+        return Response(
+            {'detail': 'Lien de réinitialisation et nouveau mot de passe requis.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        payload = signing.loads(
+            token,
+            salt='arovoly.password-reset',
+            max_age=30 * 60,
+        )
+    except signing.BadSignature:
+        return Response(
+            {'detail': 'Lien invalide ou expiré.'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    if payload.get('purpose') != 'password-reset':
+        return Response({'detail': 'Lien invalide.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    account = User.objects.filter(id=payload.get('uid'), is_active=True).first()
+    if not account:
+        return Response({'detail': 'Compte introuvable.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        validate_password(new_password, account)
+    except DjangoValidationError as exc:
+        return Response({'detail': ' '.join(exc.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
+    account.set_password(new_password)
+    account.save(update_fields=['password'])
+    Token.objects.filter(user=account).delete()
+    return Response({
+        'status': 'password_reset',
+        'detail': 'Mot de passe réinitialisé. Vous pouvez maintenant vous connecter.',
+    })
+
+
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
 def auth_profile(request):

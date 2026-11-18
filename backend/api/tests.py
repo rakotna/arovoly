@@ -336,3 +336,34 @@ class ArovolyApiTests(TestCase):
         response = self.client.get(reverse('auth-magic-login'), {'token': 'invalid'})
         self.assertEqual(response.status_code, 302)
         self.assertIn('magic_status=invalid', response['Location'])
+
+    def test_password_reset_request_does_not_reveal_account_existence(self):
+        url = reverse('auth-password-reset-request')
+        existing = self.client.post(url, {'email': 'e.vance@arovoly.mg'}, format='json')
+        unknown = self.client.post(url, {'email': 'unknown@arovoly.mg'}, format='json')
+        self.assertEqual(existing.status_code, status.HTTP_200_OK)
+        self.assertEqual(unknown.status_code, status.HTTP_200_OK)
+        self.assertEqual(existing.data['status'], unknown.data['status'])
+
+    def test_password_reset_confirm_changes_password(self):
+        user = User.objects.get(username='e.vance@arovoly.mg')
+        token = signing.dumps(
+            {'uid': user.id, 'purpose': 'password-reset'},
+            salt='arovoly.password-reset',
+        )
+        url = reverse('auth-password-reset-confirm')
+        response = self.client.post(url, {
+            'token': token,
+            'newPassword': 'ResetSecure123!',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        user.refresh_from_db()
+        self.assertTrue(user.check_password('ResetSecure123!'))
+
+    def test_password_reset_rejects_invalid_token(self):
+        url = reverse('auth-password-reset-confirm')
+        response = self.client.post(url, {
+            'token': 'invalid',
+            'newPassword': 'ResetSecure123!',
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserProfile } from '../../types';
 import { useTranslation } from '../../i18n/LanguageContext';
 import { api } from '../../services/api';
@@ -16,6 +16,7 @@ import {
   Satellite,
   Sparkles,
   Waves,
+  X,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -46,6 +47,69 @@ export const SignInView: React.FC<SignInViewProps> = ({
   const [authError, setAuthError] = useState<string | null>(null);
   const [magicMessage, setMagicMessage] = useState<string | null>(null);
   const [isMagicLinkLoading, setIsMagicLinkLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [resetPassword, setResetPassword] = useState('');
+  const [resetConfirmPassword, setResetConfirmPassword] = useState('');
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [isResetLoading, setIsResetLoading] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('reset_status') === 'ready') {
+      setResetToken(params.get('reset_token') || '');
+      setShowForgotPassword(true);
+    }
+  }, []);
+
+  const handlePasswordResetRequest = async () => {
+    setResetMessage(null);
+    if (!email) {
+      setResetMessage('Saisissez votre adresse email.');
+      return;
+    }
+    setIsResetLoading(true);
+    try {
+      setResetMessage(await api.requestPasswordReset(email));
+    } catch (error) {
+      setResetMessage(error instanceof Error ? error.message : 'Impossible d’envoyer le lien.');
+    } finally {
+      setIsResetLoading(false);
+    }
+  };
+
+  const handlePasswordResetConfirm = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setResetMessage(null);
+
+    if (!resetToken) {
+      setResetMessage('Lien de réinitialisation invalide ou expiré.');
+      return;
+    }
+    if (resetPassword.length < 8) {
+      setResetMessage('Le nouveau mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+    if (resetPassword !== resetConfirmPassword) {
+      setResetMessage('Les deux mots de passe ne correspondent pas.');
+      return;
+    }
+
+    setIsResetLoading(true);
+    try {
+      setResetMessage(await api.confirmPasswordReset(resetToken, resetPassword));
+      setResetPassword('');
+      setResetConfirmPassword('');
+      const url = new URL(window.location.href);
+      url.searchParams.delete('reset_status');
+      url.searchParams.delete('reset_token');
+      window.history.replaceState({}, '', `${url.pathname}${url.search}${url.hash}`);
+    } catch (error) {
+      setResetMessage(error instanceof Error ? error.message : 'Réinitialisation impossible.');
+    } finally {
+      setIsResetLoading(false);
+    }
+  };
 
   const handleMagicLink = async () => {
     setMagicMessage(null);
@@ -190,7 +254,16 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <label className="block text-sm font-semibold">
               <span className="flex items-center justify-between">
                 {t.signIn.passwordLabel}
-                <a href="#forgot" className="text-xs font-bold text-[#316b00] hover:underline">{t.signIn.forgotToken}</a>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetMessage(null);
+                    setShowForgotPassword(true);
+                  }}
+                  className="text-xs font-bold text-[#316b00] hover:underline"
+                >
+                  {t.signIn.forgotToken}
+                </button>
               </span>
               <span className="relative mt-1 block">
                 <KeyRound className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[#52634a]" />
@@ -235,7 +308,18 @@ export const SignInView: React.FC<SignInViewProps> = ({
           <div className="my-4 flex items-center gap-3 text-center font-mono text-[10px] uppercase text-[#717a68]">
             <span className="h-px flex-1 bg-[#e5e2dc]" /> ou protocoles tiers <span className="h-px flex-1 bg-[#e5e2dc]" />
           </div>
-          <button type="button" onClick={() => { setEmail('e.vance@arovoly.mg'); setPassword('arovoly2024'); setAuthError(null); }} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
+          <button type="button" onClick={async () => {
+            setAuthError(null);
+            setIsLoading(true);
+            try {
+              const backendUser = await api.login('e.vance@arovoly.mg', 'arovoly2024');
+              onSignInSuccess(backendUser);
+            } catch (error) {
+              setAuthError(error instanceof Error ? error.message : 'Accès démo indisponible.');
+            } finally {
+              setIsLoading(false);
+            }
+          }} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#f0eee8] px-4 py-2.5 text-xs font-bold text-[#416652] transition hover:bg-[#e5e2dc]">
             <Sparkles className="h-4 w-4" /> {t.signIn.demoBtn}
           </button>
           <button
@@ -250,6 +334,78 @@ export const SignInView: React.FC<SignInViewProps> = ({
             <p className="mt-3 text-center text-xs text-[#416652]" role="status">
               {magicMessage}
             </p>
+          )}
+
+          {showForgotPassword && (
+            <div className="mt-4 rounded-2xl border border-[#d7dfd1] bg-[#f7faf4] p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-bold text-[#1c1c18]">
+                    {resetToken ? 'Choisir un nouveau mot de passe' : 'Mot de passe oublié'}
+                  </h2>
+                  <p className="mt-1 text-xs leading-relaxed text-[#717a68]">
+                    {resetToken
+                      ? 'Votre lien est vérifié localement. Choisissez un nouveau mot de passe sécurisé.'
+                      : 'Saisissez votre email ci-dessus. Nous vous enverrons un lien valable 30 minutes.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(false)}
+                  className="rounded-full p-1 text-[#717a68] hover:bg-[#e5e2dc] hover:text-[#1c1c18]"
+                  aria-label="Fermer"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {resetToken ? (
+                <form onSubmit={handlePasswordResetConfirm} className="mt-3 space-y-2">
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={resetPassword}
+                    onChange={(event) => setResetPassword(event.target.value)}
+                    placeholder="Nouveau mot de passe"
+                    className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#d7dfd1] focus:ring-2 focus:ring-[#76c043]"
+                  />
+                  <input
+                    type="password"
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    value={resetConfirmPassword}
+                    onChange={(event) => setResetConfirmPassword(event.target.value)}
+                    placeholder="Confirmer le nouveau mot de passe"
+                    className="w-full rounded-xl bg-white px-3 py-2.5 text-sm outline-none ring-1 ring-[#d7dfd1] focus:ring-2 focus:ring-[#76c043]"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isResetLoading}
+                    className="w-full rounded-xl bg-[#316b00] px-4 py-2.5 text-xs font-bold text-white disabled:opacity-70"
+                  >
+                    {isResetLoading ? 'Réinitialisation...' : 'Réinitialiser mon mot de passe'}
+                  </button>
+                </form>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handlePasswordResetRequest}
+                  disabled={isResetLoading}
+                  className="mt-3 w-full rounded-xl bg-[#316b00] px-4 py-2.5 text-xs font-bold text-white disabled:opacity-70"
+                >
+                  {isResetLoading ? 'Envoi...' : 'Envoyer le lien de réinitialisation'}
+                </button>
+              )}
+
+              {resetMessage && (
+                <p className="mt-3 text-xs font-semibold text-[#416652]" role="status">
+                  {resetMessage}
+                </p>
+              )}
+            </div>
           )}
           {onGoToSignUp && <p className="mt-5 text-center text-xs text-[#414939]">Vous n'avez pas encore d'accès parcellaire ? <button onClick={onGoToSignUp} className="font-bold text-[#316b00] hover:underline">S'inscrire gratuitement</button></p>}
         </section>

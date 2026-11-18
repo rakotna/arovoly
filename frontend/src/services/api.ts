@@ -212,6 +212,28 @@ export const api = {
     return data.detail || 'Lien envoyé.';
   },
 
+  async requestPasswordReset(email: string): Promise<string> {
+    const res = await fetch(`${API_BASE_URL}/auth/password-reset/request/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Impossible d’envoyer le lien.');
+    return data.detail || 'Lien de réinitialisation envoyé.';
+  },
+
+  async confirmPasswordReset(token: string, newPassword: string): Promise<string> {
+    const res = await fetch(`${API_BASE_URL}/auth/password-reset/confirm/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, newPassword }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || 'Réinitialisation impossible.');
+    return data.detail || 'Mot de passe réinitialisé.';
+  },
+
   async register(payload: {
     name: string;
     email: string;

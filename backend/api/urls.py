@@ -18,6 +18,8 @@ from .views import (
     auth_avatar,
     auth_magic_request,
     auth_magic_login,
+    auth_password_reset_request,
+    auth_password_reset_confirm,
 )
 
 router = DefaultRouter()
@@ -41,5 +43,7 @@ urlpatterns = [
     path('auth/avatar/', auth_avatar, name='auth-avatar'),
     path('auth/magic-request/', auth_magic_request, name='auth-magic-request'),
     path('auth/magic-login/', auth_magic_login, name='auth-magic-login'),
+    path('auth/password-reset/request/', auth_password_reset_request, name='auth-password-reset-request'),
+    path('auth/password-reset/confirm/', auth_password_reset_confirm, name='auth-password-reset-confirm'),
     path('', include(router.urls)),
 ]
