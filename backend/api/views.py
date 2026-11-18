@@ -42,6 +42,7 @@ from .models import (
     YieldForecast,
     PhenologicalStage,
     WeatherScenario,
+    CassavaPrediction,
 )
 from .serializers import (
     UserProfileSerializer,
@@ -54,6 +55,7 @@ from .serializers import (
     VRAZoneSerializer,
     YieldForecastSerializer,
 )
+from .cassava_inference import MAX_IMAGE_BYTES, predict_image
 
 
 class MultiLookupMixin:
@@ -1088,3 +1090,68 @@ def health_check(request):
             },
             "detail": str(error),
         }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def cassava_prediction_ingest(request):
+    if request.content_type not in ('application/octet-stream', 'image/jpeg', 'image/png'):
+        return Response(
+            {'detail': 'Send the sensor image as raw JPEG, PNG, or application/octet-stream bytes.'},
+            status=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+        )
+
+    image_bytes = request.body
+    if not image_bytes:
+        return Response({'detail': 'The sensor image payload is empty.'}, status=status.HTTP_400_BAD_REQUEST)
+    if len(image_bytes) > MAX_IMAGE_BYTES:
+        return Response({'detail': 'Image exceeds the 10 MB limit.'}, status=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+    sensor_id = request.headers.get('X-Sensor-ID', '').strip()
+    if not sensor_id or len(sensor_id) > 120:
+        return Response(
+            {'detail': 'Provide a sensor identifier using the X-Sensor-ID header (maximum 120 characters).'},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        result = predict_image(image_bytes)
+    except ValueError as error:
+        return Response({'detail': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+    except (FileNotFoundError, ImportError) as error:
+        return Response(
+            {'detail': f'Cassava inference is unavailable: {error}'},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+    prediction = CassavaPrediction.objects.create(
+        owner=request.user,
+        sensor_id=sensor_id,
+        result=result,
+    )
+    return Response(
+        {
+            'id': prediction.id,
+            'sensor_id': prediction.sensor_id,
+            'created_at': prediction.created_at.isoformat(),
+            **result,
+        },
+        status=status.HTTP_201_CREATED,
+    )
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def cassava_prediction_latest(request):
+    prediction = CassavaPrediction.objects.filter(owner=request.user).first()
+    if prediction is None:
+        return Response({'prediction': None}, status=status.HTTP_200_OK)
+
+    return Response({
+        'prediction': {
+            'id': prediction.id,
+            'sensor_id': prediction.sensor_id,
+            'created_at': prediction.created_at.isoformat(),
+            **prediction.result,
+        }
+    })

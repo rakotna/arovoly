@@ -221,3 +221,16 @@ class WeatherScenario(models.Model):
 
     def __str__(self):
         return f"{self.scenario_id}: {self.name} ({self.yield_impact_pct:+0.1f}%)"
+
+
+class CassavaPrediction(models.Model):
+    owner = models.ForeignKey(User, related_name='cassava_predictions', on_delete=models.CASCADE)
+    sensor_id = models.CharField(max_length=120)
+    result = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.sensor_id} cassava prediction at {self.created_at}"

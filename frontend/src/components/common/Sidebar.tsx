@@ -6,6 +6,7 @@ import {
   Layers,
   Cpu,
   TrendingUp,
+  Leaf,
   Tractor,
   FileSpreadsheet,
   ChevronLeft,
@@ -68,6 +69,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: t.sidebar.yieldForecast,
       sublabel: t.sidebar.yieldForecastSub,
       icon: TrendingUp,
+    },
+    {
+      id: 'cassava_diagnosis' as ViewType,
+      label: language === 'fr' ? 'Diagnostic manioc' : 'Cassava diagnosis',
+      sublabel: language === 'fr' ? 'Analyse par IA des images capteur' : 'AI sensor image analysis',
+      icon: Leaf,
     },
   ];
 

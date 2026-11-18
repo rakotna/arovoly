@@ -1,0 +1,78 @@
+{
+    "format_version": 1,
+    "created": "2026-11-17T05:06:50",
+    "backbone": "resnet50v2",
+    "img_size": 384,
+    "class_names": [
+        "cbb",
+        "cbsd",
+        "cgm",
+        "cmd",
+        "healthy"
+    ],
+    "class_to_id": {
+        "cbb": 0,
+        "cbsd": 1,
+        "cgm": 2,
+        "cmd": 3,
+        "healthy": 4
+    },
+    "input": {
+        "color": "RGB",
+        "resize": "direct en carré, sans padding (bilinéaire, antialias)",
+        "pixel_range": [
+            0,
+            255
+        ],
+        "note": "le prétraitement propre au backbone est inclus dans le modèle : ne pas normaliser à l'extérieur"
+    },
+    "tta": [
+        "original",
+        "flip_horizontal",
+        "flip_vertical",
+        "flip_horizontal_vertical"
+    ],
+    "ensemble": "moyenne des probabilités de tous les modèles listés dans model_files",
+    "model_files": [
+        "resnet50v2_384_fold0_fp32.keras"
+    ],
+    "training": {
+        "n_folds": 5,
+        "folds_exported": [
+            0
+        ],
+        "seed": 42,
+        "epochs_head": 4,
+        "epochs_finetune_max": 35,
+        "lr_head": 0.001,
+        "lr_finetune": 0.0001,
+        "weight_decay": 0.0001,
+        "dropout": 0.3,
+        "label_smoothing": 0.1,
+        "mix_prob": 0.5,
+        "mixup_alpha": 0.4,
+        "global_batch": 32,
+        "class_weights": "racine carrée de l'inverse de la fréquence"
+    },
+    "metrics": {
+        "backbone": "resnet50v2",
+        "img_size": 384,
+        "folds_run": [
+            0
+        ],
+        "oof_accuracy": 0.8794642857142857,
+        "oof_balanced_accuracy": 0.8181568872436209,
+        "oof_f1_macro": 0.8359048135086169,
+        "per_fold": {
+            "0": {
+                "accuracy": 0.8794642857142857,
+                "balanced_accuracy": 0.8181568872436209,
+                "f1_macro": 0.8359048135086169
+            }
+        }
+    },
+    "versions": {
+        "tensorflow": "2.21.0",
+        "keras": "3.13.2"
+    }
+}
